@@ -72,7 +72,37 @@ header h1{font-size:1.2rem;}
 /* 화분 */
 .pot-card{display:flex;align-items:center;gap:24px;padding:22px;}
 @media(max-width:580px){.pot-card{flex-direction:column;gap:10px;text-align:center;}}
-.plant-emoji{font-size:5rem;line-height:1;}
+.plant-visual{width:170px;height:187px;flex-shrink:0;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.22));
+  transition:transform .4s ease;cursor:pointer;position:relative;}
+.plant-visual:hover{transform:scale(1.05) rotate(-1deg);}
+.plant-visual svg{width:100%;height:100%;}
+
+/* 흔들림 애니메이션 */
+@keyframes sway{
+  0%,100%{transform:rotate(0deg);}
+  25%{transform:rotate(1.5deg);}
+  75%{transform:rotate(-1.5deg);}
+}
+@keyframes grow-in{
+  from{transform:scale(0.7);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+.plant-visual.sway{animation:sway 3s ease-in-out infinite;}
+.plant-visual.grow-in{animation:grow-in .5s ease-out;}
+
+/* 화분 카드 배경 */
+.pot-card{background:linear-gradient(135deg,#f1f8e9 0%,#fff9c4 100%)!important;}
+
+/* 성장 단계별 뱃지 색상 */
+.stage-0{background:#FFF3E0;color:#E65100;}
+.stage-1{background:#F1F8E9;color:#33691E;}
+.stage-2{background:#E8F5E9;color:#2E7D32;}
+.stage-3{background:#E8F5E9;color:#1B5E20;}
+.stage-4{background:#FFFDE7;color:#F57F17;}
+.stage-5{background:#E8F5E9;color:#2E7D32;}
+.stage-6{background:#FFF3E0;color:#BF360C;}
+.stage-7{background:#FFEBEE;color:#B71C1C;}
 .pot-info{flex:1;}
 .plant-name{font-size:1.2rem;font-weight:900;margin-bottom:5px;}
 .stage-badge{display:inline-block;background:var(--lgreen);color:#2e7d32;
@@ -277,8 +307,7 @@ header h1{font-size:1.2rem;}
       <!-- 화분 -->
       <div class="card pot-card">
         <div style="text-align:center;flex-shrink:0;">
-          <div class="plant-emoji" id="plant-emoji">🌰</div>
-          <div style="font-size:2.2rem;">🪴</div>
+          <div class="plant-visual" id="plant-visual"></div>
         </div>
         <div class="pot-info">
           <div class="plant-name" id="plant-name">--의 방울토마토</div>
@@ -477,6 +506,312 @@ header h1{font-size:1.2rem;}
 <div class="toast" id="toast"></div>
 
 <script>
+
+// =============================================
+//  8단계 식물 SVG 일러스트
+// =============================================
+const PLANT_SVG = [
+// 0: 씨앗
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg0" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <radialGradient id="sd0" cx="40%" cy="35%"><stop offset="0%" stop-color="#C8A96E"/><stop offset="100%" stop-color="#8B6914"/></radialGradient>
+    <linearGradient id="pt0" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt0)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg0)"/>
+  <ellipse cx="100" cy="137" rx="11" ry="7.5" fill="url(#sd0)" transform="rotate(-18,100,137)"/>
+  <path d="M93,134 Q100,128 107,134" stroke="#7A5010" stroke-width="1.5" fill="none"/>
+  <ellipse cx="78" cy="141" rx="4" ry="2" fill="#6B4526" opacity=".35"/>
+  <ellipse cx="124" cy="140" rx="3.5" ry="2" fill="#6B4526" opacity=".35"/>
+  <ellipse cx="101" cy="146" rx="5" ry="2" fill="#5C3A1A" opacity=".25"/>
+</svg>`,
+
+// 1: 발아
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg1" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <linearGradient id="st1" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#558B2F"/><stop offset="100%" stop-color="#9CCC65"/></linearGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt1)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg1)"/>
+  <path d="M100,142 Q97,124 99,104" stroke="url(#st1)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="84" cy="112" rx="14" ry="7.5" fill="#9CCC65" transform="rotate(-28,84,112)"/>
+  <ellipse cx="116" cy="112" rx="14" ry="7.5" fill="#9CCC65" transform="rotate(28,116,112)"/>
+  <path d="M84,112 L78,106" stroke="#7CB342" stroke-width=".8" fill="none"/>
+  <path d="M116,112 L122,106" stroke="#7CB342" stroke-width=".8" fill="none"/>
+  <ellipse cx="100" cy="102" rx="5.5" ry="7" fill="#AED581"/>
+  <circle cx="87" cy="107" r="2" fill="#B3E5FC" opacity=".85"/>
+  <circle cx="95" cy="103" r="1.5" fill="#B3E5FC" opacity=".7"/>
+</svg>`,
+
+// 2: 본잎
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg2" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <linearGradient id="st2" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#558B2F"/><stop offset="100%" stop-color="#7CB342"/></linearGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt2)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg2)"/>
+  <path d="M100,142 Q96,118 99,84" stroke="url(#st2)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M100,120 Q76,108 70,90 Q88,89 100,120" fill="#66BB6A"/>
+  <path d="M100,120 Q124,108 130,90 Q112,89 100,120" fill="#66BB6A"/>
+  <path d="M100,120 Q78,105 72,90" stroke="#4CAF50" stroke-width=".9" fill="none"/>
+  <path d="M100,120 Q122,105 128,90" stroke="#4CAF50" stroke-width=".9" fill="none"/>
+  <path d="M100,94 Q74,79 68,60 Q88,58 100,94" fill="#81C784"/>
+  <path d="M100,94 Q126,79 132,60 Q112,58 100,94" fill="#81C784"/>
+  <path d="M100,94 Q76,76 70,60" stroke="#66BB6A" stroke-width=".9" fill="none"/>
+  <path d="M100,94 Q124,76 130,60" stroke="#66BB6A" stroke-width=".9" fill="none"/>
+  <circle cx="100" cy="82" r="4.5" fill="#A5D6A7"/>
+  <circle cx="80" cy="104" r="1.8" fill="#B3E5FC" opacity=".7"/>
+</svg>`,
+
+// 3: 꽃봉오리
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg3" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt3)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg3)"/>
+  <path d="M100,142 Q95,118 98,92 Q100,72 102,52" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M99,114 Q77,102 65,88" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M100,97 Q124,84 135,71" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M99,114 Q74,99 68,80 Q86,80 99,114" fill="#66BB6A"/>
+  <path d="M100,97 Q126,82 134,64 Q114,65 100,97" fill="#66BB6A"/>
+  <path d="M101,128 Q80,117 76,102 Q91,102 101,128" fill="#81C784"/>
+  <path d="M101,128 Q122,117 126,102 Q111,102 101,128" fill="#81C784"/>
+  <g transform="translate(65,86)">
+    <ellipse cx="0" cy="-8" rx="4" ry="6" fill="#C8E6C9"/>
+    <ellipse cx="4" cy="-4" rx="4" ry="6" fill="#B2DFDB" transform="rotate(30,4,-4)"/>
+    <ellipse cx="-4" cy="-4" rx="4" ry="6" fill="#DCEDC8" transform="rotate(-30,-4,-4)"/>
+    <circle cx="0" cy="0" r="3.5" fill="#A5D6A7"/>
+  </g>
+  <g transform="translate(135,69)">
+    <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" fill="#C8E6C9"/>
+    <ellipse cx="3.5" cy="-3.5" rx="3.5" ry="5.5" fill="#B2DFDB" transform="rotate(30,3.5,-3.5)"/>
+    <ellipse cx="-3.5" cy="-3.5" rx="3.5" ry="5.5" fill="#DCEDC8" transform="rotate(-30,-3.5,-3.5)"/>
+    <circle cx="0" cy="0" r="3" fill="#A5D6A7"/>
+  </g>
+  <g transform="translate(102,50)">
+    <ellipse cx="0" cy="-9" rx="4.5" ry="7" fill="#DCEDC8"/>
+    <ellipse cx="5" cy="-4" rx="4.5" ry="7" fill="#C8E6C9" transform="rotate(30,5,-4)"/>
+    <ellipse cx="-5" cy="-4" rx="4.5" ry="7" fill="#E8F5E9" transform="rotate(-30,-5,-4)"/>
+    <circle cx="0" cy="0" r="4" fill="#B2DFDB"/>
+  </g>
+</svg>`,
+
+// 4: 개화
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg4" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <radialGradient id="fc4" cx="50%" cy="50%"><stop offset="0%" stop-color="#FFF176"/><stop offset="100%" stop-color="#F9A825"/></radialGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt4)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg4)"/>
+  <path d="M100,142 Q94,116 97,88 Q99,66 101,48" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M98,116 Q74,102 62,87" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M99,98 Q125,84 136,72" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M98,116 Q70,99 64,79 Q84,79 98,116" fill="#4CAF50"/>
+  <path d="M99,98 Q127,83 134,64 Q114,66 99,98" fill="#4CAF50"/>
+  <path d="M100,130 Q79,118 75,103 Q91,103 100,130" fill="#66BB6A"/>
+  <path d="M100,130 Q121,118 125,103 Q109,103 100,130" fill="#66BB6A"/>
+  <g transform="translate(62,85)">
+    <circle cx="0" cy="-7" r="5.5" fill="#FDD835"/>
+    <circle cx="6" cy="-3.5" r="5.5" fill="#FDD835"/>
+    <circle cx="6" cy="3.5" r="5.5" fill="#FDD835"/>
+    <circle cx="0" cy="7" r="5.5" fill="#FDD835"/>
+    <circle cx="-6" cy="3.5" r="5.5" fill="#FDD835"/>
+    <circle cx="-6" cy="-3.5" r="5.5" fill="#FDD835"/>
+    <circle cx="0" cy="0" r="6" fill="url(#fc4)"/>
+    <circle cx="0" cy="0" r="3" fill="#F57F17"/>
+    <circle cx="-3" cy="-4" r="1.2" fill="rgba(255,255,255,.5)"/>
+  </g>
+  <g transform="translate(136,70)">
+    <circle cx="0" cy="-6" r="5" fill="#FFEE58"/>
+    <circle cx="5" cy="-3" r="5" fill="#FFEE58"/>
+    <circle cx="5" cy="3" r="5" fill="#FFEE58"/>
+    <circle cx="0" cy="6" r="5" fill="#FFEE58"/>
+    <circle cx="-5" cy="3" r="5" fill="#FFEE58"/>
+    <circle cx="-5" cy="-3" r="5" fill="#FFEE58"/>
+    <circle cx="0" cy="0" r="5.5" fill="url(#fc4)"/>
+    <circle cx="0" cy="0" r="2.5" fill="#E65100"/>
+    <circle cx="-2.5" cy="-3" r="1" fill="rgba(255,255,255,.5)"/>
+  </g>
+  <g transform="translate(101,46)">
+    <circle cx="0" cy="-7" r="5.5" fill="#FFF176"/>
+    <circle cx="6" cy="-3.5" r="5.5" fill="#FFF176"/>
+    <circle cx="6" cy="3.5" r="5.5" fill="#FFF176"/>
+    <circle cx="0" cy="7" r="5.5" fill="#FFF176"/>
+    <circle cx="-6" cy="3.5" r="5.5" fill="#FFF176"/>
+    <circle cx="-6" cy="-3.5" r="5.5" fill="#FFF176"/>
+    <circle cx="0" cy="0" r="6" fill="#FBC02D"/>
+    <circle cx="0" cy="0" r="3" fill="#E65100"/>
+    <circle cx="-3" cy="-4" r="1.2" fill="rgba(255,255,255,.5)"/>
+  </g>
+</svg>`,
+
+// 5: 열매(초록)
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg5" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <radialGradient id="tg5" cx="32%" cy="28%"><stop offset="0%" stop-color="#C5E1A5"/><stop offset="70%" stop-color="#66BB6A"/><stop offset="100%" stop-color="#388E3C"/></radialGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt5)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg5)"/>
+  <path d="M100,142 Q94,114 97,84 Q99,60 101,43" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M98,114 Q73,100 61,84" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M99,97 Q126,82 138,68" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M98,114 Q70,98 63,77 Q83,77 98,114" fill="#4CAF50"/>
+  <path d="M99,97 Q128,80 136,61 Q115,62 99,97" fill="#4CAF50"/>
+  <path d="M100,128 Q79,117 75,102 Q91,103 100,128" fill="#66BB6A"/>
+  <path d="M100,128 Q121,117 125,102 Q109,103 100,128" fill="#66BB6A"/>
+  <g transform="translate(61,82)">
+    <line x1="0" y1="0" x2="-4" y2="-15" stroke="#33691E" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="4" y2="-13" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="-4" cy="-15" r="9" fill="url(#tg5)"/>
+    <circle cx="4" cy="-13" r="8" fill="url(#tg5)"/>
+    <path d="M-8,-22 Q-4,-27 0,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <path d="M0,-20 Q4,-25 8,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="-7" cy="-21" r="2.5" fill="rgba(255,255,255,.3)"/>
+    <circle cx="1" cy="-19" r="2" fill="rgba(255,255,255,.3)"/>
+  </g>
+  <g transform="translate(138,66)">
+    <line x1="0" y1="0" x2="3" y2="-14" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="3" cy="-14" r="8.5" fill="url(#tg5)"/>
+    <path d="M-1,-21 Q3,-26 7,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="0" cy="-20" r="2.5" fill="rgba(255,255,255,.3)"/>
+  </g>
+  <g transform="translate(101,41)">
+    <line x1="0" y1="0" x2="-5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="5" y2="-15" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="-5" cy="-13" r="9" fill="url(#tg5)"/>
+    <circle cx="5" cy="-15" r="8" fill="url(#tg5)"/>
+    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <path d="M1,-22 Q5,-27 9,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="-8" cy="-19" r="2.5" fill="rgba(255,255,255,.3)"/>
+    <circle cx="2" cy="-22" r="2" fill="rgba(255,255,255,.3)"/>
+  </g>
+</svg>`,
+
+// 6: 익는 중(주황빨강)
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg6" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <radialGradient id="to6a" cx="28%" cy="25%"><stop offset="0%" stop-color="#FFCC80"/><stop offset="55%" stop-color="#FF7043"/><stop offset="100%" stop-color="#D84315"/></radialGradient>
+    <radialGradient id="to6b" cx="28%" cy="25%"><stop offset="0%" stop-color="#FFD54F"/><stop offset="55%" stop-color="#FF8F00"/><stop offset="100%" stop-color="#E65100"/></radialGradient>
+    <radialGradient id="tg6" cx="32%" cy="28%"><stop offset="0%" stop-color="#C5E1A5"/><stop offset="100%" stop-color="#558B2F"/></radialGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt6)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg6)"/>
+  <path d="M100,142 Q94,114 97,84 Q99,60 101,43" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M98,114 Q73,100 61,84" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M99,97 Q126,82 138,68" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M98,114 Q70,98 63,77 Q83,77 98,114" fill="#4CAF50"/>
+  <path d="M99,97 Q128,80 136,61 Q115,62 99,97" fill="#4CAF50"/>
+  <path d="M100,128 Q79,117 75,102 Q91,103 100,128" fill="#66BB6A"/>
+  <path d="M100,128 Q121,117 125,102 Q109,103 100,128" fill="#66BB6A"/>
+  <g transform="translate(61,82)">
+    <line x1="0" y1="0" x2="-5" y2="-14" stroke="#33691E" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="-5" cy="-14" r="9.5" fill="url(#to6a)"/>
+    <circle cx="5" cy="-13" r="8.5" fill="url(#to6b)"/>
+    <path d="M-9,-21 Q-5,-26 -1,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <path d="M1,-20 Q5,-25 9,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="-8" cy="-20" r="3" fill="rgba(255,255,255,.3)"/>
+    <circle cx="2" cy="-19" r="2.5" fill="rgba(255,255,255,.3)"/>
+  </g>
+  <g transform="translate(138,66)">
+    <line x1="0" y1="0" x2="3" y2="-14" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="3" cy="-14" r="9" fill="url(#to6a)"/>
+    <path d="M-1,-21 Q3,-26 7,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="0" cy="-20" r="2.5" fill="rgba(255,255,255,.3)"/>
+  </g>
+  <g transform="translate(101,41)">
+    <line x1="0" y1="0" x2="-5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="5" y2="-15" stroke="#33691E" stroke-width="1.8"/>
+    <circle cx="-5" cy="-13" r="9.5" fill="url(#to6b)"/>
+    <circle cx="5" cy="-15" r="8.5" fill="url(#tg6)"/>
+    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <path d="M1,-22 Q5,-27 9,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
+    <circle cx="-8" cy="-19" r="3" fill="rgba(255,255,255,.3)"/>
+  </g>
+</svg>`,
+
+// 7: 수확 가능(빨간 방울토마토 풍성)
+`<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sg7" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
+    <linearGradient id="pt7" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
+    <radialGradient id="tr7a" cx="28%" cy="22%"><stop offset="0%" stop-color="#EF9A9A"/><stop offset="50%" stop-color="#E53935"/><stop offset="100%" stop-color="#B71C1C"/></radialGradient>
+    <radialGradient id="tr7b" cx="28%" cy="22%"><stop offset="0%" stop-color="#FFCDD2"/><stop offset="50%" stop-color="#F44336"/><stop offset="100%" stop-color="#C62828"/></radialGradient>
+    <radialGradient id="tr7c" cx="28%" cy="22%"><stop offset="0%" stop-color="#FF8A80"/><stop offset="50%" stop-color="#D32F2F"/><stop offset="100%" stop-color="#B71C1C"/></radialGradient>
+  </defs>
+  <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt7)"/>
+  <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
+  <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg7)"/>
+  <path d="M100,142 Q94,112 97,82 Q99,58 101,40" stroke="#33691E" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+  <path d="M98,115 Q71,100 58,83" stroke="#33691E" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M99,96 Q127,80 140,65" stroke="#33691E" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M100,73 Q80,60 73,46" stroke="#33691E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M98,115 Q68,97 60,75 Q82,75 98,115" fill="#388E3C"/>
+  <path d="M99,96 Q128,78 138,57 Q116,59 99,96" fill="#388E3C"/>
+  <path d="M100,129 Q78,118 74,102 Q91,103 100,129" fill="#4CAF50"/>
+  <path d="M100,129 Q122,118 126,102 Q109,103 100,129" fill="#4CAF50"/>
+  <path d="M100,73 Q78,59 72,45 Q86,44 100,73" fill="#4CAF50"/>
+  <g transform="translate(58,81)">
+    <line x1="0" y1="0" x2="-5" y2="-12" stroke="#1B5E20" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="5" y2="-14" stroke="#1B5E20" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="-9" y2="-18" stroke="#1B5E20" stroke-width="1.8"/>
+    <circle cx="-9" cy="-18" r="10" fill="url(#tr7a)"/>
+    <circle cx="-5" cy="-12" r="9" fill="url(#tr7b)"/>
+    <circle cx="5" cy="-14" r="9.5" fill="url(#tr7c)"/>
+    <path d="M-13,-25 Q-9,-30 -5,-25" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M1,-21 Q5,-26 9,-21" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <circle cx="-12" cy="-24" r="3" fill="rgba(255,255,255,.35)"/>
+    <circle cx="-8" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="2" cy="-20" r="2.5" fill="rgba(255,255,255,.35)"/>
+  </g>
+  <g transform="translate(140,63)">
+    <line x1="0" y1="0" x2="4" y2="-13" stroke="#1B5E20" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="-5" y2="-15" stroke="#1B5E20" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="8" y2="-18" stroke="#1B5E20" stroke-width="1.8"/>
+    <circle cx="4" cy="-13" r="9.5" fill="url(#tr7b)"/>
+    <circle cx="-5" cy="-15" r="9" fill="url(#tr7a)"/>
+    <circle cx="8" cy="-18" r="8.5" fill="url(#tr7c)"/>
+    <path d="M0,-20 Q4,-25 8,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M-9,-22 Q-5,-27 -1,-22" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M4,-25 Q8,-30 12,-25" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <circle cx="1" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="-8" cy="-21" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="5" cy="-24" r="2.2" fill="rgba(255,255,255,.35)"/>
+  </g>
+  <g transform="translate(73,44)">
+    <line x1="0" y1="0" x2="-4" y2="-13" stroke="#1B5E20" stroke-width="1.8"/>
+    <line x1="0" y1="0" x2="5" y2="-12" stroke="#1B5E20" stroke-width="1.8"/>
+    <circle cx="-4" cy="-13" r="9" fill="url(#tr7a)"/>
+    <circle cx="5" cy="-12" r="8.5" fill="url(#tr7b)"/>
+    <path d="M-8,-20 Q-4,-25 0,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M1,-19 Q5,-24 9,-19" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <circle cx="-7" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="2" cy="-18" r="2.2" fill="rgba(255,255,255,.35)"/>
+  </g>
+</svg>`
+];
+
 // =============================================
 //  기상청 API
 // =============================================
@@ -600,14 +935,14 @@ const RD = {
 //  성장 단계
 // =============================================
 const STAGES = [
-  {name:"씨앗",    emoji:"🌰", min:0  },
-  {name:"발아",    emoji:"🌱", min:5  },
-  {name:"본잎",    emoji:"🌿", min:20 },
-  {name:"꽃봉오리",emoji:"🌼", min:40 },
-  {name:"개화",    emoji:"🌸", min:60 },
-  {name:"열매",    emoji:"🍈", min:75 },
-  {name:"익는 중", emoji:"🍊", min:88 },
-  {name:"수확 가능",emoji:"🍅",min:98 },
+  {name:"씨앗",    emoji:"🌰", min:0,  idx:0},
+  {name:"발아",    emoji:"🌱", min:5,  idx:1},
+  {name:"본잎",    emoji:"🌿", min:20, idx:2},
+  {name:"꽃봉오리",emoji:"🌼", min:40, idx:3},
+  {name:"개화",    emoji:"🌸", min:60, idx:4},
+  {name:"열매",    emoji:"🍈", min:75, idx:5},
+  {name:"익는 중", emoji:"🍊", min:88, idx:6},
+  {name:"수확 가능",emoji:"🍅",min:98, idx:7},
 ];
 const STAGE_DESC = {
   "씨앗":"씨앗이 흙 속에서 잠자고 있어요.",
@@ -962,9 +1297,17 @@ function renderGame() {
   if (!hasSeed) return;
 
   const stage = getStage();
-  document.getElementById("plant-emoji").textContent  = stage.emoji;
+  const pv = document.getElementById("plant-visual");
+  pv.innerHTML = PLANT_SVG[stage.idx] || PLANT_SVG[0];
+  pv.classList.remove("grow-in","sway");
+  void pv.offsetWidth; // reflow
+  pv.classList.add("grow-in");
+  setTimeout(() => { pv.classList.remove("grow-in"); pv.classList.add("sway"); }, 500);
+
   document.getElementById("plant-name").textContent   = S.name + "의 방울토마토";
-  document.getElementById("stage-badge").textContent  = stage.name + " 단계";
+  const sb = document.getElementById("stage-badge");
+  sb.textContent = stage.name + " 단계";
+  sb.className = "stage-badge stage-" + stage.idx;
   document.getElementById("bar-growth").style.width   = S.growth + "%";
   document.getElementById("pct-growth").textContent   = Math.round(S.growth) + "%";
   document.getElementById("bar-water").style.width    = S.water + "%";
