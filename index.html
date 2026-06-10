@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍅 방울토마토 기르기</title>
+<style>
+:root {
+  --green:#4caf50; --dgreen:#2e7d32; --lgreen:#e8f5e9;
+  --red:#e53935; --orange:#ff7043; --yellow:#fdd835;
+  --blue:#1e88e5; --lblue:#e3f2fd;
+  --brown:#795548; --lbrown:#efebe9;
+  --gray:#9e9e9e; --white:#fff;
+  --shadow:0 4px 16px rgba(0,0,0,0.10);
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;
+  background:linear-gradient(135deg,#e8f5e9 0%,#fffde7 100%);
+  min-height:100vh;color:#333;}
+
+/* 공통 */
+.screen{display:none;}
+.screen.active{display:block;}
+.btn{border:none;border-radius:12px;cursor:pointer;font-size:1rem;
+  font-weight:700;padding:12px 24px;transition:transform .1s,box-shadow .1s;}
+.btn:active{transform:scale(0.97);}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(76,175,80,.3);}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(30,136,229,.3);}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(229,57,53,.3);}
+.btn-gray{background:#e0e0e0;color:#555;}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-brown{background:var(--brown);color:#fff;}
+.btn-purple{background:#7b1fa2;color:#fff;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* 헤더 */
+header{background:linear-gradient(90deg,#2e7d32,#43a047);color:#fff;
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:100;}
+header h1{font-size:1.2rem;}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.weather-badge{background:rgba(255,255,255,.2);border-radius:20px;
+  padding:4px 12px;font-size:.82rem;display:flex;align-items:center;gap:5px;}
+.header-btns{display:flex;gap:6px;}
+.header-btns .btn{padding:6px 12px;font-size:.8rem;border-radius:8px;}
+
+/* 탭 */
+.tab-bar{display:flex;background:#fff;border-bottom:2px solid #e0e0e0;
+  position:sticky;top:57px;z-index:99;}
+.tab-btn{flex:1;padding:12px 8px;border:none;background:none;
+  font-size:.88rem;font-weight:700;color:#999;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;}
+.tab-btn.active{color:var(--dgreen);border-bottom-color:var(--green);}
+
+/* 시작 화면 */
+#screen-start{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:90vh;padding:24px;text-align:center;}
+#screen-start.active{display:flex;}
+.start-card{background:#fff;border-radius:var(--radius);padding:32px;
+  box-shadow:var(--shadow);width:100%;max-width:420px;}
+.start-card input,.start-card select{width:100%;padding:13px 16px;
+  border:2px solid #e0e0e0;border-radius:10px;font-size:1rem;
+  margin-bottom:12px;outline:none;transition:border .2s;}
+.start-card input:focus,.start-card select:focus{border-color:var(--green);}
+.start-card label{display:block;font-weight:700;margin-bottom:6px;color:#444;
+  font-size:.92rem;}
+.region-row{display:flex;gap:8px;margin-bottom:12px;}
+.region-row select{flex:1;margin-bottom:0;}
+
+/* 탭 콘텐츠 */
+.tab-content{display:none;padding:16px;max-width:900px;margin:0 auto;}
+.tab-content.active{display:block;}
+
+/* 카드 */
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px;}
+.card-title{font-size:.82rem;font-weight:700;color:var(--gray);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+
+/* 화분 */
+.pot-card{display:flex;align-items:center;gap:24px;padding:24px;}
+@media(max-width:600px){.pot-card{flex-direction:column;gap:12px;text-align:center;}}
+.plant-stage-img{font-size:5rem;line-height:1;cursor:pointer;
+  transition:transform .2s;user-select:none;}
+.plant-stage-img:hover{transform:scale(1.1);}
+.pot-info{flex:1;}
+.plant-name{font-size:1.3rem;font-weight:900;margin-bottom:5px;}
+.stage-badge{display:inline-block;background:var(--lgreen);color:#2e7d32;
+  border-radius:20px;padding:3px 14px;font-size:.83rem;font-weight:700;margin-bottom:10px;}
+.bar-wrap{margin-bottom:8px;}
+.bar-label{font-size:.82rem;color:#666;margin-bottom:3px;
+  display:flex;justify-content:space-between;}
+.bar-bg{background:#e0e0e0;border-radius:8px;height:13px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:8px;transition:width .6s ease;}
+.bar-green{background:linear-gradient(90deg,#66bb6a,#2e7d32);}
+.bar-blue{background:linear-gradient(90deg,#64b5f6,#1565c0);}
+.bar-orange{background:linear-gradient(90deg,#ffb74d,#e65100);}
+
+/* 상태 그리드 */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.status-item{background:var(--lgreen);border-radius:12px;padding:12px;text-align:center;}
+.status-icon{font-size:1.5rem;}
+.status-label{font-size:.73rem;color:#666;margin-top:2px;}
+.status-value{font-size:1rem;font-weight:900;color:#2e7d32;}
+.status-warn{background:#fff8e1;}.status-warn .status-value{color:#f57f17;}
+.status-danger{background:#ffebee;}.status-danger .status-value{color:var(--red);}
+
+/* 날씨 */
+.weather-detail{display:flex;flex-direction:column;gap:7px;}
+.weather-row{display:flex;justify-content:space-between;align-items:center;font-size:.92rem;}
+.weather-row span:last-child{font-weight:700;}
+.sun-bar{display:flex;gap:3px;margin-top:4px;}
+.sun-block{flex:1;height:9px;border-radius:4px;background:#e0e0e0;}
+.sun-block.on{background:var(--yellow);}
+
+/* 행동 */
+.action-btns{display:flex;flex-direction:column;gap:10px;}
+.action-row{display:flex;gap:10px;}
+.action-row .btn{flex:1;font-size:.9rem;padding:13px 8px;}
+.action-log{background:var(--lgreen);border-radius:10px;padding:10px 14px;
+  font-size:.83rem;color:#444;max-height:90px;overflow-y:auto;margin-top:8px;}
+.log-item{padding:2px 0;border-bottom:1px solid #e0e0e0;}
+.log-item:last-child{border:none;}
+
+/* 랭킹 */
+.ranking-list{display:flex;flex-direction:column;gap:10px;}
+.rank-item{display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.rank-num{font-size:1.4rem;font-weight:900;width:36px;text-align:center;}
+.rank-num.gold{color:#f9a825;}
+.rank-num.silver{color:#78909c;}
+.rank-num.bronze{color:#a1887f;}
+.rank-plant{font-size:2rem;}
+.rank-info{flex:1;}
+.rank-name{font-weight:700;font-size:.95rem;}
+.rank-stage{font-size:.8rem;color:var(--gray);margin-bottom:4px;}
+.rank-bar-bg{background:#e0e0e0;border-radius:6px;height:8px;overflow:hidden;}
+.rank-bar-fill{height:100%;border-radius:6px;
+  background:linear-gradient(90deg,#66bb6a,#2e7d32);transition:width .6s;}
+.rank-pct{font-size:.82rem;font-weight:700;color:var(--dgreen);min-width:36px;text-align:right;}
+.rank-me{border:2px solid var(--green);background:var(--lgreen);}
+.rank-refresh{display:flex;justify-content:flex-end;margin-bottom:10px;}
+
+/* 사진 일지 */
+.diary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.diary-photo-card{border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);
+  cursor:pointer;background:#fff;transition:transform .2s;}
+.diary-photo-card:hover{transform:translateY(-3px);}
+.diary-photo-img{width:100%;height:120px;object-fit:cover;background:#f5f5f5;
+  display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+.diary-photo-img img{width:100%;height:100%;object-fit:cover;}
+.diary-photo-info{padding:8px;}
+.diary-photo-date{font-size:.75rem;color:var(--gray);}
+.diary-photo-note{font-size:.82rem;margin-top:2px;color:#333;}
+.diary-photo-stage{font-size:.75rem;color:var(--dgreen);font-weight:700;}
+.add-photo-btn{border:2px dashed #ccc;border-radius:14px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  min-height:160px;cursor:pointer;background:#fafafa;transition:all .2s;}
+.add-photo-btn:hover{border-color:var(--green);background:var(--lgreen);}
+.add-photo-btn span{font-size:2rem;margin-bottom:6px;}
+.add-photo-btn p{font-size:.85rem;color:#888;}
+
+/* 사진 뷰어 모달 */
+.photo-modal-img{width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:12px;}
+.photo-modal-info{font-size:.9rem;color:#555;margin-bottom:8px;}
+
+/* 수확 */
+#screen-harvest{padding:20px;max-width:600px;margin:0 auto;text-align:center;}
+#screen-harvest.active{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:90vh;}
+.harvest-emoji{font-size:5rem;margin-bottom:16px;}
+.harvest-title{font-size:1.9rem;font-weight:900;color:var(--red);margin-bottom:8px;}
+.harvest-stats{background:#fff;border-radius:var(--radius);padding:22px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:20px;}
+.harvest-stat-row{display:flex;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:.95rem;}
+.harvest-stat-row:last-child{border:none;}
+.harvest-stat-row strong{color:var(--red);}
+
+/* 보고서 (인쇄용) */
+#report-area{display:none;}
+@media print{
+  body>*{display:none!important;}
+  #report-area{display:block!important;font-family:'Noto Sans KR',sans-serif;
+    max-width:700px;margin:0 auto;padding:20px;color:#333;}
+  .report-header{text-align:center;border-bottom:2px solid #333;padding-bottom:16px;margin-bottom:20px;}
+  .report-title{font-size:1.6rem;font-weight:900;color:#2e7d32;}
+  .report-sub{font-size:1rem;color:#555;margin-top:4px;}
+  .report-section{margin-bottom:20px;}
+  .report-section h3{font-size:1rem;font-weight:700;border-left:4px solid #4caf50;
+    padding-left:8px;margin-bottom:10px;}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .report-stat{background:#f9f9f9;border-radius:8px;padding:10px 14px;}
+  .report-stat-label{font-size:.8rem;color:#888;}
+  .report-stat-value{font-size:1.1rem;font-weight:700;color:#2e7d32;}
+  .report-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .report-photo{text-align:center;}
+  .report-photo img{width:100%;height:100px;object-fit:cover;border-radius:8px;}
+  .report-photo p{font-size:.75rem;color:#666;margin-top:4px;}
+  .report-diary{font-size:.82rem;}
+  .report-diary-item{padding:5px 0;border-bottom:1px solid #eee;}
+  .report-watermark{text-align:center;margin-top:24px;font-size:.78rem;color:#bbb;}
+  .no-print{display:none!important;}
+}
+
+/* 교사 설정 */
+#screen-teacher{padding:20px;max-width:680px;margin:0 auto;}
+#screen-teacher.active{display:block;}
+.teacher-section{background:#fff;border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px;margin-bottom:16px;}
+.teacher-section h2{font-size:1.05rem;margin-bottom:14px;color:#333;}
+.form-row{margin-bottom:12px;}
+.form-row label{display:block;font-size:.88rem;font-weight:700;margin-bottom:5px;color:#555;}
+.form-row input,.form-row select{width:100%;padding:11px 14px;
+  border:2px solid #e0e0e0;border-radius:10px;font-size:.95rem;outline:none;}
+.form-row input:focus,.form-row select:focus{border-color:var(--green);}
+
+/* 모달 */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.active{display:flex;}
+.modal{background:#fff;border-radius:var(--radius);padding:28px;
+  width:100%;max-width:400px;box-shadow:var(--shadow);}
+.modal h3{font-size:1.1rem;margin-bottom:14px;text-align:center;}
+.modal input,.modal textarea{width:100%;padding:11px;border:2px solid #e0e0e0;
+  border-radius:10px;font-size:.95rem;margin-bottom:12px;outline:none;}
+.modal input:focus,.modal textarea:focus{border-color:var(--green);}
+.modal textarea{resize:vertical;min-height:70px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns .btn{flex:1;}
+
+/* 알림 */
+.alert-banner{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;
+  padding:9px 14px;font-size:.85rem;margin-bottom:10px;
+  display:none;align-items:center;gap:7px;}
+.alert-banner.show{display:flex;}
+.alert-banner.danger{background:#ffebee;border-color:var(--red);}
+
+/* 토스트 */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:#333;color:#fff;border-radius:30px;padding:11px 26px;
+  font-size:.92rem;font-weight:700;z-index:300;transition:transform .3s ease;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.green{background:var(--green);}
+.toast.red{background:var(--red);}
+.toast.blue{background:var(--blue);}
+.toast.orange{background:var(--orange);}
+
+.watermark{text-align:center;padding:14px;font-size:.76rem;color:#bbb;margin-top:10px;}
+
+/* 씨앗 대기 */
+.no-seed-view{text-align:center;padding:50px 20px;}
+.no-seed-view .big{font-size:3.5rem;margin-bottom:14px;}
+.no-seed-view p{color:#666;font-size:.95rem;}
+
+/* 로딩 */
+.loading-spin{display:inline-block;width:20px;height:20px;
+  border:3px solid #e0e0e0;border-top-color:var(--green);
+  border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header id="main-header" style="display:none;">
+  <h1>🍅 방울토마토 기르기</h1>
+  <div class="header-right">
+    <div class="weather-badge" id="header-weather">🌤 --</div>
+    <div class="header-btns">
+      <button class="btn btn-gray" onclick="openTeacher()">⚙️ 교사</button>
+    </div>
+  </div>
+</header>
+
+<!-- 탭 바 -->
+<div class="tab-bar" id="tab-bar" style="display:none;">
+  <button class="tab-btn active" onclick="switchTab('grow')">🌱 키우기</button>
+  <button class="tab-btn" onclick="switchTab('ranking')">🏆 랭킹</button>
+  <button class="tab-btn" onclick="switchTab('diary')">📸 사진일지</button>
+</div>
+
+<!-- ===== 시작 화면 ===== -->
+<div id="screen-start" class="screen active">
+  <div style="font-size:2.2rem;font-weight:900;margin-bottom:6px;">🍅 방울토마토 기르기</div>
+  <div style="font-size:1rem;color:#666;margin-bottom:30px;">나만의 방울토마토를 심고 키워보세요!</div>
+  <div class="start-card">
+    <label>내 이름</label>
+    <input type="text" id="input-name" placeholder="예: 김민준" maxlength="10">
+    <label>우리 반</label>
+    <input type="text" id="input-class" placeholder="예: 6학년 2반" maxlength="12">
+    <label>📍 내 지역 선택</label>
+    <div class="region-row">
+      <select id="start-sido" onchange="startUpdateSigungu()">
+        <option value="">시/도</option>
+      </select>
+      <select id="start-sigungu">
+        <option value="">시/군/구</option>
+      </select>
+    </div>
+    <button class="btn btn-green" style="width:100%;font-size:1.05rem;padding:15px;" onclick="startGame()">🌱 시작하기</button>
+  </div>
+  <div class="watermark">made by 박선생</div>
+</div>
+
+<!-- ===== 게임 화면 ===== -->
+<div id="screen-game" class="screen">
+
+  <!-- 키우기 탭 -->
+  <div id="tab-grow" class="tab-content active">
+    <div id="alert-water" class="alert-banner">
+      <span>💧</span><span id="alert-water-text">물이 부족해요!</span>
+    </div>
+    <div id="alert-temp" class="alert-banner danger">
+      <span>🌡️</span><span id="alert-temp-text">기온이 위험해요!</span>
+    </div>
+
+    <div id="no-seed-view" class="no-seed-view" style="display:none;">
+      <div class="big">🪴</div>
+      <p>선생님이 씨앗 심기를 시작하면<br>알려줄 거예요!</p>
+    </div>
+
+    <div id="game-content" style="display:none;">
+      <!-- 화분 -->
+      <div class="card pot-card">
+        <div style="text-align:center;flex-shrink:0;">
+          <div class="plant-stage-img" id="plant-img" onclick="showToast('관찰 버튼으로 자세히 살펴보세요! 🔍','green')" title="클릭해서 관찰하기">🌱</div>
+          <div style="font-size:2rem;">🪴</div>
+        </div>
+        <div class="pot-info">
+          <div class="plant-name" id="plant-owner-name">--의 방울토마토</div>
+          <div class="stage-badge" id="stage-badge">씨앗 단계</div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>🌱 전체 성장</span><span id="growth-pct">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill bar-green" id="growth-bar" style="width:0%"></div></div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>💧 수분</span><span id="water-pct">60%</span></div>
+            <div class="bar-bg"><div class="bar-fill bar-blue" id="water-bar" style="width:60%"></div></div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>☀️ 오늘 일조</span><span id="sun-pct">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill bar-orange" id="sun-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <!-- 상태 -->
+        <div class="card">
+          <div class="card-title">📊 현재 상태</div>
+          <div class="status-grid">
+            <div class="status-item" id="st-temp-box">
+              <div class="status-icon">🌡️</div>
+              <div class="status-value" id="st-temp">--°C</div>
+              <div class="status-label">기온</div>
+            </div>
+            <div class="status-item" id="st-sky-box">
+              <div class="status-icon" id="st-sky-icon">⛅</div>
+              <div class="status-value" id="st-sky">--</div>
+              <div class="status-label">날씨</div>
+            </div>
+            <div class="status-item" id="st-water-box">
+              <div class="status-icon">💧</div>
+              <div class="status-value" id="st-water-val">보통</div>
+              <div class="status-label">수분</div>
+            </div>
+            <div class="status-item">
+              <div class="status-icon">📅</div>
+              <div class="status-value" id="st-day">--일차</div>
+              <div class="status-label">재배기간</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 날씨 -->
+        <div class="card">
+          <div class="card-title">🌤 오늘의 날씨</div>
+          <div class="weather-detail">
+            <div class="weather-row"><span>📍</span><span id="w-region">--</span></div>
+            <div class="weather-row"><span>🌡️ 기온</span><span id="w-temp">--°C</span></div>
+            <div class="weather-row"><span>💧 강수</span><span id="w-rain">--</span></div>
+            <div class="weather-row"><span>💨 바람</span><span id="w-wind">--</span></div>
+            <div class="weather-row"><span>☀️ 일조</span><span id="w-sun">--시간</span></div>
+            <div class="sun-bar" id="sun-blocks"></div>
+            <div style="font-size:.73rem;color:#bbb;margin-top:3px;" id="w-time">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 행동 -->
+      <div class="card">
+        <div class="card-title">🖐 오늘 할 일</div>
+        <div class="action-btns">
+          <div class="action-row">
+            <button class="btn btn-blue" id="btn-water" onclick="doWater()">💧 물 주기</button>
+            <button class="btn btn-orange" id="btn-vent" onclick="doVent()">🌬 환기</button>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-brown" id="btn-warm" onclick="doWarm()">🧥 보온</button>
+            <button class="btn btn-green" id="btn-check" onclick="doCheck()">🔍 관찰하기</button>
+          </div>
+          <div class="action-log" id="action-log">
+            <div class="log-item" style="color:#bbb;">오늘의 활동 기록</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- game-content -->
+  </div><!-- tab-grow -->
+
+  <!-- 랭킹 탭 -->
+  <div id="tab-ranking" class="tab-content">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="card-title" style="margin:0;">🏆 우리 반 성장 랭킹</div>
+        <button class="btn btn-gray" style="padding:6px 14px;font-size:.82rem;" onclick="loadRanking()">
+          🔄 새로고침
+        </button>
+      </div>
+      <div id="ranking-list" class="ranking-list">
+        <div style="text-align:center;padding:30px;color:#aaa;">
+          <div class="loading-spin"></div>
+          <div style="margin-top:8px;font-size:.9rem;">랭킹 불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+    <div class="watermark">made by 박선생</div>
+  </div>
+
+  <!-- 사진 일지 탭 -->
+  <div id="tab-diary" class="tab-content">
+    <div class="card">
+      <div class="card-title">📸 나의 성장 사진 일지</div>
+      <div class="diary-grid" id="diary-grid">
+        <!-- 사진 추가 버튼 -->
+        <div class="add-photo-btn" onclick="openPhotoAdd()">
+          <span>📷</span>
+          <p>사진 추가</p>
+        </div>
+      </div>
+    </div>
+    <div class="watermark">made by 박선생</div>
+  </div>
+
+</div><!-- screen-game -->
+
+<!-- ===== 수확 화면 ===== -->
+<div id="screen-harvest" class="screen">
+  <div class="harvest-emoji">🍅🎉</div>
+  <div class="harvest-title">수확 완료!</div>
+  <div class="harvest-sub" id="h-sub">방울토마토가 잘 익었어요!</div>
+  <div class="harvest-stats">
+    <div class="harvest-stat-row"><span>재배 기간</span><strong id="h-days">--일</strong></div>
+    <div class="harvest-stat-row"><span>물 준 횟수</span><strong id="h-water">--회</strong></div>
+    <div class="harvest-stat-row"><span>관찰 횟수</span><strong id="h-check">--회</strong></div>
+    <div class="harvest-stat-row"><span>사진 기록</span><strong id="h-photo">--장</strong></div>
+    <div class="harvest-stat-row"><span>최종 점수</span><strong id="h-score">--점</strong></div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn btn-purple" onclick="printReport()">📄 보고서 출력</button>
+    <button class="btn btn-green" onclick="restartGame()">🌱 다시 심기</button>
+    <button class="btn btn-gray" onclick="showScreen('game')">📸 일지 보기</button>
+  </div>
+  <div class="watermark">made by 박선생</div>
+</div>
+
+<!-- ===== 교사 설정 ===== -->
+<div id="screen-teacher" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:16px 16px 0;">
+    <button class="btn btn-gray" onclick="closeTeacher()">← 뒤로</button>
+    <h2 style="font-size:1.2rem;">⚙️ 교사 설정</h2>
+  </div>
+  <div style="padding:0 16px 20px;max-width:680px;margin:0 auto;">
+
+    <div class="teacher-section">
+      <h2>🌱 씨앗 심기 날짜</h2>
+      <div class="form-row">
+        <label>씨앗 심기 시작일</label>
+        <input type="date" id="plant-date">
+      </div>
+      <div class="form-row">
+        <label>반 이름 (랭킹 표시용)</label>
+        <input type="text" id="class-name-input" placeholder="예: 6학년 2반">
+      </div>
+      <div class="form-row">
+        <label>교사 비밀번호</label>
+        <input type="password" id="teacher-pw" placeholder="비밀번호 (4자리 권장)">
+      </div>
+      <button class="btn btn-green" onclick="saveTeacherSettings()">✅ 저장</button>
+    </div>
+
+    <div class="teacher-section">
+      <h2>🌤 날씨 테스트</h2>
+      <p style="font-size:.88rem;color:#666;margin-bottom:12px;">학생이 지역 설정 후 날씨를 불러오는지 테스트합니다.</p>
+      <button class="btn btn-blue" onclick="testWeather()">📡 날씨 테스트</button>
+      <div id="weather-test-result" style="margin-top:10px;font-size:.88rem;color:#555;"></div>
+    </div>
+
+    <div class="teacher-section">
+      <h2>🗑 데이터 관리</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-red" onclick="resetMyData()">내 데이터 초기화</button>
+        <button class="btn btn-gray" onclick="closeTeacher()">닫기</button>
+      </div>
+    </div>
+
+  </div>
+  <div class="watermark">made by 박선생</div>
+</div>
+
+<!-- ===== 수확 보고서 (인쇄용) ===== -->
+<div id="report-area"></div>
+
+<!-- 비밀번호 모달 -->
+<div class="modal-overlay" id="modal-pw">
+  <div class="modal">
+    <h3>🔐 교사 설정</h3>
+    <p style="color:#888;font-size:.88rem;text-align:center;margin-bottom:12px;">비밀번호를 입력하세요</p>
+    <input type="password" id="modal-pw-input" placeholder="비밀번호"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('modal-pw')">취소</button>
+      <button class="btn btn-green" onclick="checkPw()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 사진 추가 모달 -->
+<div class="modal-overlay" id="modal-photo-add">
+  <div class="modal">
+    <h3>📷 성장 사진 추가</h3>
+    <input type="file" id="photo-file-input" accept="image/*" capture="environment"
+      onchange="previewPhoto(event)" style="margin-bottom:10px;">
+    <div id="photo-preview" style="text-align:center;margin-bottom:12px;min-height:60px;">
+      <span style="color:#bbb;font-size:.88rem;">사진을 선택하면 미리보기가 나타납니다</span>
+    </div>
+    <textarea id="photo-note" placeholder="오늘 식물 상태를 적어보세요 (예: 새 잎이 나왔어요!)"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('modal-photo-add')">취소</button>
+      <button class="btn btn-green" onclick="savePhoto()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 사진 뷰어 모달 -->
+<div class="modal-overlay" id="modal-photo-view">
+  <div class="modal" style="max-width:500px;">
+    <h3>📸 성장 사진</h3>
+    <img id="photo-view-img" class="photo-modal-img" src="" alt="">
+    <div class="photo-modal-info" id="photo-view-info"></div>
+    <div id="photo-view-note" style="font-size:.9rem;color:#444;margin-bottom:12px;"></div>
+    <div class="modal-btns">
+      <button class="btn btn-red" id="photo-delete-btn" onclick="deletePhoto()">🗑 삭제</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-photo-view')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+// =============================================
+//  Firebase 초기화
+// =============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDTU1R0YHSwFgv6MKpzNzgPM0oNOnV-Y7c",
+  authDomain: "tomatoes-cf4e2.firebaseapp.com",
+  projectId: "tomatoes-cf4e2",
+  storageBucket: "tomatoes-cf4e2.firebasestorage.app",
+  messagingSenderId: "5995962681",
+  appId: "1:5995962681:web:38ce282a18c145b74008e8",
+  databaseURL: "https://tomatoes-cf4e2-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// =============================================
+//  전국 시/군/구 기상청 격자 좌표
+// =============================================
+const REGION_DATA = {
+  "서울특별시":[
+    {name:"종로구",nx:60,ny:127},{name:"중구",nx:60,ny:127},{name:"용산구",nx:60,ny:126},
+    {name:"성동구",nx:61,ny:127},{name:"광진구",nx:62,ny:127},{name:"동대문구",nx:61,ny:127},
+    {name:"중랑구",nx:62,ny:128},{name:"성북구",nx:61,ny:127},{name:"강북구",nx:61,ny:128},
+    {name:"도봉구",nx:61,ny:129},{name:"노원구",nx:61,ny:129},{name:"은평구",nx:59,ny:127},
+    {name:"서대문구",nx:59,ny:127},{name:"마포구",nx:59,ny:127},{name:"양천구",nx:58,ny:126},
+    {name:"강서구",nx:58,ny:126},{name:"구로구",nx:58,ny:125},{name:"금천구",nx:59,ny:124},
+    {name:"영등포구",nx:58,ny:126},{name:"동작구",nx:59,ny:125},{name:"관악구",nx:59,ny:125},
+    {name:"서초구",nx:61,ny:125},{name:"강남구",nx:61,ny:126},{name:"송파구",nx:62,ny:126},
+    {name:"강동구",nx:62,ny:126}
+  ],
+  "부산광역시":[
+    {name:"중구",nx:97,ny:74},{name:"서구",nx:97,ny:74},{name:"동구",nx:98,ny:75},
+    {name:"영도구",nx:98,ny:74},{name:"부산진구",nx:97,ny:75},{name:"동래구",nx:98,ny:76},
+    {name:"남구",nx:98,ny:75},{name:"북구",nx:96,ny:76},{name:"해운대구",nx:99,ny:75},
+    {name:"사하구",nx:96,ny:74},{name:"금정구",nx:98,ny:77},{name:"강서구",nx:96,ny:76},
+    {name:"연제구",nx:98,ny:76},{name:"수영구",nx:99,ny:75},{name:"사상구",nx:96,ny:75},
+    {name:"기장군",nx:100,ny:77}
+  ],
+  "대구광역시":[
+    {name:"중구",nx:89,ny:90},{name:"동구",nx:90,ny:91},{name:"서구",nx:88,ny:90},
+    {name:"남구",nx:89,ny:90},{name:"북구",nx:89,ny:91},{name:"수성구",nx:89,ny:90},
+    {name:"달서구",nx:88,ny:90},{name:"달성군",nx:86,ny:88}
+  ],
+  "인천광역시":[
+    {name:"중구",nx:54,ny:125},{name:"동구",nx:54,ny:125},{name:"미추홀구",nx:54,ny:124},
+    {name:"연수구",nx:55,ny:123},{name:"남동구",nx:56,ny:124},{name:"부평구",nx:55,ny:125},
+    {name:"계양구",nx:56,ny:126},{name:"서구",nx:55,ny:126},{name:"강화군",nx:51,ny:130},
+    {name:"옹진군",nx:52,ny:121}
+  ],
+  "광주광역시":[
+    {name:"동구",nx:61,ny:74},{name:"서구",nx:61,ny:74},{name:"남구",nx:61,ny:73},
+    {name:"북구",nx:61,ny:75},{name:"광산구",nx:59,ny:74}
+  ],
+  "대전광역시":[
+    {name:"동구",nx:68,ny:100},{name:"중구",nx:68,ny:100},{name:"서구",nx:67,ny:100},
+    {name:"유성구",nx:67,ny:101},{name:"대덕구",nx:68,ny:100}
+  ],
+  "울산광역시":[
+    {name:"중구",nx:102,ny:84},{name:"남구",nx:102,ny:84},{name:"동구",nx:104,ny:83},
+    {name:"북구",nx:103,ny:85},{name:"울주군",nx:101,ny:84}
+  ],
+  "세종특별자치시":[{name:"세종시",nx:66,ny:103}],
+  "경기도":[
+    {name:"수원시",nx:60,ny:121},{name:"성남시",nx:62,ny:123},{name:"고양시",nx:57,ny:128},
+    {name:"용인시",nx:62,ny:120},{name:"부천시",nx:56,ny:125},{name:"안산시",nx:57,ny:121},
+    {name:"안양시",nx:59,ny:123},{name:"남양주시",nx:64,ny:128},{name:"화성시",nx:57,ny:119},
+    {name:"평택시",nx:62,ny:114},{name:"의정부시",nx:61,ny:130},{name:"시흥시",nx:57,ny:123},
+    {name:"파주시",nx:56,ny:131},{name:"광명시",nx:58,ny:125},{name:"김포시",nx:55,ny:128},
+    {name:"광주시",nx:65,ny:123},{name:"군포시",nx:59,ny:122},{name:"이천시",nx:68,ny:121},
+    {name:"오산시",nx:62,ny:118},{name:"하남시",nx:64,ny:126},{name:"양주시",nx:61,ny:131},
+    {name:"구리시",nx:62,ny:127},{name:"안성시",nx:65,ny:115},{name:"포천시",nx:64,ny:134},
+    {name:"의왕시",nx:60,ny:122},{name:"여주시",nx:71,ny:121},{name:"양평군",nx:69,ny:125},
+    {name:"동두천시",nx:61,ny:134},{name:"과천시",nx:60,ny:124},{name:"가평군",nx:69,ny:132},
+    {name:"연천군",nx:61,ny:138}
+  ],
+  "강원특별자치도":[
+    {name:"춘천시",nx:73,ny:134},{name:"원주시",nx:76,ny:122},{name:"강릉시",nx:92,ny:131},
+    {name:"동해시",nx:97,ny:127},{name:"태백시",nx:95,ny:119},{name:"속초시",nx:87,ny:141},
+    {name:"삼척시",nx:98,ny:125},{name:"홍천군",nx:75,ny:130},{name:"횡성군",nx:77,ny:125},
+    {name:"영월군",nx:86,ny:119},{name:"평창군",nx:84,ny:123},{name:"정선군",nx:89,ny:123},
+    {name:"철원군",nx:65,ny:139},{name:"화천군",nx:72,ny:139},{name:"양구군",nx:77,ny:139},
+    {name:"인제군",nx:80,ny:138},{name:"고성군",nx:85,ny:145},{name:"양양군",nx:88,ny:138}
+  ],
+  "충청북도":[
+    {name:"청주시",nx:69,ny:107},{name:"충주시",nx:76,ny:114},{name:"제천시",nx:81,ny:118},
+    {name:"보은군",nx:73,ny:103},{name:"옥천군",nx:71,ny:100},{name:"영동군",nx:74,ny:97},
+    {name:"증평군",nx:71,ny:110},{name:"진천군",nx:68,ny:111},{name:"괴산군",nx:74,ny:111},
+    {name:"음성군",nx:72,ny:113},{name:"단양군",nx:84,ny:116}
+  ],
+  "충청남도":[
+    {name:"천안시",nx:63,ny:110},{name:"공주시",nx:63,ny:102},{name:"보령시",nx:54,ny:100},
+    {name:"아산시",nx:60,ny:109},{name:"서산시",nx:51,ny:110},{name:"논산시",nx:62,ny:97},
+    {name:"계룡시",nx:65,ny:99},{name:"당진시",nx:54,ny:112},{name:"금산군",nx:69,ny:97},
+    {name:"부여군",nx:59,ny:99},{name:"서천군",nx:55,ny:94},{name:"청양군",nx:59,ny:103},
+    {name:"홍성군",nx:55,ny:106},{name:"예산군",nx:58,ny:107},{name:"태안군",nx:48,ny:109}
+  ],
+  "전북특별자치도":[
+    {name:"전주시",nx:63,ny:89},{name:"군산시",nx:56,ny:92},{name:"익산시",nx:60,ny:91},
+    {name:"정읍시",nx:58,ny:83},{name:"남원시",nx:68,ny:80},{name:"김제시",nx:59,ny:88},
+    {name:"완주군",nx:63,ny:90},{name:"진안군",nx:68,ny:88},{name:"무주군",nx:72,ny:93},
+    {name:"장수군",nx:70,ny:85},{name:"임실군",nx:66,ny:84},{name:"순창군",nx:63,ny:79},
+    {name:"고창군",nx:56,ny:80},{name:"부안군",nx:56,ny:87}
+  ],
+  "전라남도":[
+    {name:"목포시",nx:51,ny:67},{name:"여수시",nx:73,ny:66},{name:"순천시",nx:70,ny:70},
+    {name:"나주시",nx:56,ny:71},{name:"광양시",nx:73,ny:70},{name:"담양군",nx:61,ny:78},
+    {name:"곡성군",nx:66,ny:77},{name:"구례군",nx:69,ny:75},{name:"고흥군",nx:66,ny:62},
+    {name:"보성군",nx:62,ny:66},{name:"화순군",nx:61,ny:72},{name:"장흥군",nx:59,ny:64},
+    {name:"강진군",nx:57,ny:63},{name:"해남군",nx:54,ny:61},{name:"영암군",nx:56,ny:66},
+    {name:"무안군",nx:52,ny:70},{name:"함평군",nx:54,ny:72},{name:"영광군",nx:52,ny:77},
+    {name:"장성군",nx:57,ny:77},{name:"완도군",nx:57,ny:56},{name:"진도군",nx:48,ny:59},
+    {name:"신안군",nx:50,ny:66}
+  ],
+  "경상북도":[
+    {name:"포항시",nx:102,ny:94},{name:"경주시",nx:100,ny:91},{name:"김천시",nx:80,ny:96},
+    {name:"안동시",nx:91,ny:106},{name:"구미시",nx:84,ny:96},{name:"영주시",nx:89,ny:111},
+    {name:"영천시",nx:95,ny:93},{name:"상주시",nx:81,ny:103},{name:"문경시",nx:81,ny:107},
+    {name:"경산시",nx:91,ny:90},{name:"의성군",nx:90,ny:101},{name:"청송군",nx:96,ny:103},
+    {name:"영양군",nx:97,ny:108},{name:"영덕군",nx:102,ny:103},{name:"청도군",nx:91,ny:86},
+    {name:"고령군",nx:83,ny:87},{name:"성주군",nx:83,ny:91},{name:"칠곡군",nx:85,ny:93},
+    {name:"예천군",nx:86,ny:107},{name:"봉화군",nx:90,ny:113},{name:"울진군",nx:102,ny:115},
+    {name:"울릉군",nx:127,ny:127}
+  ],
+  "경상남도":[
+    {name:"창원시",nx:91,ny:77},{name:"진주시",nx:81,ny:75},{name:"통영시",nx:87,ny:68},
+    {name:"사천시",nx:79,ny:71},{name:"김해시",nx:95,ny:77},{name:"밀양시",nx:96,ny:83},
+    {name:"거제시",nx:90,ny:69},{name:"양산시",nx:97,ny:79},{name:"의령군",nx:83,ny:78},
+    {name:"함안군",nx:86,ny:77},{name:"창녕군",nx:89,ny:83},{name:"고성군",nx:85,ny:71},
+    {name:"남해군",nx:77,ny:68},{name:"하동군",nx:74,ny:73},{name:"산청군",nx:76,ny:80},
+    {name:"함양군",nx:74,ny:82},{name:"거창군",nx:77,ny:86},{name:"합천군",nx:81,ny:84}
+  ],
+  "제주특별자치도":[
+    {name:"제주시",nx:53,ny:38},{name:"서귀포시",nx:52,ny:33}
+  ]
+};
+
+// =============================================
+//  기상청 API
+// =============================================
+const API_KEY = "9c5090de2d1567aeca21510c09d2ff6c8fa39a93c52f759889ff6ed98a4146d5";
+const NCST_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+
+// =============================================
+//  성장 단계
+// =============================================
+const STAGES = [
+  {name:"씨앗",    emoji:"🌰", min:0  },
+  {name:"발아",    emoji:"🌱", min:5  },
+  {name:"본잎",    emoji:"🌿", min:20 },
+  {name:"꽃봉오리",emoji:"🌼", min:40 },
+  {name:"개화",    emoji:"🌸", min:60 },
+  {name:"열매",    emoji:"🍈", min:75 },
+  {name:"익는 중", emoji:"🍊", min:88 },
+  {name:"수확 가능",emoji:"🍅",min:98 },
+];
+
+// =============================================
+//  상태 변수
+// =============================================
+let S = {
+  playerName:"", className:"",
+  nx:54, ny:100, regionName:"충청남도 보령시",
+  growth:0, water:60,
+  lastGrowthDate:"", lastWaterDate:"",
+  waterCount:0, checkCount:0, ventCount:0, warmCount:0,
+  actionsToday:[], actionDate:"",
+  diary:[], photos:[],
+  harvested:false, score:0, startDate:"",
+};
+let T = { plantDate:"", password:"1234", className:"" };
+let W = { temp:null, sky:null, rain:0, wind:null, sunHours:8, fetchedDate:"", lastFetch:"", pty:0 };
+let currentPhotoIdx = -1;
+let currentPhotoData = null;
+
+// =============================================
+//  초기화
+// =============================================
+function init() {
+  loadAll();
+  buildSidoSelect("start-sido", "start-sigungu", startUpdateSigungu);
+  restoreStartForm();
+  if (S.playerName) {
+    showMain();
+    fetchWeatherAuto();
+    growthTick();
+    loadRanking();
+    renderDiaryGrid();
+  }
+}
+
+function loadAll() {
+  try { const s = localStorage.getItem("tomato_S"); if(s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
+  try { const t = localStorage.getItem("tomato_T"); if(t) T = Object.assign(T, JSON.parse(t)); } catch(e){}
+  try { const w = localStorage.getItem("tomato_W"); if(w) W = Object.assign(W, JSON.parse(w)); } catch(e){}
+}
+function saveS() { localStorage.setItem("tomato_S", JSON.stringify(S)); }
+function saveT() { localStorage.setItem("tomato_T", JSON.stringify(T)); }
+function saveW() { localStorage.setItem("tomato_W", JSON.stringify(W)); }
+
+// =============================================
+//  지역 선택
+// =============================================
+function buildSidoSelect(sidoId, sigunguId, changeFn) {
+  const sel = document.getElementById(sidoId);
+  if (!sel) return;
+  sel.innerHTML = '<option value="">시/도 선택</option>';
+  Object.keys(REGION_DATA).forEach(sido => {
+    const o = document.createElement("option");
+    o.value = sido; o.textContent = sido;
+    sel.appendChild(o);
+  });
+}
+
+function startUpdateSigungu() {
+  const sido = document.getElementById("start-sido").value;
+  const sg = document.getElementById("start-sigungu");
+  sg.innerHTML = '<option value="">시/군/구 선택</option>';
+  if (!sido || !REGION_DATA[sido]) return;
+  REGION_DATA[sido].forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.name; o.textContent = r.name;
+    sg.appendChild(o);
+  });
+}
+
+function restoreStartForm() {
+  if (S.regionName) {
+    const parts = S.regionName.split(" ");
+    if (parts.length >= 2) {
+      const sido = parts[0];
+      const sg = parts.slice(1).join(" ");
+      const sidoSel = document.getElementById("start-sido");
+      sidoSel.value = sido;
+      startUpdateSigungu();
+      document.getElementById("start-sigungu").value = sg;
+    }
+  }
+  if (S.playerName) document.getElementById("input-name").value = S.playerName;
+  if (S.className)  document.getElementById("input-class").value = S.className;
+}
+
+// =============================================
+//  시작
+// =============================================
+function startGame() {
+  const name = document.getElementById("input-name").value.trim();
+  const cls  = document.getElementById("input-class").value.trim();
+  const sido = document.getElementById("start-sido").value;
+  const sg   = document.getElementById("start-sigungu").value;
+
+  if (!name) { showToast("이름을 입력해 주세요!", "red"); return; }
+  if (!sido || !sg) { showToast("지역을 선택해 주세요!", "red"); return; }
+
+  const found = (REGION_DATA[sido]||[]).find(r => r.name === sg);
+  if (!found) { showToast("지역 정보를 찾을 수 없어요!", "red"); return; }
+
+  S.playerName  = name;
+  S.className   = cls;
+  S.nx          = found.nx;
+  S.ny          = found.ny;
+  S.regionName  = sido + " " + sg;
+  saveS();
+
+  showMain();
+  fetchWeatherAuto();
+  growthTick();
+  loadRanking();
+  renderDiaryGrid();
+}
+
+function showMain() {
+  document.getElementById("main-header").style.display = "flex";
+  document.getElementById("tab-bar").style.display = "flex";
+  document.getElementById("plant-owner-name").textContent = S.playerName + "의 방울토마토";
+  showScreen("game");
+}
+
+// =============================================
+//  화면 / 탭
+// =============================================
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + name).classList.add("active");
+  if (name === "game") {
+    document.getElementById("tab-bar").style.display = "flex";
+  } else {
+    document.getElementById("tab-bar").style.display = "none";
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  event.currentTarget.classList.add("active");
+  if (name === "ranking") loadRanking();
+  if (name === "diary") renderDiaryGrid();
+}
+
+function openTeacher() {
+  if (T.password) {
+    openModal("modal-pw");
+  } else {
+    showTeacherScreen();
+  }
+}
+function showTeacherScreen() {
+  document.getElementById("plant-date").value = T.plantDate || getTodayStr();
+  document.getElementById("class-name-input").value = T.className || S.className || "";
+  document.getElementById("teacher-pw").value = "";
+  showScreen("teacher");
+  document.getElementById("tab-bar").style.display = "none";
+}
+function closeTeacher() {
+  if (S.playerName) showScreen("game");
+  else showScreen("start");
+}
+function checkPw() {
+  const v = document.getElementById("modal-pw-input").value;
+  if (v === T.password) {
+    closeModal("modal-pw");
+    document.getElementById("modal-pw-input").value = "";
+    showTeacherScreen();
+  } else {
+    showToast("비밀번호 틀렸어요!", "red");
+    document.getElementById("modal-pw-input").value = "";
+  }
+}
+function openModal(id) { document.getElementById(id).classList.add("active"); }
+function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+
+// =============================================
+//  교사 설정 저장
+// =============================================
+function saveTeacherSettings() {
+  T.plantDate = document.getElementById("plant-date").value;
+  const pw = document.getElementById("teacher-pw").value;
+  if (pw) T.password = pw;
+  const cn = document.getElementById("class-name-input").value.trim();
+  if (cn) { T.className = cn; S.className = cn; saveS(); }
+  saveT();
+  showToast("✅ 저장 완료!", "green");
+}
+
+function resetMyData() {
+  if (!confirm("이 기기의 내 데이터를 초기화할까요?")) return;
+  localStorage.removeItem("tomato_S");
+  localStorage.removeItem("tomato_W");
+  S = { playerName:"", className:"", nx:54, ny:100, regionName:"충청남도 보령시",
+    growth:0, water:60, lastGrowthDate:"", lastWaterDate:"",
+    waterCount:0, checkCount:0, ventCount:0, warmCount:0,
+    actionsToday:[], actionDate:"", diary:[], photos:[],
+    harvested:false, score:0, startDate:"" };
+  showToast("초기화 완료!", "orange");
+  document.getElementById("main-header").style.display = "none";
+  document.getElementById("tab-bar").style.display = "none";
+  showScreen("start");
+}
+
+// =============================================
+//  날씨
+// =============================================
+function getBaseTime() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const times = [2,5,8,11,14,17,20,23];
+  let base = 2;
+  for (let t of times) { if (h > t || (h === t && m >= 10)) base = t; }
+  return String(base).padStart(2,"0") + "00";
+}
+function getBaseDateStr() {
+  const n = new Date();
+  return n.getFullYear() + String(n.getMonth()+1).padStart(2,"0") + String(n.getDate()).padStart(2,"0");
+}
+function getTodayStr() {
+  const n = new Date();
+  return n.getFullYear() + "-" + String(n.getMonth()+1).padStart(2,"0") + "-" + String(n.getDate()).padStart(2,"0");
+}
+
+async function fetchWeatherAuto() {
+  if (W.fetchedDate === getTodayStr() && W.temp !== null) { renderWeather(); return; }
+  await fetchWeatherNow();
+}
+
+async function fetchWeatherNow() {
+  const url = `${NCST_URL}?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON`
+    + `&base_date=${getBaseDateStr()}&base_time=${getBaseTime()}&nx=${S.nx}&ny=${S.ny}`;
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    const items = json?.response?.body?.items?.item;
+    if (!items) throw new Error("항목 없음");
+    items.forEach(item => {
+      if (item.category === "T1H") W.temp = parseFloat(item.obsrValue);
+      if (item.category === "RN1") W.rain = parseFloat(item.obsrValue)||0;
+      if (item.category === "WSD") W.wind = parseFloat(item.obsrValue);
+      if (item.category === "SKY") W.sky  = parseInt(item.obsrValue);
+      if (item.category === "PTY") W.pty  = parseInt(item.obsrValue)||0;
+    });
+    W.sunHours = estimateSun(W.sky, W.pty);
+    W.fetchedDate = getTodayStr();
+    W.lastFetch = new Date().toLocaleTimeString("ko-KR");
+    saveW();
+    renderWeather();
+    updateHeaderWeather();
+    // Firebase에 날씨 기반 성장 업데이트
+    pushRankingData();
+  } catch(e) {
+    showToast("날씨 불러오기 실패: " + e.message, "red");
+  }
+}
+
+function estimateSun(sky, pty) {
+  const m = new Date().getMonth()+1;
+  const base = [0,6,7,8,9,10,11,12,11,10,9,7,6][m];
+  if (pty > 0) return Math.max(0, base-5);
+  if (sky===1) return base;
+  if (sky===3) return base*0.5;
+  if (sky===4) return base*0.2;
+  return base*0.8;
+}
+function skyText(s) {
+  if (s===1) return "맑음 ☀️"; if (s===3) return "구름 ⛅"; if (s===4) return "흐림 ☁️"; return "--";
+}
+function skyIcon(s) {
+  if (s===1) return "☀️"; if (s===3) return "⛅"; if (s===4) return "☁️"; return "🌤";
+}
+
+function renderWeather() {
+  const d = W;
+  document.getElementById("w-region").textContent = S.regionName||"--";
+  document.getElementById("w-temp").textContent   = d.temp!==null ? d.temp+"°C" : "--°C";
+  document.getElementById("w-rain").textContent   = d.rain>0 ? d.rain+"mm/h":"없음";
+  document.getElementById("w-wind").textContent   = d.wind!==null ? d.wind+"m/s":"--";
+  document.getElementById("w-sun").textContent    = Math.round(d.sunHours||0)+"시간";
+  document.getElementById("w-time").textContent   = "업데이트: "+(d.lastFetch||"--");
+
+  const sunBlocks = document.getElementById("sun-blocks");
+  sunBlocks.innerHTML = "";
+  const h = Math.min(12, Math.round(d.sunHours||0));
+  for (let i=0;i<12;i++) {
+    const div = document.createElement("div");
+    div.className = "sun-block"+(i<h?" on":"");
+    sunBlocks.appendChild(div);
+  }
+  const sp = Math.min(100, Math.round((d.sunHours||0)/12*100));
+  document.getElementById("sun-bar").style.width = sp+"%";
+  document.getElementById("sun-pct").textContent = sp+"%";
+
+  if (d.temp!==null) {
+    document.getElementById("st-temp").textContent = d.temp+"°C";
+    const b = document.getElementById("st-temp-box");
+    b.className = "status-item";
+    if (d.temp<10||d.temp>35) b.classList.add("status-danger");
+    else if (d.temp<15||d.temp>30) b.classList.add("status-warn");
+  }
+  if (d.sky) {
+    document.getElementById("st-sky-icon").textContent = skyIcon(d.sky);
+    document.getElementById("st-sky").textContent = skyText(d.sky).replace(/ .+/,"");
+  }
+  updateAlerts();
+}
+
+function updateHeaderWeather() {
+  document.getElementById("header-weather").textContent =
+    skyIcon(W.sky)+" "+(W.temp!==null?W.temp+"°C":"--")+" · "+(S.regionName?S.regionName.split(" ").pop():"--");
+}
+
+async function testWeather() {
+  const el = document.getElementById("weather-test-result");
+  el.textContent = "⏳ 테스트 중...";
+  W.fetchedDate = "";
+  await fetchWeatherNow();
+  el.textContent = W.temp!==null
+    ? "✅ 성공! 기온: "+W.temp+"°C, 날씨: "+skyText(W.sky)+" (지역: "+S.regionName+")"
+    : "❌ 실패. 지역 설정 및 API 키를 확인하세요.";
+}
+
+// =============================================
+//  성장 계산
+// =============================================
+function growthTick() {
+  if (!T.plantDate) return;
+  const today = getTodayStr();
+  const plantDay = new Date(T.plantDate);
+  const todayDay = new Date(today);
+  if (todayDay < plantDay) return;
+
+  S.startDate = T.plantDate;
+
+  if (S.lastGrowthDate !== today) {
+    const gain = calcGrowth();
+    S.growth = Math.min(100, S.growth + gain);
+    S.lastGrowthDate = today;
+    const loss = 8 + Math.random()*7;
+    S.water = Math.max(0, S.water - loss);
+    if (S.actionDate !== today) {
+      S.actionsToday = [];
+      S.actionDate = today;
+    }
+    saveS();
+    pushRankingData();
+  }
+
+  renderGame();
+  if (S.growth >= 98 && !S.harvested) {
+    S.score = calcScore();
+    saveS();
+    setTimeout(showHarvest, 800);
+  }
+}
+
+function calcGrowth() {
+  let g = 1.5;
+  if (W.temp!==null) {
+    if (W.temp>=20&&W.temp<=28) g+=1.5;
+    else if (W.temp>=15&&W.temp<=32) g+=0.5;
+    else if (W.temp<10||W.temp>35) g-=1.0;
+    else g-=0.3;
+  }
+  const sh = W.sunHours||6;
+  if (sh>=8) g+=1.0; else if (sh>=5) g+=0.5; else g-=0.5;
+  if (S.water>=50) g+=0.8; else if (S.water>=30) g+=0.3; else g-=1.0;
+  return Math.max(0, g);
+}
+function calcScore() {
+  return Math.min(1000, Math.round(S.growth*3) + S.waterCount*10 + S.checkCount*5 + (S.photos||[]).length*8);
+}
+
+// =============================================
+//  학생 행동
+// =============================================
+function todayDone(key) {
+  return (S.actionsToday||[]).includes(key+"-"+getTodayStr());
+}
+function markDone(key) {
+  if (!S.actionsToday) S.actionsToday=[];
+  S.actionsToday.push(key+"-"+getTodayStr());
+}
+function addLog(txt) {
+  const log = document.getElementById("action-log");
+  if (log.children.length===1 && log.children[0].style.color==="rgb(187, 187, 187)") log.innerHTML="";
+  const d = document.createElement("div"); d.className="log-item"; d.textContent=txt;
+  log.insertBefore(d, log.firstChild);
+}
+function addDiary(icon, txt) {
+  if (!S.diary) S.diary=[];
+  S.diary.unshift({date:getTodayStr(), icon, txt});
+  if (S.diary.length>100) S.diary.pop();
+}
+
+function doWater() {
+  if (todayDone("water")) { showToast("오늘은 이미 물을 줬어요! 💧","blue"); return; }
+  S.water = Math.min(100, S.water+30);
+  S.waterCount++;
+  markDone("water");
+  addDiary("💧","물을 주었어요! 수분이 "+Math.round(S.water)+"% 가 됐어요.");
+  addLog("💧 물 주기 완료! 수분: "+Math.round(S.water)+"%");
+  saveS(); renderGame(); showToast("💧 물을 줬어요!","blue");
+  pushRankingData();
+}
+function doVent() {
+  if (todayDone("vent")) { showToast("오늘은 이미 환기했어요!","orange"); return; }
+  let msg = W.temp&&W.temp>30 ? "더운 날 환기 효과! 성장에 도움됐어요 🌬" : "시원하게 환기했어요.";
+  if (W.temp&&W.temp>30) S.growth = Math.min(100, S.growth+0.5);
+  S.ventCount++;
+  markDone("vent");
+  addDiary("🌬","환기를 했어요. "+msg);
+  addLog("🌬 환기 완료!");
+  saveS(); renderGame(); showToast(msg,"orange");
+}
+function doWarm() {
+  if (todayDone("warm")) { showToast("오늘은 이미 보온했어요!","orange"); return; }
+  let msg = W.temp&&W.temp<15 ? "추운 날 보온 효과! 성장에 도움됐어요 🧥" : "따뜻하게 보온해 줬어요.";
+  if (W.temp&&W.temp<15) S.growth = Math.min(100, S.growth+0.5);
+  S.warmCount++;
+  markDone("warm");
+  addDiary("🧥","보온을 했어요. "+msg);
+  addLog("🧥 보온 완료!");
+  saveS(); renderGame(); showToast(msg,"green");
+}
+function doCheck() {
+  if (todayDone("check")) { showToast("오늘은 이미 관찰했어요!","green"); return; }
+  S.checkCount++;
+  markDone("check");
+  const stage = getStage();
+  addDiary("🔍","관찰했어요. "+stageDesc(stage.name));
+  addLog("🔍 관찰! 현재: "+stage.name+" 단계");
+  saveS(); renderGame(); showToast("🔍 "+stageDesc(stage.name),"green");
+}
+
+function stageDesc(name) {
+  const map = {
+    "씨앗":"씨앗이 흙 속에서 잠자고 있어요.",
+    "발아":"새싹이 땅 위로 올라오고 있어요!",
+    "본잎":"진짜 잎이 자라고 있어요.",
+    "꽃봉오리":"꽃봉오리가 맺히기 시작했어요!",
+    "개화":"노란 꽃이 피었어요!",
+    "열매":"초록 열매가 맺혔어요!",
+    "익는 중":"빨갛게 익어가고 있어요!",
+    "수확 가능":"다 익었어요! 수확해요!"
+  };
+  return map[name]||"잘 자라고 있어요.";
+}
+
+// =============================================
+//  렌더링
+// =============================================
+function getStage() {
+  let s = STAGES[0];
+  for (const st of STAGES) { if (S.growth >= st.min) s = st; }
+  return s;
+}
+
+function renderGame() {
+  const hasSeed = !!T.plantDate && !!S.startDate;
+  document.getElementById("no-seed-view").style.display  = hasSeed ? "none" : "block";
+  document.getElementById("game-content").style.display  = hasSeed ? "block" : "none";
+  if (!hasSeed) return;
+
+  const stage = getStage();
+  document.getElementById("plant-img").textContent       = stage.emoji;
+  document.getElementById("stage-badge").textContent     = stage.name+" 단계";
+  document.getElementById("growth-bar").style.width      = S.growth+"%";
+  document.getElementById("growth-pct").textContent      = Math.round(S.growth)+"%";
+  document.getElementById("water-bar").style.width       = S.water+"%";
+  document.getElementById("water-pct").textContent       = Math.round(S.water)+"%";
+
+  const wb = document.getElementById("st-water-box");
+  const wv = document.getElementById("st-water-val");
+  wb.className = "status-item";
+  if (S.water>=60) { wv.textContent="충분 💧"; }
+  else if (S.water>=30) { wv.textContent="보통"; wb.classList.add("status-warn"); }
+  else { wv.textContent="부족 ⚠️"; wb.classList.add("status-danger"); }
+
+  const days = Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/(86400000)))+1;
+  document.getElementById("st-day").textContent = days+"일차";
+
+  renderWeather();
+  updateAlerts();
+}
+
+function updateAlerts() {
+  const wa = document.getElementById("alert-water");
+  const ta = document.getElementById("alert-temp");
+  wa.classList.toggle("show", S.water<30);
+  if (S.water<30) document.getElementById("alert-water-text").textContent =
+    "물이 부족해요! 빨리 물을 주세요! ("+Math.round(S.water)+"%)";
+  const td = W.temp!==null&&(W.temp<8||W.temp>38);
+  ta.classList.toggle("show", td);
+  if (td) document.getElementById("alert-temp-text").textContent =
+    W.temp<8 ? "기온이 너무 낮아요! ("+W.temp+"°C) 보온하세요!" : "기온이 너무 높아요! ("+W.temp+"°C) 환기하세요!";
+}
+
+// =============================================
+//  랭킹 (Firebase)
+// =============================================
+function pushRankingData() {
+  if (!S.playerName) return;
+  const key = S.playerName.replace(/[.#$[\]]/g,"_") + "_" + (S.className||"").replace(/[.#$[\]]/g,"_");
+  db.ref("tomatoRanking/" + key).set({
+    name: S.playerName,
+    className: S.className||"",
+    growth: Math.round(S.growth*10)/10,
+    stage: getStage().name,
+    emoji: getStage().emoji,
+    water: S.waterCount,
+    check: S.checkCount,
+    region: S.regionName,
+    updatedAt: getTodayStr(),
+    harvested: S.harvested||false,
+  }).catch(e => console.warn("랭킹 업로드 실패:", e));
+}
+
+function loadRanking() {
+  const el = document.getElementById("ranking-list");
+  el.innerHTML = '<div style="text-align:center;padding:24px;color:#aaa;"><div class="loading-spin"></div><div style="margin-top:8px;font-size:.88rem;">불러오는 중...</div></div>';
+
+  db.ref("tomatoRanking").once("value").then(snap => {
+    const data = snap.val();
+    if (!data) { el.innerHTML='<div style="text-align:center;padding:24px;color:#aaa;">아직 참여한 친구가 없어요 🌱</div>'; return; }
+
+    const list = Object.values(data).sort((a,b) => b.growth - a.growth);
+    el.innerHTML = "";
+    list.forEach((item, i) => {
+      const isMe = item.name === S.playerName && item.className === (S.className||"");
+      const numClass = i===0?"gold":i===1?"silver":i===2?"bronze":"";
+      const num = i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1);
+      el.innerHTML += '<div class="rank-item'+(isMe?" rank-me":"")+'">'+
+        '<div class="rank-num '+numClass+'">'+num+'</div>'+
+        '<div class="rank-plant">'+item.emoji+'</div>'+
+        '<div class="rank-info">'+
+          '<div class="rank-name">'+item.name+(item.className?" ("+item.className+")":"")+(isMe?" ⬅ 나":"")+'</div>'+
+          '<div class="rank-stage">'+item.stage+' 단계'+(item.harvested?" 🍅수확완료":"")+'</div>'+
+          '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+item.growth+'%"></div></div>'+
+        '</div>'+
+        '<div class="rank-pct">'+Math.round(item.growth)+'%</div>'+
+      '</div>';
+    });
+  }).catch(e => {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:#e53935;font-size:.88rem;">랭킹 불러오기 실패<br>'+e.message+'</div>';
+  });
+}
+
+// =============================================
+//  사진 일지
+// =============================================
+function openPhotoAdd() {
+  currentPhotoData = null;
+  document.getElementById("photo-file-input").value = "";
+  document.getElementById("photo-preview").innerHTML =
+    '<span style="color:#bbb;font-size:.88rem;">사진을 선택하면 미리보기가 나타납니다</span>';
+  document.getElementById("photo-note").value = "";
+  openModal("modal-photo-add");
+}
+
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentPhotoData = ev.target.result;
+    document.getElementById("photo-preview").innerHTML =
+      '<img src="'+currentPhotoData+'" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain;">';
+  };
+  reader.readAsDataURL(file);
+}
+
+function savePhoto() {
+  if (!currentPhotoData) { showToast("사진을 선택해 주세요!", "red"); return; }
+  const note = document.getElementById("photo-note").value.trim();
+  const stage = getStage();
+  if (!S.photos) S.photos = [];
+
+  // 이미지 리사이즈 (localStorage 절약)
+  resizeImage(currentPhotoData, 600, function(resized) {
+    S.photos.unshift({
+      date: getTodayStr(),
+      img: resized,
+      note: note,
+      stage: stage.name,
+      emoji: stage.emoji,
+      growth: Math.round(S.growth),
+    });
+    if (S.photos.length > 30) S.photos.pop();
+    saveS();
+    closeModal("modal-photo-add");
+    renderDiaryGrid();
+    showToast("📷 사진이 저장됐어요!", "green");
+    addDiary("📷", "사진을 찍었어요! ("+stage.name+" 단계, 성장 "+Math.round(S.growth)+"%)");
+  });
+}
+
+function resizeImage(dataUrl, maxW, cb) {
+  const img = new Image();
+  img.onload = function() {
+    const ratio = Math.min(maxW/img.width, maxW/img.height, 1);
+    const w = Math.round(img.width*ratio);
+    const h = Math.round(img.height*ratio);
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+    cb(canvas.toDataURL("image/jpeg", 0.75));
+  };
+  img.src = dataUrl;
+}
+
+function renderDiaryGrid() {
+  const grid = document.getElementById("diary-grid");
+  grid.innerHTML = '<div class="add-photo-btn" onclick="openPhotoAdd()"><span>📷</span><p>사진 추가</p></div>';
+  if (!S.photos || S.photos.length === 0) return;
+  S.photos.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "diary-photo-card";
+    div.onclick = () => viewPhoto(i);
+    div.innerHTML =
+      '<div class="diary-photo-img"><img src="'+p.img+'" alt="성장사진" loading="lazy"></div>'+
+      '<div class="diary-photo-info">'+
+        '<div class="diary-photo-stage">'+p.emoji+' '+p.stage+' ('+p.growth+'%)</div>'+
+        '<div class="diary-photo-date">'+p.date+'</div>'+
+        (p.note ? '<div class="diary-photo-note">'+p.note+'</div>' : '')+
+      '</div>';
+    grid.appendChild(div);
+  });
+}
+
+function viewPhoto(idx) {
+  currentPhotoIdx = idx;
+  const p = S.photos[idx];
+  document.getElementById("photo-view-img").src = p.img;
+  document.getElementById("photo-view-info").textContent = p.date+" · "+p.emoji+" "+p.stage+" ("+p.growth+"%)";
+  document.getElementById("photo-view-note").textContent = p.note || "";
+  openModal("modal-photo-view");
+}
+function deletePhoto() {
+  if (!confirm("이 사진을 삭제할까요?")) return;
+  S.photos.splice(currentPhotoIdx, 1);
+  saveS();
+  closeModal("modal-photo-view");
+  renderDiaryGrid();
+  showToast("사진을 삭제했어요.", "orange");
+}
+
+// =============================================
+//  수확
+// =============================================
+function showHarvest() {
+  S.harvested = true;
+  S.score = calcScore();
+  saveS();
+  pushRankingData();
+
+  const days = Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/86400000))+1;
+  document.getElementById("h-sub").textContent = S.playerName+"님의 방울토마토가 잘 익었어요! 🎉";
+  document.getElementById("h-days").textContent  = days+"일";
+  document.getElementById("h-water").textContent = S.waterCount+"회";
+  document.getElementById("h-check").textContent = S.checkCount+"회";
+  document.getElementById("h-photo").textContent = (S.photos||[]).length+"장";
+  document.getElementById("h-score").textContent = S.score+"점";
+  showScreen("harvest");
+}
+
+function restartGame() {
+  if (!confirm("다시 처음부터 심을까요? 기존 기록은 사라져요.")) return;
+  const name = S.playerName, cn = S.className, nx = S.nx, ny = S.ny, rn = S.regionName;
+  S = { playerName:name, className:cn, nx, ny, regionName:rn,
+    growth:0, water:60, lastGrowthDate:"", lastWaterDate:"",
+    waterCount:0, checkCount:0, ventCount:0, warmCount:0,
+    actionsToday:[], actionDate:"", diary:[], photos:[],
+    harvested:false, score:0, startDate:"" };
+  saveS();
+  showScreen("game");
+  renderGame();
+  renderDiaryGrid();
+}
+
+// =============================================
+//  보고서 출력
+// =============================================
+function printReport() {
+  const days = T.plantDate
+    ? Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/86400000))+1 : "--";
+  const photos = (S.photos||[]).slice(0,6);
+
+  const photoHtml = photos.length > 0
+    ? '<div class="report-section"><h3>📷 성장 사진 기록 (최근 '+ photos.length+'장)</h3><div class="report-photos">'
+      + photos.map(p =>
+          '<div class="report-photo">'+
+          '<img src="'+p.img+'" alt="">'+
+          '<p>'+p.date+'<br>'+p.emoji+' '+p.stage+'</p>'+
+          '</div>'
+        ).join("")
+      + '</div></div>'
+    : '<div class="report-section"><h3>📷 성장 사진</h3><p style="color:#aaa;font-size:.88rem;">사진 기록이 없어요.</p></div>';
+
+  const diaryItems = (S.diary||[]).slice(0,15).map(d =>
+    '<div class="report-diary-item">'+d.date+' '+d.icon+' '+d.txt+'</div>'
+  ).join("");
+
+  document.getElementById("report-area").innerHTML =
+    '<div class="report-header">'+
+      '<div class="report-title">🍅 방울토마토 재배 보고서</div>'+
+      '<div class="report-sub">'+S.playerName+' · '+(S.className||"")+'</div>'+
+      '<div style="font-size:.82rem;color:#aaa;margin-top:4px;">출력일: '+getTodayStr()+'</div>'+
+    '</div>'+
+    '<div class="report-section"><h3>📊 재배 결과</h3>'+
+      '<div class="report-grid">'+
+        '<div class="report-stat"><div class="report-stat-label">재배 기간</div><div class="report-stat-value">'+days+'일</div></div>'+
+        '<div class="report-stat"><div class="report-stat-label">최종 성장률</div><div class="report-stat-value">'+Math.round(S.growth)+'%</div></div>'+
+        '<div class="report-stat"><div class="report-stat-label">물 준 횟수</div><div class="report-stat-value">'+S.waterCount+'회</div></div>'+
+        '<div class="report-stat"><div class="report-stat-label">관찰 횟수</div><div class="report-stat-value">'+S.checkCount+'회</div></div>'+
+        '<div class="report-stat"><div class="report-stat-label">사진 기록</div><div class="report-stat-value">'+photos.length+'장</div></div>'+
+        '<div class="report-stat"><div class="report-stat-label">최종 점수</div><div class="report-stat-value">'+S.score+'점</div></div>'+
+      '</div>'+
+    '</div>'+
+    photoHtml+
+    '<div class="report-section"><h3>📔 성장 일지 (최근 15개)</h3>'+
+      '<div class="report-diary">'+diaryItems+'</div>'+
+    '</div>'+
+    '<div class="report-watermark">made by 박선생</div>';
+
+  window.print();
+}
+
+// =============================================
+//  유틸
+// =============================================
+function showToast(msg, color) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast "+(color||"");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
