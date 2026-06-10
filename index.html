@@ -8,29 +8,26 @@
 :root {
   --green:#4caf50; --dgreen:#2e7d32; --lgreen:#e8f5e9;
   --red:#e53935; --orange:#ff7043; --yellow:#fdd835;
-  --blue:#1e88e5; --lblue:#e3f2fd;
-  --brown:#795548; --lbrown:#efebe9;
-  --gray:#9e9e9e; --white:#fff;
-  --shadow:0 4px 16px rgba(0,0,0,0.10);
-  --radius:18px;
+  --blue:#1e88e5; --brown:#795548;
+  --gray:#9e9e9e; --shadow:0 4px 16px rgba(0,0,0,.10); --radius:18px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;
-  background:linear-gradient(135deg,#e8f5e9 0%,#fffde7 100%);
-  min-height:100vh;color:#333;}
+  background:linear-gradient(135deg,#e8f5e9 0%,#fffde7 100%);min-height:100vh;color:#333;}
 
-/* 공통 */
+/* 화면 전환 — JS로만 제어 */
 .screen{display:none;}
-.screen.active{display:block;}
+
+/* 버튼 */
 .btn{border:none;border-radius:12px;cursor:pointer;font-size:1rem;
-  font-weight:700;padding:12px 24px;transition:transform .1s,box-shadow .1s;}
-.btn:active{transform:scale(0.97);}
-.btn-green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(76,175,80,.3);}
-.btn-blue{background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(30,136,229,.3);}
-.btn-red{background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(229,57,53,.3);}
-.btn-gray{background:#e0e0e0;color:#555;}
+  font-weight:700;padding:12px 24px;transition:transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-blue {background:var(--blue);color:#fff;}
+.btn-red  {background:var(--red);color:#fff;}
+.btn-gray {background:#e0e0e0;color:#555;}
 .btn-orange{background:var(--orange);color:#fff;}
-.btn-brown{background:var(--brown);color:#fff;}
+.btn-brown {background:var(--brown);color:#fff;}
 .btn-purple{background:#7b1fa2;color:#fff;}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
 
@@ -39,11 +36,8 @@ header{background:linear-gradient(90deg,#2e7d32,#43a047);color:#fff;
   padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
   box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:100;}
 header h1{font-size:1.2rem;}
-.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .weather-badge{background:rgba(255,255,255,.2);border-radius:20px;
-  padding:4px 12px;font-size:.82rem;display:flex;align-items:center;gap:5px;}
-.header-btns{display:flex;gap:6px;}
-.header-btns .btn{padding:6px 12px;font-size:.8rem;border-radius:8px;}
+  padding:4px 12px;font-size:.82rem;}
 
 /* 탭 */
 .tab-bar{display:flex;background:#fff;border-bottom:2px solid #e0e0e0;
@@ -51,297 +45,255 @@ header h1{font-size:1.2rem;}
 .tab-btn{flex:1;padding:12px 8px;border:none;background:none;
   font-size:.88rem;font-weight:700;color:#999;cursor:pointer;
   border-bottom:3px solid transparent;transition:all .2s;}
-.tab-btn.active{color:var(--dgreen);border-bottom-color:var(--green);}
+.tab-btn.on{color:var(--dgreen);border-bottom-color:var(--green);}
+.tab-content{display:none;padding:16px;max-width:900px;margin:0 auto;}
+.tab-content.on{display:block;}
 
 /* 시작 화면 */
-#screen-start{display:flex;flex-direction:column;align-items:center;
-  justify-content:center;min-height:90vh;padding:24px;text-align:center;}
-#screen-start.active{display:flex;}
-.start-card{background:#fff;border-radius:var(--radius);padding:32px;
-  box-shadow:var(--shadow);width:100%;max-width:420px;}
-.start-card input,.start-card select{width:100%;padding:13px 16px;
-  border:2px solid #e0e0e0;border-radius:10px;font-size:1rem;
-  margin-bottom:12px;outline:none;transition:border .2s;}
+.start-wrap{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:100vh;padding:24px;text-align:center;}
+.start-card{background:#fff;border-radius:var(--radius);padding:28px;
+  box-shadow:var(--shadow);width:100%;max-width:420px;text-align:left;}
+.start-card label{display:block;font-size:.88rem;font-weight:700;
+  margin-bottom:5px;color:#555;}
+.start-card input,.start-card select{width:100%;padding:12px 14px;
+  border:2px solid #e0e0e0;border-radius:10px;font-size:.95rem;
+  margin-bottom:12px;outline:none;background:#fff;}
 .start-card input:focus,.start-card select:focus{border-color:var(--green);}
-.start-card label{display:block;font-weight:700;margin-bottom:6px;color:#444;
-  font-size:.92rem;}
 .region-row{display:flex;gap:8px;margin-bottom:12px;}
 .region-row select{flex:1;margin-bottom:0;}
 
-/* 탭 콘텐츠 */
-.tab-content{display:none;padding:16px;max-width:900px;margin:0 auto;}
-.tab-content.active{display:block;}
-
 /* 카드 */
-.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px;}
-.card-title{font-size:.82rem;font-weight:700;color:var(--gray);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px;margin-bottom:14px;}
+.card-title{font-size:.8rem;font-weight:700;color:var(--gray);
+  letter-spacing:1px;margin-bottom:12px;}
 
 /* 화분 */
-.pot-card{display:flex;align-items:center;gap:24px;padding:24px;}
-@media(max-width:600px){.pot-card{flex-direction:column;gap:12px;text-align:center;}}
-.plant-stage-img{font-size:5rem;line-height:1;cursor:pointer;
-  transition:transform .2s;user-select:none;}
-.plant-stage-img:hover{transform:scale(1.1);}
+.pot-card{display:flex;align-items:center;gap:24px;padding:22px;}
+@media(max-width:580px){.pot-card{flex-direction:column;gap:10px;text-align:center;}}
+.plant-emoji{font-size:5rem;line-height:1;}
 .pot-info{flex:1;}
-.plant-name{font-size:1.3rem;font-weight:900;margin-bottom:5px;}
+.plant-name{font-size:1.2rem;font-weight:900;margin-bottom:5px;}
 .stage-badge{display:inline-block;background:var(--lgreen);color:#2e7d32;
-  border-radius:20px;padding:3px 14px;font-size:.83rem;font-weight:700;margin-bottom:10px;}
+  border-radius:20px;padding:3px 14px;font-size:.82rem;font-weight:700;margin-bottom:10px;}
 .bar-wrap{margin-bottom:8px;}
-.bar-label{font-size:.82rem;color:#666;margin-bottom:3px;
+.bar-label{font-size:.8rem;color:#666;margin-bottom:3px;
   display:flex;justify-content:space-between;}
-.bar-bg{background:#e0e0e0;border-radius:8px;height:13px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:8px;transition:width .6s ease;}
-.bar-green{background:linear-gradient(90deg,#66bb6a,#2e7d32);}
-.bar-blue{background:linear-gradient(90deg,#64b5f6,#1565c0);}
-.bar-orange{background:linear-gradient(90deg,#ffb74d,#e65100);}
+.bar-bg{background:#e0e0e0;border-radius:8px;height:12px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:8px;transition:width .5s ease;}
+.b-green{background:linear-gradient(90deg,#66bb6a,#2e7d32);}
+.b-blue {background:linear-gradient(90deg,#64b5f6,#1565c0);}
+.b-orange{background:linear-gradient(90deg,#ffb74d,#e65100);}
 
 /* 상태 그리드 */
-.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.status-item{background:var(--lgreen);border-radius:12px;padding:12px;text-align:center;}
-.status-icon{font-size:1.5rem;}
-.status-label{font-size:.73rem;color:#666;margin-top:2px;}
-.status-value{font-size:1rem;font-weight:900;color:#2e7d32;}
-.status-warn{background:#fff8e1;}.status-warn .status-value{color:#f57f17;}
-.status-danger{background:#ffebee;}.status-danger .status-value{color:var(--red);}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-item{background:var(--lgreen);border-radius:12px;padding:12px;text-align:center;}
+.stat-icon{font-size:1.4rem;}
+.stat-label{font-size:.72rem;color:#666;margin-top:2px;}
+.stat-value{font-size:.98rem;font-weight:900;color:#2e7d32;}
+.stat-warn{background:#fff8e1;}.stat-warn .stat-value{color:#f57f17;}
+.stat-danger{background:#ffebee;}.stat-danger .stat-value{color:var(--red);}
 
 /* 날씨 */
-.weather-detail{display:flex;flex-direction:column;gap:7px;}
-.weather-row{display:flex;justify-content:space-between;align-items:center;font-size:.92rem;}
-.weather-row span:last-child{font-weight:700;}
-.sun-bar{display:flex;gap:3px;margin-top:4px;}
+.w-row{display:flex;justify-content:space-between;font-size:.9rem;
+  padding:4px 0;border-bottom:1px solid #f0f0f0;}
+.w-row:last-child{border:none;}
+.w-row span:last-child{font-weight:700;}
+.sun-bar{display:flex;gap:3px;margin-top:6px;}
 .sun-block{flex:1;height:9px;border-radius:4px;background:#e0e0e0;}
 .sun-block.on{background:var(--yellow);}
 
 /* 행동 */
-.action-btns{display:flex;flex-direction:column;gap:10px;}
-.action-row{display:flex;gap:10px;}
-.action-row .btn{flex:1;font-size:.9rem;padding:13px 8px;}
-.action-log{background:var(--lgreen);border-radius:10px;padding:10px 14px;
-  font-size:.83rem;color:#444;max-height:90px;overflow-y:auto;margin-top:8px;}
-.log-item{padding:2px 0;border-bottom:1px solid #e0e0e0;}
-.log-item:last-child{border:none;}
-
-/* 랭킹 */
-.ranking-list{display:flex;flex-direction:column;gap:10px;}
-.rank-item{display:flex;align-items:center;gap:12px;padding:14px 16px;
-  background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);}
-.rank-num{font-size:1.4rem;font-weight:900;width:36px;text-align:center;}
-.rank-num.gold{color:#f9a825;}
-.rank-num.silver{color:#78909c;}
-.rank-num.bronze{color:#a1887f;}
-.rank-plant{font-size:2rem;}
-.rank-info{flex:1;}
-.rank-name{font-weight:700;font-size:.95rem;}
-.rank-stage{font-size:.8rem;color:var(--gray);margin-bottom:4px;}
-.rank-bar-bg{background:#e0e0e0;border-radius:6px;height:8px;overflow:hidden;}
-.rank-bar-fill{height:100%;border-radius:6px;
-  background:linear-gradient(90deg,#66bb6a,#2e7d32);transition:width .6s;}
-.rank-pct{font-size:.82rem;font-weight:700;color:var(--dgreen);min-width:36px;text-align:right;}
-.rank-me{border:2px solid var(--green);background:var(--lgreen);}
-.rank-refresh{display:flex;justify-content:flex-end;margin-bottom:10px;}
+.act-row{display:flex;gap:10px;margin-bottom:10px;}
+.act-row .btn{flex:1;font-size:.88rem;padding:12px 6px;}
+.act-log{background:var(--lgreen);border-radius:10px;padding:9px 13px;
+  font-size:.82rem;color:#444;max-height:85px;overflow-y:auto;}
+.act-log-item{padding:2px 0;border-bottom:1px solid #ddd;}
+.act-log-item:last-child{border:none;}
 
 /* 사진 일지 */
-.diary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-.diary-photo-card{border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.photo-card{border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);
   cursor:pointer;background:#fff;transition:transform .2s;}
-.diary-photo-card:hover{transform:translateY(-3px);}
-.diary-photo-img{width:100%;height:120px;object-fit:cover;background:#f5f5f5;
-  display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
-.diary-photo-img img{width:100%;height:100%;object-fit:cover;}
-.diary-photo-info{padding:8px;}
-.diary-photo-date{font-size:.75rem;color:var(--gray);}
-.diary-photo-note{font-size:.82rem;margin-top:2px;color:#333;}
-.diary-photo-stage{font-size:.75rem;color:var(--dgreen);font-weight:700;}
-.add-photo-btn{border:2px dashed #ccc;border-radius:14px;display:flex;
+.photo-card:hover{transform:translateY(-3px);}
+.photo-img-wrap{width:100%;height:120px;overflow:hidden;background:#f5f5f5;
+  display:flex;align-items:center;justify-content:center;}
+.photo-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.photo-info{padding:8px;}
+.photo-date{font-size:.73rem;color:var(--gray);}
+.photo-stage{font-size:.75rem;color:var(--dgreen);font-weight:700;}
+.photo-note{font-size:.8rem;margin-top:2px;color:#444;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.add-photo{border:2px dashed #ccc;border-radius:14px;display:flex;
   flex-direction:column;align-items:center;justify-content:center;
-  min-height:160px;cursor:pointer;background:#fafafa;transition:all .2s;}
-.add-photo-btn:hover{border-color:var(--green);background:var(--lgreen);}
-.add-photo-btn span{font-size:2rem;margin-bottom:6px;}
-.add-photo-btn p{font-size:.85rem;color:#888;}
-
-/* 사진 뷰어 모달 */
-.photo-modal-img{width:100%;max-height:60vh;object-fit:contain;border-radius:10px;margin-bottom:12px;}
-.photo-modal-info{font-size:.9rem;color:#555;margin-bottom:8px;}
+  min-height:164px;cursor:pointer;background:#fafafa;transition:all .2s;gap:6px;}
+.add-photo:hover{border-color:var(--green);background:var(--lgreen);}
+.add-photo span{font-size:2rem;}
+.add-photo p{font-size:.85rem;color:#888;}
 
 /* 수확 */
-#screen-harvest{padding:20px;max-width:600px;margin:0 auto;text-align:center;}
-#screen-harvest.active{display:flex;flex-direction:column;align-items:center;
-  justify-content:center;min-height:90vh;}
-.harvest-emoji{font-size:5rem;margin-bottom:16px;}
-.harvest-title{font-size:1.9rem;font-weight:900;color:var(--red);margin-bottom:8px;}
+.harvest-wrap{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:90vh;padding:24px;text-align:center;}
 .harvest-stats{background:#fff;border-radius:var(--radius);padding:22px;
-  box-shadow:var(--shadow);width:100%;margin-bottom:20px;}
-.harvest-stat-row{display:flex;justify-content:space-between;
-  padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:.95rem;}
-.harvest-stat-row:last-child{border:none;}
-.harvest-stat-row strong{color:var(--red);}
+  box-shadow:var(--shadow);width:100%;max-width:400px;margin-bottom:20px;}
+.h-row{display:flex;justify-content:space-between;padding:8px 0;
+  border-bottom:1px solid #f0f0f0;font-size:.93rem;}
+.h-row:last-child{border:none;}
+.h-row strong{color:var(--red);}
 
-/* 보고서 (인쇄용) */
+/* 보고서 인쇄 */
 #report-area{display:none;}
 @media print{
   body>*{display:none!important;}
   #report-area{display:block!important;font-family:'Noto Sans KR',sans-serif;
-    max-width:700px;margin:0 auto;padding:20px;color:#333;}
-  .report-header{text-align:center;border-bottom:2px solid #333;padding-bottom:16px;margin-bottom:20px;}
-  .report-title{font-size:1.6rem;font-weight:900;color:#2e7d32;}
-  .report-sub{font-size:1rem;color:#555;margin-top:4px;}
-  .report-section{margin-bottom:20px;}
-  .report-section h3{font-size:1rem;font-weight:700;border-left:4px solid #4caf50;
+    max-width:700px;margin:0 auto;padding:20px;}
+  .rpt-header{text-align:center;border-bottom:2px solid #333;
+    padding-bottom:14px;margin-bottom:18px;}
+  .rpt-title{font-size:1.5rem;font-weight:900;color:#2e7d32;}
+  .rpt-sub{font-size:.95rem;color:#555;margin-top:3px;}
+  .rpt-section{margin-bottom:18px;}
+  .rpt-section h3{font-size:.95rem;font-weight:700;border-left:4px solid #4caf50;
     padding-left:8px;margin-bottom:10px;}
-  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .report-stat{background:#f9f9f9;border-radius:8px;padding:10px 14px;}
-  .report-stat-label{font-size:.8rem;color:#888;}
-  .report-stat-value{font-size:1.1rem;font-weight:700;color:#2e7d32;}
-  .report-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .report-photo{text-align:center;}
-  .report-photo img{width:100%;height:100px;object-fit:cover;border-radius:8px;}
-  .report-photo p{font-size:.75rem;color:#666;margin-top:4px;}
-  .report-diary{font-size:.82rem;}
-  .report-diary-item{padding:5px 0;border-bottom:1px solid #eee;}
-  .report-watermark{text-align:center;margin-top:24px;font-size:.78rem;color:#bbb;}
-  .no-print{display:none!important;}
+  .rpt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .rpt-stat{background:#f9f9f9;border-radius:8px;padding:9px 13px;}
+  .rpt-stat-label{font-size:.78rem;color:#888;}
+  .rpt-stat-value{font-size:1rem;font-weight:700;color:#2e7d32;}
+  .rpt-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .rpt-photo img{width:100%;height:95px;object-fit:cover;border-radius:7px;}
+  .rpt-photo p{font-size:.72rem;color:#666;margin-top:3px;text-align:center;}
+  .rpt-diary-item{font-size:.8rem;padding:4px 0;border-bottom:1px solid #eee;}
+  .rpt-wm{text-align:center;margin-top:20px;font-size:.75rem;color:#bbb;}
 }
 
-/* 교사 설정 */
-#screen-teacher{padding:20px;max-width:680px;margin:0 auto;}
-#screen-teacher.active{display:block;}
-.teacher-section{background:#fff;border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:22px;margin-bottom:16px;}
-.teacher-section h2{font-size:1.05rem;margin-bottom:14px;color:#333;}
-.form-row{margin-bottom:12px;}
-.form-row label{display:block;font-size:.88rem;font-weight:700;margin-bottom:5px;color:#555;}
-.form-row input,.form-row select{width:100%;padding:11px 14px;
-  border:2px solid #e0e0e0;border-radius:10px;font-size:.95rem;outline:none;}
-.form-row input:focus,.form-row select:focus{border-color:var(--green);}
-
-/* 모달 */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:200;align-items:center;justify-content:center;padding:16px;}
-.modal-overlay.active{display:flex;}
-.modal{background:#fff;border-radius:var(--radius);padding:28px;
-  width:100%;max-width:400px;box-shadow:var(--shadow);}
-.modal h3{font-size:1.1rem;margin-bottom:14px;text-align:center;}
-.modal input,.modal textarea{width:100%;padding:11px;border:2px solid #e0e0e0;
-  border-radius:10px;font-size:.95rem;margin-bottom:12px;outline:none;}
-.modal input:focus,.modal textarea:focus{border-color:var(--green);}
-.modal textarea{resize:vertical;min-height:70px;}
-.modal-btns{display:flex;gap:10px;}
-.modal-btns .btn{flex:1;}
-
-/* 알림 */
+/* 알림 배너 */
 .alert-banner{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;
-  padding:9px 14px;font-size:.85rem;margin-bottom:10px;
+  padding:9px 13px;font-size:.83rem;margin-bottom:10px;
   display:none;align-items:center;gap:7px;}
 .alert-banner.show{display:flex;}
-.alert-banner.danger{background:#ffebee;border-color:var(--red);}
+.alert-banner.red{background:#ffebee;border-color:var(--red);}
+
+/* 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:var(--radius);padding:26px;
+  width:100%;max-width:400px;box-shadow:var(--shadow);}
+.modal h3{font-size:1.05rem;margin-bottom:13px;text-align:center;}
+.modal input,.modal textarea{width:100%;padding:11px;border:2px solid #e0e0e0;
+  border-radius:10px;font-size:.93rem;margin-bottom:11px;outline:none;}
+.modal input:focus,.modal textarea:focus{border-color:var(--green);}
+.modal textarea{resize:vertical;min-height:65px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns .btn{flex:1;}
+.modal-view-img{width:100%;max-height:55vh;object-fit:contain;
+  border-radius:10px;margin-bottom:11px;}
 
 /* 토스트 */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);
+.toast{position:fixed;bottom:26px;left:50%;
+  transform:translateX(-50%) translateY(100px);
   background:#333;color:#fff;border-radius:30px;padding:11px 26px;
-  font-size:.92rem;font-weight:700;z-index:300;transition:transform .3s ease;
-  box-shadow:0 4px 20px rgba(0,0,0,.25);}
+  font-size:.9rem;font-weight:700;z-index:300;transition:transform .3s;
+  pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.green{background:var(--green);}
 .toast.red{background:var(--red);}
 .toast.blue{background:var(--blue);}
 .toast.orange{background:var(--orange);}
 
-.watermark{text-align:center;padding:14px;font-size:.76rem;color:#bbb;margin-top:10px;}
-
 /* 씨앗 대기 */
-.no-seed-view{text-align:center;padding:50px 20px;}
-.no-seed-view .big{font-size:3.5rem;margin-bottom:14px;}
-.no-seed-view p{color:#666;font-size:.95rem;}
+.no-seed{text-align:center;padding:50px 20px;}
 
-/* 로딩 */
-.loading-spin{display:inline-block;width:20px;height:20px;
-  border:3px solid #e0e0e0;border-top-color:var(--green);
-  border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.watermark{text-align:center;padding:14px;font-size:.75rem;color:#ccc;}
 </style>
 </head>
 <body>
 
-<!-- 헤더 -->
+<!-- 헤더 (시작 후 표시) -->
 <header id="main-header" style="display:none;">
   <h1>🍅 방울토마토 기르기</h1>
-  <div class="header-right">
-    <div class="weather-badge" id="header-weather">🌤 --</div>
-    <div class="header-btns">
-      <button class="btn btn-gray" onclick="openTeacher()">⚙️ 교사</button>
-    </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="weather-badge" id="hdr-weather">🌤 --</div>
+    <button class="btn btn-gray" style="padding:6px 12px;font-size:.8rem;" onclick="openSettings()">⚙️ 설정</button>
   </div>
 </header>
 
-<!-- 탭 바 -->
+<!-- 탭 바 (시작 후 표시) -->
 <div class="tab-bar" id="tab-bar" style="display:none;">
-  <button class="tab-btn active" onclick="switchTab('grow')">🌱 키우기</button>
-  <button class="tab-btn" onclick="switchTab('ranking')">🏆 랭킹</button>
-  <button class="tab-btn" onclick="switchTab('diary')">📸 사진일지</button>
+  <button class="tab-btn on" id="tbtn-grow"  onclick="switchTab('grow',this)">🌱 키우기</button>
+  <button class="tab-btn"    id="tbtn-diary" onclick="switchTab('diary',this)">📸 사진일지</button>
 </div>
 
 <!-- ===== 시작 화면 ===== -->
-<div id="screen-start" class="screen active">
-  <div style="font-size:2.2rem;font-weight:900;margin-bottom:6px;">🍅 방울토마토 기르기</div>
-  <div style="font-size:1rem;color:#666;margin-bottom:30px;">나만의 방울토마토를 심고 키워보세요!</div>
-  <div class="start-card">
-    <label>내 이름</label>
-    <input type="text" id="input-name" placeholder="예: 김민준" maxlength="10">
-    <label>우리 반</label>
-    <input type="text" id="input-class" placeholder="예: 6학년 2반" maxlength="12">
-    <label>📍 내 지역 선택</label>
-    <div class="region-row">
-      <select id="start-sido" onchange="startUpdateSigungu()">
-        <option value="">시/도</option>
-      </select>
-      <select id="start-sigungu">
-        <option value="">시/군/구</option>
-      </select>
+<div id="screen-start" class="screen">
+  <div class="start-wrap">
+    <div style="font-size:2rem;font-weight:900;margin-bottom:6px;">🍅 방울토마토 기르기</div>
+    <div style="font-size:.95rem;color:#666;margin-bottom:26px;">나만의 방울토마토를 심고 키워보세요!</div>
+    <div class="start-card">
+      <label>내 이름</label>
+      <input type="text" id="inp-name" placeholder="예: 김민준" maxlength="10">
+      <label>우리 반 <span style="color:#aaa;font-weight:400;">(선택)</span></label>
+      <input type="text" id="inp-class" placeholder="예: 6학년 2반" maxlength="14">
+      <label>📍 내 지역</label>
+      <div class="region-row">
+        <select id="sel-sido" onchange="onSidoChange()">
+          <option value="">시/도</option>
+        </select>
+        <select id="sel-sg">
+          <option value="">시/군/구</option>
+        </select>
+      </div>
+      <label>🌱 씨앗 심은 날짜</label>
+      <input type="date" id="inp-plantdate">
+      <button class="btn btn-green" style="width:100%;font-size:1rem;padding:14px;"
+        onclick="startGame()">🌱 시작하기</button>
     </div>
-    <button class="btn btn-green" style="width:100%;font-size:1.05rem;padding:15px;" onclick="startGame()">🌱 시작하기</button>
+    <div class="watermark">made by 박선생</div>
   </div>
-  <div class="watermark">made by 박선생</div>
 </div>
 
 <!-- ===== 게임 화면 ===== -->
 <div id="screen-game" class="screen">
 
   <!-- 키우기 탭 -->
-  <div id="tab-grow" class="tab-content active">
+  <div id="tab-grow" class="tab-content on">
     <div id="alert-water" class="alert-banner">
-      <span>💧</span><span id="alert-water-text">물이 부족해요!</span>
+      <span>💧</span><span id="alert-water-txt">물이 부족해요!</span>
     </div>
-    <div id="alert-temp" class="alert-banner danger">
-      <span>🌡️</span><span id="alert-temp-text">기온이 위험해요!</span>
+    <div id="alert-temp" class="alert-banner red">
+      <span>🌡️</span><span id="alert-temp-txt">기온이 위험해요!</span>
     </div>
 
-    <div id="no-seed-view" class="no-seed-view" style="display:none;">
-      <div class="big">🪴</div>
-      <p>선생님이 씨앗 심기를 시작하면<br>알려줄 거예요!</p>
+    <!-- 씨앗 아직 없음 -->
+    <div id="no-seed" class="no-seed" style="display:none;">
+      <div style="font-size:3.5rem;margin-bottom:14px;">🪴</div>
+      <p style="color:#666;">씨앗 심은 날짜가 아직 설정되지 않았어요.<br>
+        <button class="btn btn-green" style="margin-top:14px;padding:10px 22px;"
+          onclick="openSettings()">⚙️ 설정에서 날짜 입력하기</button>
+      </p>
     </div>
 
     <div id="game-content" style="display:none;">
       <!-- 화분 -->
       <div class="card pot-card">
         <div style="text-align:center;flex-shrink:0;">
-          <div class="plant-stage-img" id="plant-img" onclick="showToast('관찰 버튼으로 자세히 살펴보세요! 🔍','green')" title="클릭해서 관찰하기">🌱</div>
-          <div style="font-size:2rem;">🪴</div>
+          <div class="plant-emoji" id="plant-emoji">🌰</div>
+          <div style="font-size:2.2rem;">🪴</div>
         </div>
         <div class="pot-info">
-          <div class="plant-name" id="plant-owner-name">--의 방울토마토</div>
+          <div class="plant-name" id="plant-name">--의 방울토마토</div>
           <div class="stage-badge" id="stage-badge">씨앗 단계</div>
           <div class="bar-wrap">
-            <div class="bar-label"><span>🌱 전체 성장</span><span id="growth-pct">0%</span></div>
-            <div class="bar-bg"><div class="bar-fill bar-green" id="growth-bar" style="width:0%"></div></div>
+            <div class="bar-label"><span>🌱 전체 성장</span><span id="pct-growth">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill b-green" id="bar-growth" style="width:0%"></div></div>
           </div>
           <div class="bar-wrap">
-            <div class="bar-label"><span>💧 수분</span><span id="water-pct">60%</span></div>
-            <div class="bar-bg"><div class="bar-fill bar-blue" id="water-bar" style="width:60%"></div></div>
+            <div class="bar-label"><span>💧 수분</span><span id="pct-water">60%</span></div>
+            <div class="bar-bg"><div class="bar-fill b-blue" id="bar-water" style="width:60%"></div></div>
           </div>
           <div class="bar-wrap">
-            <div class="bar-label"><span>☀️ 오늘 일조</span><span id="sun-pct">0%</span></div>
-            <div class="bar-bg"><div class="bar-fill bar-orange" id="sun-bar" style="width:0%"></div></div>
+            <div class="bar-label"><span>☀️ 오늘 일조</span><span id="pct-sun">0%</span></div>
+            <div class="bar-bg"><div class="bar-fill b-orange" id="bar-sun" style="width:0%"></div></div>
           </div>
         </div>
       </div>
@@ -350,362 +302,299 @@ header h1{font-size:1.2rem;}
         <!-- 상태 -->
         <div class="card">
           <div class="card-title">📊 현재 상태</div>
-          <div class="status-grid">
-            <div class="status-item" id="st-temp-box">
-              <div class="status-icon">🌡️</div>
-              <div class="status-value" id="st-temp">--°C</div>
-              <div class="status-label">기온</div>
+          <div class="stat-grid">
+            <div class="stat-item" id="st-temp">
+              <div class="stat-icon">🌡️</div>
+              <div class="stat-value" id="sv-temp">--°C</div>
+              <div class="stat-label">기온</div>
             </div>
-            <div class="status-item" id="st-sky-box">
-              <div class="status-icon" id="st-sky-icon">⛅</div>
-              <div class="status-value" id="st-sky">--</div>
-              <div class="status-label">날씨</div>
+            <div class="stat-item" id="st-sky">
+              <div class="stat-icon" id="si-sky">⛅</div>
+              <div class="stat-value" id="sv-sky">--</div>
+              <div class="stat-label">날씨</div>
             </div>
-            <div class="status-item" id="st-water-box">
-              <div class="status-icon">💧</div>
-              <div class="status-value" id="st-water-val">보통</div>
-              <div class="status-label">수분</div>
+            <div class="stat-item" id="st-water">
+              <div class="stat-icon">💧</div>
+              <div class="stat-value" id="sv-water">보통</div>
+              <div class="stat-label">수분</div>
             </div>
-            <div class="status-item">
-              <div class="status-icon">📅</div>
-              <div class="status-value" id="st-day">--일차</div>
-              <div class="status-label">재배기간</div>
+            <div class="stat-item">
+              <div class="stat-icon">📅</div>
+              <div class="stat-value" id="sv-day">--일차</div>
+              <div class="stat-label">재배기간</div>
             </div>
           </div>
         </div>
 
         <!-- 날씨 -->
         <div class="card">
-          <div class="card-title">🌤 오늘의 날씨</div>
-          <div class="weather-detail">
-            <div class="weather-row"><span>📍</span><span id="w-region">--</span></div>
-            <div class="weather-row"><span>🌡️ 기온</span><span id="w-temp">--°C</span></div>
-            <div class="weather-row"><span>💧 강수</span><span id="w-rain">--</span></div>
-            <div class="weather-row"><span>💨 바람</span><span id="w-wind">--</span></div>
-            <div class="weather-row"><span>☀️ 일조</span><span id="w-sun">--시간</span></div>
-            <div class="sun-bar" id="sun-blocks"></div>
-            <div style="font-size:.73rem;color:#bbb;margin-top:3px;" id="w-time">--</div>
-          </div>
+          <div class="card-title">🌤 오늘 날씨</div>
+          <div class="w-row"><span>📍</span><span id="w-region">--</span></div>
+          <div class="w-row"><span>🌡️ 기온</span><span id="w-temp">--°C</span></div>
+          <div class="w-row"><span>💧 강수</span><span id="w-rain">--</span></div>
+          <div class="w-row"><span>💨 바람</span><span id="w-wind">--</span></div>
+          <div class="w-row"><span>☀️ 일조</span><span id="w-sun">--</span></div>
+          <div class="sun-bar" id="sun-blocks"></div>
+          <div style="font-size:.72rem;color:#bbb;margin-top:4px;" id="w-time">--</div>
         </div>
       </div>
 
       <!-- 행동 -->
       <div class="card">
         <div class="card-title">🖐 오늘 할 일</div>
-        <div class="action-btns">
-          <div class="action-row">
-            <button class="btn btn-blue" id="btn-water" onclick="doWater()">💧 물 주기</button>
-            <button class="btn btn-orange" id="btn-vent" onclick="doVent()">🌬 환기</button>
-          </div>
-          <div class="action-row">
-            <button class="btn btn-brown" id="btn-warm" onclick="doWarm()">🧥 보온</button>
-            <button class="btn btn-green" id="btn-check" onclick="doCheck()">🔍 관찰하기</button>
-          </div>
-          <div class="action-log" id="action-log">
-            <div class="log-item" style="color:#bbb;">오늘의 활동 기록</div>
-          </div>
+        <div class="act-row">
+          <button class="btn btn-blue"   onclick="doAction('water')">💧 물 주기</button>
+          <button class="btn btn-orange" onclick="doAction('vent')">🌬 환기</button>
+        </div>
+        <div class="act-row">
+          <button class="btn btn-brown"  onclick="doAction('warm')">🧥 보온</button>
+          <button class="btn btn-green"  onclick="doAction('check')">🔍 관찰</button>
+        </div>
+        <div class="act-log" id="act-log">
+          <div class="act-log-item" style="color:#bbb;">오늘의 활동이 기록돼요</div>
         </div>
       </div>
-
-    </div><!-- game-content -->
-  </div><!-- tab-grow -->
-
-  <!-- 랭킹 탭 -->
-  <div id="tab-ranking" class="tab-content">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div class="card-title" style="margin:0;">🏆 우리 반 성장 랭킹</div>
-        <button class="btn btn-gray" style="padding:6px 14px;font-size:.82rem;" onclick="loadRanking()">
-          🔄 새로고침
-        </button>
-      </div>
-      <div id="ranking-list" class="ranking-list">
-        <div style="text-align:center;padding:30px;color:#aaa;">
-          <div class="loading-spin"></div>
-          <div style="margin-top:8px;font-size:.9rem;">랭킹 불러오는 중...</div>
-        </div>
-      </div>
-    </div>
-    <div class="watermark">made by 박선생</div>
-  </div>
+    </div><!-- /game-content -->
+  </div><!-- /tab-grow -->
 
   <!-- 사진 일지 탭 -->
   <div id="tab-diary" class="tab-content">
     <div class="card">
-      <div class="card-title">📸 나의 성장 사진 일지</div>
-      <div class="diary-grid" id="diary-grid">
-        <!-- 사진 추가 버튼 -->
-        <div class="add-photo-btn" onclick="openPhotoAdd()">
-          <span>📷</span>
-          <p>사진 추가</p>
+      <div class="card-title">📸 성장 사진 일지</div>
+      <div class="photo-grid" id="photo-grid">
+        <div class="add-photo" onclick="openPhotoAdd()">
+          <span>📷</span><p>사진 추가</p>
         </div>
       </div>
     </div>
     <div class="watermark">made by 박선생</div>
   </div>
 
-</div><!-- screen-game -->
+</div><!-- /screen-game -->
 
 <!-- ===== 수확 화면 ===== -->
 <div id="screen-harvest" class="screen">
-  <div class="harvest-emoji">🍅🎉</div>
-  <div class="harvest-title">수확 완료!</div>
-  <div class="harvest-sub" id="h-sub">방울토마토가 잘 익었어요!</div>
-  <div class="harvest-stats">
-    <div class="harvest-stat-row"><span>재배 기간</span><strong id="h-days">--일</strong></div>
-    <div class="harvest-stat-row"><span>물 준 횟수</span><strong id="h-water">--회</strong></div>
-    <div class="harvest-stat-row"><span>관찰 횟수</span><strong id="h-check">--회</strong></div>
-    <div class="harvest-stat-row"><span>사진 기록</span><strong id="h-photo">--장</strong></div>
-    <div class="harvest-stat-row"><span>최종 점수</span><strong id="h-score">--점</strong></div>
+  <div class="harvest-wrap">
+    <div style="font-size:5rem;margin-bottom:14px;">🍅🎉</div>
+    <div style="font-size:1.8rem;font-weight:900;color:var(--red);margin-bottom:8px;">수확 완료!</div>
+    <div style="font-size:.95rem;color:#555;margin-bottom:22px;" id="h-sub">방울토마토가 잘 익었어요!</div>
+    <div class="harvest-stats">
+      <div class="h-row"><span>재배 기간</span><strong id="h-days">--일</strong></div>
+      <div class="h-row"><span>물 준 횟수</span><strong id="h-water">--회</strong></div>
+      <div class="h-row"><span>관찰 횟수</span><strong id="h-check">--회</strong></div>
+      <div class="h-row"><span>사진 기록</span><strong id="h-photo">--장</strong></div>
+      <div class="h-row"><span>최종 점수</span><strong id="h-score">--점</strong></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn btn-purple" onclick="printReport()">📄 보고서 출력</button>
+      <button class="btn btn-green"  onclick="restartGame()">🌱 다시 심기</button>
+      <button class="btn btn-gray"   onclick="goGame()">📸 일지 보기</button>
+    </div>
+    <div class="watermark">made by 박선생</div>
   </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-    <button class="btn btn-purple" onclick="printReport()">📄 보고서 출력</button>
-    <button class="btn btn-green" onclick="restartGame()">🌱 다시 심기</button>
-    <button class="btn btn-gray" onclick="showScreen('game')">📸 일지 보기</button>
+</div>
+
+<!-- ===== 설정 화면 ===== -->
+<div id="screen-settings" class="screen">
+  <div style="padding:16px 16px 0;max-width:600px;margin:0 auto;display:flex;align-items:center;gap:12px;">
+    <button class="btn btn-gray" onclick="closeSettings()">← 뒤로</button>
+    <h2 style="font-size:1.15rem;">⚙️ 설정</h2>
+  </div>
+  <div style="padding:14px 16px 24px;max-width:600px;margin:0 auto;">
+
+    <div class="card">
+      <div class="card-title">👤 내 정보</div>
+      <label style="font-size:.88rem;font-weight:700;color:#555;display:block;margin-bottom:5px;">이름</label>
+      <input type="text" id="set-name" placeholder="이름" maxlength="10"
+        style="width:100%;padding:11px;border:2px solid #e0e0e0;border-radius:10px;font-size:.93rem;margin-bottom:10px;outline:none;">
+      <label style="font-size:.88rem;font-weight:700;color:#555;display:block;margin-bottom:5px;">우리 반</label>
+      <input type="text" id="set-class" placeholder="예: 6학년 2반" maxlength="14"
+        style="width:100%;padding:11px;border:2px solid #e0e0e0;border-radius:10px;font-size:.93rem;margin-bottom:10px;outline:none;">
+    </div>
+
+    <div class="card">
+      <div class="card-title">📍 지역 설정 (날씨 연동)</div>
+      <div class="region-row" style="margin-bottom:10px;">
+        <select id="set-sido" onchange="setOnSidoChange()" style="flex:1;padding:11px;border:2px solid #e0e0e0;border-radius:10px;font-size:.93rem;">
+          <option value="">시/도 선택</option>
+        </select>
+        <select id="set-sg" style="flex:1;padding:11px;border:2px solid #e0e0e0;border-radius:10px;font-size:.93rem;">
+          <option value="">시/군/구 선택</option>
+        </select>
+      </div>
+      <div style="font-size:.83rem;color:#888;" id="set-region-show">현재: --</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌱 씨앗 심은 날짜</div>
+      <input type="date" id="set-plantdate"
+        style="width:100%;padding:11px;border:2px solid #e0e0e0;border-radius:10px;font-size:.93rem;margin-bottom:10px;outline:none;">
+      <div style="font-size:.8rem;color:#e53935;">⚠️ 날짜를 바꾸면 성장 기간이 다시 계산됩니다.</div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-green" onclick="saveSettings()">✅ 저장</button>
+      <button class="btn btn-red"   onclick="resetAll()">🗑 초기화</button>
+    </div>
+
   </div>
   <div class="watermark">made by 박선생</div>
 </div>
 
-<!-- ===== 교사 설정 ===== -->
-<div id="screen-teacher" class="screen">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:16px 16px 0;">
-    <button class="btn btn-gray" onclick="closeTeacher()">← 뒤로</button>
-    <h2 style="font-size:1.2rem;">⚙️ 교사 설정</h2>
-  </div>
-  <div style="padding:0 16px 20px;max-width:680px;margin:0 auto;">
-
-    <div class="teacher-section">
-      <h2>🌱 씨앗 심기 날짜</h2>
-      <div class="form-row">
-        <label>씨앗 심기 시작일</label>
-        <input type="date" id="plant-date">
-      </div>
-      <div class="form-row">
-        <label>반 이름 (랭킹 표시용)</label>
-        <input type="text" id="class-name-input" placeholder="예: 6학년 2반">
-      </div>
-      <div class="form-row">
-        <label>교사 비밀번호</label>
-        <input type="password" id="teacher-pw" placeholder="비밀번호 (4자리 권장)">
-      </div>
-      <button class="btn btn-green" onclick="saveTeacherSettings()">✅ 저장</button>
-    </div>
-
-    <div class="teacher-section">
-      <h2>🌤 날씨 테스트</h2>
-      <p style="font-size:.88rem;color:#666;margin-bottom:12px;">학생이 지역 설정 후 날씨를 불러오는지 테스트합니다.</p>
-      <button class="btn btn-blue" onclick="testWeather()">📡 날씨 테스트</button>
-      <div id="weather-test-result" style="margin-top:10px;font-size:.88rem;color:#555;"></div>
-    </div>
-
-    <div class="teacher-section">
-      <h2>🗑 데이터 관리</h2>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-red" onclick="resetMyData()">내 데이터 초기화</button>
-        <button class="btn btn-gray" onclick="closeTeacher()">닫기</button>
-      </div>
-    </div>
-
-  </div>
-  <div class="watermark">made by 박선생</div>
-</div>
-
-<!-- ===== 수확 보고서 (인쇄용) ===== -->
+<!-- 수확 보고서 (인쇄용) -->
 <div id="report-area"></div>
 
-<!-- 비밀번호 모달 -->
-<div class="modal-overlay" id="modal-pw">
-  <div class="modal">
-    <h3>🔐 교사 설정</h3>
-    <p style="color:#888;font-size:.88rem;text-align:center;margin-bottom:12px;">비밀번호를 입력하세요</p>
-    <input type="password" id="modal-pw-input" placeholder="비밀번호"
-      onkeydown="if(event.key==='Enter')checkPw()">
-    <div class="modal-btns">
-      <button class="btn btn-gray" onclick="closeModal('modal-pw')">취소</button>
-      <button class="btn btn-green" onclick="checkPw()">확인</button>
-    </div>
-  </div>
-</div>
-
 <!-- 사진 추가 모달 -->
-<div class="modal-overlay" id="modal-photo-add">
+<div class="modal-bg" id="modal-add">
   <div class="modal">
     <h3>📷 성장 사진 추가</h3>
-    <input type="file" id="photo-file-input" accept="image/*" capture="environment"
-      onchange="previewPhoto(event)" style="margin-bottom:10px;">
-    <div id="photo-preview" style="text-align:center;margin-bottom:12px;min-height:60px;">
-      <span style="color:#bbb;font-size:.88rem;">사진을 선택하면 미리보기가 나타납니다</span>
-    </div>
-    <textarea id="photo-note" placeholder="오늘 식물 상태를 적어보세요 (예: 새 잎이 나왔어요!)"></textarea>
+    <input type="file" id="photo-file" accept="image/*" capture="environment"
+      onchange="onPhotoFile(event)">
+    <div id="photo-preview" style="text-align:center;min-height:50px;margin:10px 0;
+      font-size:.85rem;color:#aaa;">사진 선택 시 미리보기</div>
+    <textarea id="photo-note" placeholder="오늘 식물 상태를 적어보세요"></textarea>
     <div class="modal-btns">
-      <button class="btn btn-gray" onclick="closeModal('modal-photo-add')">취소</button>
+      <button class="btn btn-gray"  onclick="closeModal('modal-add')">취소</button>
       <button class="btn btn-green" onclick="savePhoto()">💾 저장</button>
     </div>
   </div>
 </div>
 
 <!-- 사진 뷰어 모달 -->
-<div class="modal-overlay" id="modal-photo-view">
-  <div class="modal" style="max-width:500px;">
+<div class="modal-bg" id="modal-view">
+  <div class="modal" style="max-width:460px;">
     <h3>📸 성장 사진</h3>
-    <img id="photo-view-img" class="photo-modal-img" src="" alt="">
-    <div class="photo-modal-info" id="photo-view-info"></div>
-    <div id="photo-view-note" style="font-size:.9rem;color:#444;margin-bottom:12px;"></div>
+    <img id="view-img" class="modal-view-img" src="" alt="">
+    <div style="font-size:.85rem;color:#666;margin-bottom:6px;" id="view-meta"></div>
+    <div style="font-size:.88rem;color:#444;margin-bottom:13px;" id="view-note"></div>
     <div class="modal-btns">
-      <button class="btn btn-red" id="photo-delete-btn" onclick="deletePhoto()">🗑 삭제</button>
-      <button class="btn btn-gray" onclick="closeModal('modal-photo-view')">닫기</button>
+      <button class="btn btn-red"  onclick="deletePhoto()">🗑 삭제</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-view')">닫기</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
 <script>
-// =============================================
-//  Firebase 초기화
-// =============================================
-const firebaseConfig = {
-  apiKey: "AIzaSyDTU1R0YHSwFgv6MKpzNzgPM0oNOnV-Y7c",
-  authDomain: "tomatoes-cf4e2.firebaseapp.com",
-  projectId: "tomatoes-cf4e2",
-  storageBucket: "tomatoes-cf4e2.firebasestorage.app",
-  messagingSenderId: "5995962681",
-  appId: "1:5995962681:web:38ce282a18c145b74008e8",
-  databaseURL: "https://tomatoes-cf4e2-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// =============================================
-//  전국 시/군/구 기상청 격자 좌표
-// =============================================
-const REGION_DATA = {
-  "서울특별시":[
-    {name:"종로구",nx:60,ny:127},{name:"중구",nx:60,ny:127},{name:"용산구",nx:60,ny:126},
-    {name:"성동구",nx:61,ny:127},{name:"광진구",nx:62,ny:127},{name:"동대문구",nx:61,ny:127},
-    {name:"중랑구",nx:62,ny:128},{name:"성북구",nx:61,ny:127},{name:"강북구",nx:61,ny:128},
-    {name:"도봉구",nx:61,ny:129},{name:"노원구",nx:61,ny:129},{name:"은평구",nx:59,ny:127},
-    {name:"서대문구",nx:59,ny:127},{name:"마포구",nx:59,ny:127},{name:"양천구",nx:58,ny:126},
-    {name:"강서구",nx:58,ny:126},{name:"구로구",nx:58,ny:125},{name:"금천구",nx:59,ny:124},
-    {name:"영등포구",nx:58,ny:126},{name:"동작구",nx:59,ny:125},{name:"관악구",nx:59,ny:125},
-    {name:"서초구",nx:61,ny:125},{name:"강남구",nx:61,ny:126},{name:"송파구",nx:62,ny:126},
-    {name:"강동구",nx:62,ny:126}
-  ],
-  "부산광역시":[
-    {name:"중구",nx:97,ny:74},{name:"서구",nx:97,ny:74},{name:"동구",nx:98,ny:75},
-    {name:"영도구",nx:98,ny:74},{name:"부산진구",nx:97,ny:75},{name:"동래구",nx:98,ny:76},
-    {name:"남구",nx:98,ny:75},{name:"북구",nx:96,ny:76},{name:"해운대구",nx:99,ny:75},
-    {name:"사하구",nx:96,ny:74},{name:"금정구",nx:98,ny:77},{name:"강서구",nx:96,ny:76},
-    {name:"연제구",nx:98,ny:76},{name:"수영구",nx:99,ny:75},{name:"사상구",nx:96,ny:75},
-    {name:"기장군",nx:100,ny:77}
-  ],
-  "대구광역시":[
-    {name:"중구",nx:89,ny:90},{name:"동구",nx:90,ny:91},{name:"서구",nx:88,ny:90},
-    {name:"남구",nx:89,ny:90},{name:"북구",nx:89,ny:91},{name:"수성구",nx:89,ny:90},
-    {name:"달서구",nx:88,ny:90},{name:"달성군",nx:86,ny:88}
-  ],
-  "인천광역시":[
-    {name:"중구",nx:54,ny:125},{name:"동구",nx:54,ny:125},{name:"미추홀구",nx:54,ny:124},
-    {name:"연수구",nx:55,ny:123},{name:"남동구",nx:56,ny:124},{name:"부평구",nx:55,ny:125},
-    {name:"계양구",nx:56,ny:126},{name:"서구",nx:55,ny:126},{name:"강화군",nx:51,ny:130},
-    {name:"옹진군",nx:52,ny:121}
-  ],
-  "광주광역시":[
-    {name:"동구",nx:61,ny:74},{name:"서구",nx:61,ny:74},{name:"남구",nx:61,ny:73},
-    {name:"북구",nx:61,ny:75},{name:"광산구",nx:59,ny:74}
-  ],
-  "대전광역시":[
-    {name:"동구",nx:68,ny:100},{name:"중구",nx:68,ny:100},{name:"서구",nx:67,ny:100},
-    {name:"유성구",nx:67,ny:101},{name:"대덕구",nx:68,ny:100}
-  ],
-  "울산광역시":[
-    {name:"중구",nx:102,ny:84},{name:"남구",nx:102,ny:84},{name:"동구",nx:104,ny:83},
-    {name:"북구",nx:103,ny:85},{name:"울주군",nx:101,ny:84}
-  ],
-  "세종특별자치시":[{name:"세종시",nx:66,ny:103}],
-  "경기도":[
-    {name:"수원시",nx:60,ny:121},{name:"성남시",nx:62,ny:123},{name:"고양시",nx:57,ny:128},
-    {name:"용인시",nx:62,ny:120},{name:"부천시",nx:56,ny:125},{name:"안산시",nx:57,ny:121},
-    {name:"안양시",nx:59,ny:123},{name:"남양주시",nx:64,ny:128},{name:"화성시",nx:57,ny:119},
-    {name:"평택시",nx:62,ny:114},{name:"의정부시",nx:61,ny:130},{name:"시흥시",nx:57,ny:123},
-    {name:"파주시",nx:56,ny:131},{name:"광명시",nx:58,ny:125},{name:"김포시",nx:55,ny:128},
-    {name:"광주시",nx:65,ny:123},{name:"군포시",nx:59,ny:122},{name:"이천시",nx:68,ny:121},
-    {name:"오산시",nx:62,ny:118},{name:"하남시",nx:64,ny:126},{name:"양주시",nx:61,ny:131},
-    {name:"구리시",nx:62,ny:127},{name:"안성시",nx:65,ny:115},{name:"포천시",nx:64,ny:134},
-    {name:"의왕시",nx:60,ny:122},{name:"여주시",nx:71,ny:121},{name:"양평군",nx:69,ny:125},
-    {name:"동두천시",nx:61,ny:134},{name:"과천시",nx:60,ny:124},{name:"가평군",nx:69,ny:132},
-    {name:"연천군",nx:61,ny:138}
-  ],
-  "강원특별자치도":[
-    {name:"춘천시",nx:73,ny:134},{name:"원주시",nx:76,ny:122},{name:"강릉시",nx:92,ny:131},
-    {name:"동해시",nx:97,ny:127},{name:"태백시",nx:95,ny:119},{name:"속초시",nx:87,ny:141},
-    {name:"삼척시",nx:98,ny:125},{name:"홍천군",nx:75,ny:130},{name:"횡성군",nx:77,ny:125},
-    {name:"영월군",nx:86,ny:119},{name:"평창군",nx:84,ny:123},{name:"정선군",nx:89,ny:123},
-    {name:"철원군",nx:65,ny:139},{name:"화천군",nx:72,ny:139},{name:"양구군",nx:77,ny:139},
-    {name:"인제군",nx:80,ny:138},{name:"고성군",nx:85,ny:145},{name:"양양군",nx:88,ny:138}
-  ],
-  "충청북도":[
-    {name:"청주시",nx:69,ny:107},{name:"충주시",nx:76,ny:114},{name:"제천시",nx:81,ny:118},
-    {name:"보은군",nx:73,ny:103},{name:"옥천군",nx:71,ny:100},{name:"영동군",nx:74,ny:97},
-    {name:"증평군",nx:71,ny:110},{name:"진천군",nx:68,ny:111},{name:"괴산군",nx:74,ny:111},
-    {name:"음성군",nx:72,ny:113},{name:"단양군",nx:84,ny:116}
-  ],
-  "충청남도":[
-    {name:"천안시",nx:63,ny:110},{name:"공주시",nx:63,ny:102},{name:"보령시",nx:54,ny:100},
-    {name:"아산시",nx:60,ny:109},{name:"서산시",nx:51,ny:110},{name:"논산시",nx:62,ny:97},
-    {name:"계룡시",nx:65,ny:99},{name:"당진시",nx:54,ny:112},{name:"금산군",nx:69,ny:97},
-    {name:"부여군",nx:59,ny:99},{name:"서천군",nx:55,ny:94},{name:"청양군",nx:59,ny:103},
-    {name:"홍성군",nx:55,ny:106},{name:"예산군",nx:58,ny:107},{name:"태안군",nx:48,ny:109}
-  ],
-  "전북특별자치도":[
-    {name:"전주시",nx:63,ny:89},{name:"군산시",nx:56,ny:92},{name:"익산시",nx:60,ny:91},
-    {name:"정읍시",nx:58,ny:83},{name:"남원시",nx:68,ny:80},{name:"김제시",nx:59,ny:88},
-    {name:"완주군",nx:63,ny:90},{name:"진안군",nx:68,ny:88},{name:"무주군",nx:72,ny:93},
-    {name:"장수군",nx:70,ny:85},{name:"임실군",nx:66,ny:84},{name:"순창군",nx:63,ny:79},
-    {name:"고창군",nx:56,ny:80},{name:"부안군",nx:56,ny:87}
-  ],
-  "전라남도":[
-    {name:"목포시",nx:51,ny:67},{name:"여수시",nx:73,ny:66},{name:"순천시",nx:70,ny:70},
-    {name:"나주시",nx:56,ny:71},{name:"광양시",nx:73,ny:70},{name:"담양군",nx:61,ny:78},
-    {name:"곡성군",nx:66,ny:77},{name:"구례군",nx:69,ny:75},{name:"고흥군",nx:66,ny:62},
-    {name:"보성군",nx:62,ny:66},{name:"화순군",nx:61,ny:72},{name:"장흥군",nx:59,ny:64},
-    {name:"강진군",nx:57,ny:63},{name:"해남군",nx:54,ny:61},{name:"영암군",nx:56,ny:66},
-    {name:"무안군",nx:52,ny:70},{name:"함평군",nx:54,ny:72},{name:"영광군",nx:52,ny:77},
-    {name:"장성군",nx:57,ny:77},{name:"완도군",nx:57,ny:56},{name:"진도군",nx:48,ny:59},
-    {name:"신안군",nx:50,ny:66}
-  ],
-  "경상북도":[
-    {name:"포항시",nx:102,ny:94},{name:"경주시",nx:100,ny:91},{name:"김천시",nx:80,ny:96},
-    {name:"안동시",nx:91,ny:106},{name:"구미시",nx:84,ny:96},{name:"영주시",nx:89,ny:111},
-    {name:"영천시",nx:95,ny:93},{name:"상주시",nx:81,ny:103},{name:"문경시",nx:81,ny:107},
-    {name:"경산시",nx:91,ny:90},{name:"의성군",nx:90,ny:101},{name:"청송군",nx:96,ny:103},
-    {name:"영양군",nx:97,ny:108},{name:"영덕군",nx:102,ny:103},{name:"청도군",nx:91,ny:86},
-    {name:"고령군",nx:83,ny:87},{name:"성주군",nx:83,ny:91},{name:"칠곡군",nx:85,ny:93},
-    {name:"예천군",nx:86,ny:107},{name:"봉화군",nx:90,ny:113},{name:"울진군",nx:102,ny:115},
-    {name:"울릉군",nx:127,ny:127}
-  ],
-  "경상남도":[
-    {name:"창원시",nx:91,ny:77},{name:"진주시",nx:81,ny:75},{name:"통영시",nx:87,ny:68},
-    {name:"사천시",nx:79,ny:71},{name:"김해시",nx:95,ny:77},{name:"밀양시",nx:96,ny:83},
-    {name:"거제시",nx:90,ny:69},{name:"양산시",nx:97,ny:79},{name:"의령군",nx:83,ny:78},
-    {name:"함안군",nx:86,ny:77},{name:"창녕군",nx:89,ny:83},{name:"고성군",nx:85,ny:71},
-    {name:"남해군",nx:77,ny:68},{name:"하동군",nx:74,ny:73},{name:"산청군",nx:76,ny:80},
-    {name:"함양군",nx:74,ny:82},{name:"거창군",nx:77,ny:86},{name:"합천군",nx:81,ny:84}
-  ],
-  "제주특별자치도":[
-    {name:"제주시",nx:53,ny:38},{name:"서귀포시",nx:52,ny:33}
-  ]
-};
-
 // =============================================
 //  기상청 API
 // =============================================
 const API_KEY = "9c5090de2d1567aeca21510c09d2ff6c8fa39a93c52f759889ff6ed98a4146d5";
-const NCST_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+const NCST = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+
+// =============================================
+//  전국 시/군/구 격자좌표
+// =============================================
+const RD = {
+  "서울특별시":[
+    {n:"종로구",x:60,y:127},{n:"중구",x:60,y:127},{n:"용산구",x:60,y:126},
+    {n:"성동구",x:61,y:127},{n:"광진구",x:62,y:127},{n:"동대문구",x:61,y:127},
+    {n:"중랑구",x:62,y:128},{n:"성북구",x:61,y:127},{n:"강북구",x:61,y:128},
+    {n:"도봉구",x:61,y:129},{n:"노원구",x:61,y:129},{n:"은평구",x:59,y:127},
+    {n:"서대문구",x:59,y:127},{n:"마포구",x:59,y:127},{n:"양천구",x:58,y:126},
+    {n:"강서구",x:58,y:126},{n:"구로구",x:58,y:125},{n:"금천구",x:59,y:124},
+    {n:"영등포구",x:58,y:126},{n:"동작구",x:59,y:125},{n:"관악구",x:59,y:125},
+    {n:"서초구",x:61,y:125},{n:"강남구",x:61,y:126},{n:"송파구",x:62,y:126},{n:"강동구",x:62,y:126}
+  ],
+  "부산광역시":[
+    {n:"중구",x:97,y:74},{n:"서구",x:97,y:74},{n:"동구",x:98,y:75},
+    {n:"영도구",x:98,y:74},{n:"부산진구",x:97,y:75},{n:"동래구",x:98,y:76},
+    {n:"남구",x:98,y:75},{n:"북구",x:96,y:76},{n:"해운대구",x:99,y:75},
+    {n:"사하구",x:96,y:74},{n:"금정구",x:98,y:77},{n:"강서구",x:96,y:76},
+    {n:"연제구",x:98,y:76},{n:"수영구",x:99,y:75},{n:"사상구",x:96,y:75},{n:"기장군",x:100,y:77}
+  ],
+  "대구광역시":[
+    {n:"중구",x:89,y:90},{n:"동구",x:90,y:91},{n:"서구",x:88,y:90},
+    {n:"남구",x:89,y:90},{n:"북구",x:89,y:91},{n:"수성구",x:89,y:90},
+    {n:"달서구",x:88,y:90},{n:"달성군",x:86,y:88}
+  ],
+  "인천광역시":[
+    {n:"중구",x:54,y:125},{n:"동구",x:54,y:125},{n:"미추홀구",x:54,y:124},
+    {n:"연수구",x:55,y:123},{n:"남동구",x:56,y:124},{n:"부평구",x:55,y:125},
+    {n:"계양구",x:56,y:126},{n:"서구",x:55,y:126},{n:"강화군",x:51,y:130},{n:"옹진군",x:52,y:121}
+  ],
+  "광주광역시":[
+    {n:"동구",x:61,y:74},{n:"서구",x:61,y:74},{n:"남구",x:61,y:73},
+    {n:"북구",x:61,y:75},{n:"광산구",x:59,y:74}
+  ],
+  "대전광역시":[
+    {n:"동구",x:68,y:100},{n:"중구",x:68,y:100},{n:"서구",x:67,y:100},
+    {n:"유성구",x:67,y:101},{n:"대덕구",x:68,y:100}
+  ],
+  "울산광역시":[
+    {n:"중구",x:102,y:84},{n:"남구",x:102,y:84},{n:"동구",x:104,y:83},
+    {n:"북구",x:103,y:85},{n:"울주군",x:101,y:84}
+  ],
+  "세종특별자치시":[{n:"세종시",x:66,y:103}],
+  "경기도":[
+    {n:"수원시",x:60,y:121},{n:"성남시",x:62,y:123},{n:"고양시",x:57,y:128},
+    {n:"용인시",x:62,y:120},{n:"부천시",x:56,y:125},{n:"안산시",x:57,y:121},
+    {n:"안양시",x:59,y:123},{n:"남양주시",x:64,y:128},{n:"화성시",x:57,y:119},
+    {n:"평택시",x:62,y:114},{n:"의정부시",x:61,y:130},{n:"시흥시",x:57,y:123},
+    {n:"파주시",x:56,y:131},{n:"광명시",x:58,y:125},{n:"김포시",x:55,y:128},
+    {n:"광주시",x:65,y:123},{n:"군포시",x:59,y:122},{n:"이천시",x:68,y:121},
+    {n:"오산시",x:62,y:118},{n:"하남시",x:64,y:126},{n:"양주시",x:61,y:131},
+    {n:"구리시",x:62,y:127},{n:"안성시",x:65,y:115},{n:"포천시",x:64,y:134},
+    {n:"의왕시",x:60,y:122},{n:"여주시",x:71,y:121},{n:"양평군",x:69,y:125},
+    {n:"동두천시",x:61,y:134},{n:"과천시",x:60,y:124},{n:"가평군",x:69,y:132},{n:"연천군",x:61,y:138}
+  ],
+  "강원특별자치도":[
+    {n:"춘천시",x:73,y:134},{n:"원주시",x:76,y:122},{n:"강릉시",x:92,y:131},
+    {n:"동해시",x:97,y:127},{n:"태백시",x:95,y:119},{n:"속초시",x:87,y:141},
+    {n:"삼척시",x:98,y:125},{n:"홍천군",x:75,y:130},{n:"횡성군",x:77,y:125},
+    {n:"영월군",x:86,y:119},{n:"평창군",x:84,y:123},{n:"정선군",x:89,y:123},
+    {n:"철원군",x:65,y:139},{n:"화천군",x:72,y:139},{n:"양구군",x:77,y:139},
+    {n:"인제군",x:80,y:138},{n:"고성군",x:85,y:145},{n:"양양군",x:88,y:138}
+  ],
+  "충청북도":[
+    {n:"청주시",x:69,y:107},{n:"충주시",x:76,y:114},{n:"제천시",x:81,y:118},
+    {n:"보은군",x:73,y:103},{n:"옥천군",x:71,y:100},{n:"영동군",x:74,y:97},
+    {n:"증평군",x:71,y:110},{n:"진천군",x:68,y:111},{n:"괴산군",x:74,y:111},
+    {n:"음성군",x:72,y:113},{n:"단양군",x:84,y:116}
+  ],
+  "충청남도":[
+    {n:"천안시",x:63,y:110},{n:"공주시",x:63,y:102},{n:"보령시",x:54,y:100},
+    {n:"아산시",x:60,y:109},{n:"서산시",x:51,y:110},{n:"논산시",x:62,y:97},
+    {n:"계룡시",x:65,y:99},{n:"당진시",x:54,y:112},{n:"금산군",x:69,y:97},
+    {n:"부여군",x:59,y:99},{n:"서천군",x:55,y:94},{n:"청양군",x:59,y:103},
+    {n:"홍성군",x:55,y:106},{n:"예산군",x:58,y:107},{n:"태안군",x:48,y:109}
+  ],
+  "전북특별자치도":[
+    {n:"전주시",x:63,y:89},{n:"군산시",x:56,y:92},{n:"익산시",x:60,y:91},
+    {n:"정읍시",x:58,y:83},{n:"남원시",x:68,y:80},{n:"김제시",x:59,y:88},
+    {n:"완주군",x:63,y:90},{n:"진안군",x:68,y:88},{n:"무주군",x:72,y:93},
+    {n:"장수군",x:70,y:85},{n:"임실군",x:66,y:84},{n:"순창군",x:63,y:79},
+    {n:"고창군",x:56,y:80},{n:"부안군",x:56,y:87}
+  ],
+  "전라남도":[
+    {n:"목포시",x:51,y:67},{n:"여수시",x:73,y:66},{n:"순천시",x:70,y:70},
+    {n:"나주시",x:56,y:71},{n:"광양시",x:73,y:70},{n:"담양군",x:61,y:78},
+    {n:"곡성군",x:66,y:77},{n:"구례군",x:69,y:75},{n:"고흥군",x:66,y:62},
+    {n:"보성군",x:62,y:66},{n:"화순군",x:61,y:72},{n:"장흥군",x:59,y:64},
+    {n:"강진군",x:57,y:63},{n:"해남군",x:54,y:61},{n:"영암군",x:56,y:66},
+    {n:"무안군",x:52,y:70},{n:"함평군",x:54,y:72},{n:"영광군",x:52,y:77},
+    {n:"장성군",x:57,y:77},{n:"완도군",x:57,y:56},{n:"진도군",x:48,y:59},{n:"신안군",x:50,y:66}
+  ],
+  "경상북도":[
+    {n:"포항시",x:102,y:94},{n:"경주시",x:100,y:91},{n:"김천시",x:80,y:96},
+    {n:"안동시",x:91,y:106},{n:"구미시",x:84,y:96},{n:"영주시",x:89,y:111},
+    {n:"영천시",x:95,y:93},{n:"상주시",x:81,y:103},{n:"문경시",x:81,y:107},
+    {n:"경산시",x:91,y:90},{n:"의성군",x:90,y:101},{n:"청송군",x:96,y:103},
+    {n:"영양군",x:97,y:108},{n:"영덕군",x:102,y:103},{n:"청도군",x:91,y:86},
+    {n:"고령군",x:83,y:87},{n:"성주군",x:83,y:91},{n:"칠곡군",x:85,y:93},
+    {n:"예천군",x:86,y:107},{n:"봉화군",x:90,y:113},{n:"울진군",x:102,y:115},{n:"울릉군",x:127,y:127}
+  ],
+  "경상남도":[
+    {n:"창원시",x:91,y:77},{n:"진주시",x:81,y:75},{n:"통영시",x:87,y:68},
+    {n:"사천시",x:79,y:71},{n:"김해시",x:95,y:77},{n:"밀양시",x:96,y:83},
+    {n:"거제시",x:90,y:69},{n:"양산시",x:97,y:79},{n:"의령군",x:83,y:78},
+    {n:"함안군",x:86,y:77},{n:"창녕군",x:89,y:83},{n:"고성군",x:85,y:71},
+    {n:"남해군",x:77,y:68},{n:"하동군",x:74,y:73},{n:"산청군",x:76,y:80},
+    {n:"함양군",x:74,y:82},{n:"거창군",x:77,y:86},{n:"합천군",x:81,y:84}
+  ],
+  "제주특별자치도":[{n:"제주시",x:53,y:38},{n:"서귀포시",x:52,y:33}]
+};
 
 // =============================================
 //  성장 단계
@@ -720,360 +609,330 @@ const STAGES = [
   {name:"익는 중", emoji:"🍊", min:88 },
   {name:"수확 가능",emoji:"🍅",min:98 },
 ];
+const STAGE_DESC = {
+  "씨앗":"씨앗이 흙 속에서 잠자고 있어요.",
+  "발아":"새싹이 땅 위로 올라오고 있어요!",
+  "본잎":"진짜 잎이 자라고 있어요.",
+  "꽃봉오리":"꽃봉오리가 맺히기 시작했어요!",
+  "개화":"노란 꽃이 피었어요!",
+  "열매":"초록 열매가 맺혔어요!",
+  "익는 중":"빨갛게 익어가고 있어요!",
+  "수확 가능":"다 익었어요! 수확하세요!"
+};
 
 // =============================================
-//  상태 변수
+//  상태
 // =============================================
 let S = {
-  playerName:"", className:"",
-  nx:54, ny:100, regionName:"충청남도 보령시",
-  growth:0, water:60,
-  lastGrowthDate:"", lastWaterDate:"",
-  waterCount:0, checkCount:0, ventCount:0, warmCount:0,
-  actionsToday:[], actionDate:"",
-  diary:[], photos:[],
-  harvested:false, score:0, startDate:"",
+  name:"", cls:"", nx:54, ny:100, region:"충청남도 보령시",
+  plantDate:"", growth:0, water:60,
+  lastGrowthDate:"", waterCnt:0, checkCnt:0, ventCnt:0, warmCnt:0,
+  todayActions:[], actionDate:"", photos:[], diary:[],
+  harvested:false, score:0,
 };
-let T = { plantDate:"", password:"1234", className:"" };
-let W = { temp:null, sky:null, rain:0, wind:null, sunHours:8, fetchedDate:"", lastFetch:"", pty:0 };
-let currentPhotoIdx = -1;
+let W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
 let currentPhotoData = null;
+let currentPhotoIdx  = -1;
+
+// =============================================
+//  저장/로드
+// =============================================
+function save()  { localStorage.setItem("tmS", JSON.stringify(S)); }
+function saveW() { localStorage.setItem("tmW", JSON.stringify(W)); }
+function load() {
+  try { const s=localStorage.getItem("tmS"); if(s) S=Object.assign(S,JSON.parse(s)); } catch(e){}
+  try { const w=localStorage.getItem("tmW"); if(w) W=Object.assign(W,JSON.parse(w)); } catch(e){}
+}
 
 // =============================================
 //  초기화
 // =============================================
 function init() {
-  loadAll();
-  buildSidoSelect("start-sido", "start-sigungu", startUpdateSigungu);
-  restoreStartForm();
-  if (S.playerName) {
-    showMain();
-    fetchWeatherAuto();
-    growthTick();
-    loadRanking();
-    renderDiaryGrid();
+  load();
+  buildSido("sel-sido","sel-sg","onSidoChange");
+  buildSido("set-sido","set-sg","setOnSidoChange");
+
+  // 시작 화면 날짜 기본값
+  document.getElementById("inp-plantdate").value = today();
+
+  if (S.name) {
+    goGame();
+  } else {
+    goScreen("start");
   }
 }
 
-function loadAll() {
-  try { const s = localStorage.getItem("tomato_S"); if(s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
-  try { const t = localStorage.getItem("tomato_T"); if(t) T = Object.assign(T, JSON.parse(t)); } catch(e){}
-  try { const w = localStorage.getItem("tomato_W"); if(w) W = Object.assign(W, JSON.parse(w)); } catch(e){}
+// =============================================
+//  화면 이동 (JS로만 제어)
+// =============================================
+function goScreen(id) {
+  document.querySelectorAll(".screen").forEach(el => el.style.display = "none");
+  const el = document.getElementById("screen-" + id);
+  if (!el) return;
+  el.style.display = (id === "start" || id === "settings") ? "block" : "block";
+  if (id === "start") {
+    document.getElementById("main-header").style.display = "none";
+    document.getElementById("tab-bar").style.display = "none";
+    restoreStartForm();
+  } else if (id === "game") {
+    document.getElementById("main-header").style.display = "flex";
+    document.getElementById("tab-bar").style.display = "flex";
+  } else {
+    document.getElementById("main-header").style.display = "flex";
+    document.getElementById("tab-bar").style.display = "none";
+  }
 }
-function saveS() { localStorage.setItem("tomato_S", JSON.stringify(S)); }
-function saveT() { localStorage.setItem("tomato_T", JSON.stringify(T)); }
-function saveW() { localStorage.setItem("tomato_W", JSON.stringify(W)); }
+
+function goGame() {
+  goScreen("game");
+  renderGame();
+  fetchWeatherAuto();
+  renderPhotos();
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("on"));
+  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("on"));
+  document.getElementById("tab-" + name).classList.add("on");
+  if (btn) btn.classList.add("on");
+  if (name === "diary") renderPhotos();
+}
 
 // =============================================
-//  지역 선택
+//  지역 select 빌드
 // =============================================
-function buildSidoSelect(sidoId, sigunguId, changeFn) {
+function buildSido(sidoId, sgId, changeFnName) {
   const sel = document.getElementById(sidoId);
   if (!sel) return;
   sel.innerHTML = '<option value="">시/도 선택</option>';
-  Object.keys(REGION_DATA).forEach(sido => {
+  Object.keys(RD).forEach(s => {
     const o = document.createElement("option");
-    o.value = sido; o.textContent = sido;
-    sel.appendChild(o);
+    o.value = s; o.textContent = s; sel.appendChild(o);
   });
 }
 
-function startUpdateSigungu() {
-  const sido = document.getElementById("start-sido").value;
-  const sg = document.getElementById("start-sigungu");
+function onSidoChange() { fillSg("sel-sido","sel-sg"); }
+function setOnSidoChange() { fillSg("set-sido","set-sg"); }
+
+function fillSg(sidoId, sgId) {
+  const sido = document.getElementById(sidoId).value;
+  const sg   = document.getElementById(sgId);
   sg.innerHTML = '<option value="">시/군/구 선택</option>';
-  if (!sido || !REGION_DATA[sido]) return;
-  REGION_DATA[sido].forEach(r => {
+  if (!sido || !RD[sido]) return;
+  RD[sido].forEach(r => {
     const o = document.createElement("option");
-    o.value = r.name; o.textContent = r.name;
-    sg.appendChild(o);
+    o.value = r.n; o.textContent = r.n; sg.appendChild(o);
   });
 }
 
 function restoreStartForm() {
-  if (S.regionName) {
-    const parts = S.regionName.split(" ");
-    if (parts.length >= 2) {
-      const sido = parts[0];
-      const sg = parts.slice(1).join(" ");
-      const sidoSel = document.getElementById("start-sido");
-      sidoSel.value = sido;
-      startUpdateSigungu();
-      document.getElementById("start-sigungu").value = sg;
-    }
+  if (S.name)      document.getElementById("inp-name").value  = S.name;
+  if (S.cls)       document.getElementById("inp-class").value = S.cls;
+  if (S.plantDate) document.getElementById("inp-plantdate").value = S.plantDate;
+  if (S.region) {
+    const parts = S.region.split(" ");
+    const sido = parts[0];
+    const sg   = parts.slice(1).join(" ");
+    const sidoEl = document.getElementById("sel-sido");
+    sidoEl.value = sido;
+    fillSg("sel-sido","sel-sg");
+    document.getElementById("sel-sg").value = sg;
   }
-  if (S.playerName) document.getElementById("input-name").value = S.playerName;
-  if (S.className)  document.getElementById("input-class").value = S.className;
 }
 
 // =============================================
 //  시작
 // =============================================
 function startGame() {
-  const name = document.getElementById("input-name").value.trim();
-  const cls  = document.getElementById("input-class").value.trim();
-  const sido = document.getElementById("start-sido").value;
-  const sg   = document.getElementById("start-sigungu").value;
+  const name = document.getElementById("inp-name").value.trim();
+  const cls  = document.getElementById("inp-class").value.trim();
+  const sido = document.getElementById("sel-sido").value;
+  const sg   = document.getElementById("sel-sg").value;
+  const pd   = document.getElementById("inp-plantdate").value;
 
-  if (!name) { showToast("이름을 입력해 주세요!", "red"); return; }
-  if (!sido || !sg) { showToast("지역을 선택해 주세요!", "red"); return; }
+  if (!name) { toast("이름을 입력해 주세요!","red"); return; }
+  if (!sido || !sg) { toast("지역을 선택해 주세요!","red"); return; }
+  if (!pd)   { toast("씨앗 심은 날짜를 입력해 주세요!","red"); return; }
 
-  const found = (REGION_DATA[sido]||[]).find(r => r.name === sg);
-  if (!found) { showToast("지역 정보를 찾을 수 없어요!", "red"); return; }
+  const found = (RD[sido]||[]).find(r => r.n === sg);
+  if (!found) { toast("지역 정보를 찾을 수 없어요!","red"); return; }
 
-  S.playerName  = name;
-  S.className   = cls;
-  S.nx          = found.nx;
-  S.ny          = found.ny;
-  S.regionName  = sido + " " + sg;
-  saveS();
-
-  showMain();
-  fetchWeatherAuto();
-  growthTick();
-  loadRanking();
-  renderDiaryGrid();
-}
-
-function showMain() {
-  document.getElementById("main-header").style.display = "flex";
-  document.getElementById("tab-bar").style.display = "flex";
-  document.getElementById("plant-owner-name").textContent = S.playerName + "의 방울토마토";
-  showScreen("game");
+  S.name = name; S.cls = cls;
+  S.nx = found.x; S.ny = found.y;
+  S.region = sido + " " + sg;
+  S.plantDate = pd;
+  save();
+  goGame();
 }
 
 // =============================================
-//  화면 / 탭
+//  설정
 // =============================================
-function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById("screen-" + name).classList.add("active");
-  if (name === "game") {
-    document.getElementById("tab-bar").style.display = "flex";
-  } else {
-    document.getElementById("tab-bar").style.display = "none";
+function openSettings() {
+  document.getElementById("set-name").value  = S.name;
+  document.getElementById("set-class").value = S.cls||"";
+  document.getElementById("set-plantdate").value = S.plantDate||today();
+  document.getElementById("set-region-show").textContent = "현재: " + (S.region||"--");
+  if (S.region) {
+    const parts = S.region.split(" ");
+    const sido = parts[0]; const sg = parts.slice(1).join(" ");
+    const sidoEl = document.getElementById("set-sido");
+    sidoEl.value = sido;
+    fillSg("set-sido","set-sg");
+    document.getElementById("set-sg").value = sg;
   }
+  goScreen("settings");
 }
+function closeSettings() { if (S.name) goGame(); else goScreen("start"); }
 
-function switchTab(name) {
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById("tab-" + name).classList.add("active");
-  event.currentTarget.classList.add("active");
-  if (name === "ranking") loadRanking();
-  if (name === "diary") renderDiaryGrid();
-}
-
-function openTeacher() {
-  if (T.password) {
-    openModal("modal-pw");
-  } else {
-    showTeacherScreen();
+function saveSettings() {
+  const name = document.getElementById("set-name").value.trim();
+  const cls  = document.getElementById("set-class").value.trim();
+  const sido = document.getElementById("set-sido").value;
+  const sg   = document.getElementById("set-sg").value;
+  const pd   = document.getElementById("set-plantdate").value;
+  if (name) S.name = name;
+  if (cls !== undefined) S.cls = cls;
+  if (sido && sg) {
+    const found = (RD[sido]||[]).find(r => r.n === sg);
+    if (found) { S.nx = found.x; S.ny = found.y; S.region = sido+" "+sg; W.fetchedDate=""; saveW(); }
   }
-}
-function showTeacherScreen() {
-  document.getElementById("plant-date").value = T.plantDate || getTodayStr();
-  document.getElementById("class-name-input").value = T.className || S.className || "";
-  document.getElementById("teacher-pw").value = "";
-  showScreen("teacher");
-  document.getElementById("tab-bar").style.display = "none";
-}
-function closeTeacher() {
-  if (S.playerName) showScreen("game");
-  else showScreen("start");
-}
-function checkPw() {
-  const v = document.getElementById("modal-pw-input").value;
-  if (v === T.password) {
-    closeModal("modal-pw");
-    document.getElementById("modal-pw-input").value = "";
-    showTeacherScreen();
-  } else {
-    showToast("비밀번호 틀렸어요!", "red");
-    document.getElementById("modal-pw-input").value = "";
-  }
-}
-function openModal(id) { document.getElementById(id).classList.add("active"); }
-function closeModal(id) { document.getElementById(id).classList.remove("active"); }
-
-// =============================================
-//  교사 설정 저장
-// =============================================
-function saveTeacherSettings() {
-  T.plantDate = document.getElementById("plant-date").value;
-  const pw = document.getElementById("teacher-pw").value;
-  if (pw) T.password = pw;
-  const cn = document.getElementById("class-name-input").value.trim();
-  if (cn) { T.className = cn; S.className = cn; saveS(); }
-  saveT();
-  showToast("✅ 저장 완료!", "green");
+  if (pd) S.plantDate = pd;
+  save();
+  toast("✅ 저장됐어요!","green");
+  setTimeout(closeSettings, 800);
 }
 
-function resetMyData() {
-  if (!confirm("이 기기의 내 데이터를 초기화할까요?")) return;
-  localStorage.removeItem("tomato_S");
-  localStorage.removeItem("tomato_W");
-  S = { playerName:"", className:"", nx:54, ny:100, regionName:"충청남도 보령시",
-    growth:0, water:60, lastGrowthDate:"", lastWaterDate:"",
-    waterCount:0, checkCount:0, ventCount:0, warmCount:0,
-    actionsToday:[], actionDate:"", diary:[], photos:[],
-    harvested:false, score:0, startDate:"" };
-  showToast("초기화 완료!", "orange");
-  document.getElementById("main-header").style.display = "none";
-  document.getElementById("tab-bar").style.display = "none";
-  showScreen("start");
+function resetAll() {
+  if (!confirm("모든 데이터를 초기화할까요?")) return;
+  localStorage.removeItem("tmS");
+  localStorage.removeItem("tmW");
+  S = { name:"", cls:"", nx:54, ny:100, region:"충청남도 보령시",
+    plantDate:"", growth:0, water:60,
+    lastGrowthDate:"", waterCnt:0, checkCnt:0, ventCnt:0, warmCnt:0,
+    todayActions:[], actionDate:"", photos:[], diary:[],
+    harvested:false, score:0 };
+  W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
+  toast("초기화 완료!","orange");
+  setTimeout(() => goScreen("start"), 600);
 }
 
 // =============================================
 //  날씨
 // =============================================
-function getBaseTime() {
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes();
-  const times = [2,5,8,11,14,17,20,23];
-  let base = 2;
-  for (let t of times) { if (h > t || (h === t && m >= 10)) base = t; }
-  return String(base).padStart(2,"0") + "00";
-}
-function getBaseDateStr() {
+function today() {
   const n = new Date();
-  return n.getFullYear() + String(n.getMonth()+1).padStart(2,"0") + String(n.getDate()).padStart(2,"0");
+  return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
 }
-function getTodayStr() {
-  const n = new Date();
-  return n.getFullYear() + "-" + String(n.getMonth()+1).padStart(2,"0") + "-" + String(n.getDate()).padStart(2,"0");
+function todayNum() { return today().replace(/-/g,""); }
+function baseTime() {
+  const n = new Date(); const h = n.getHours(); const m = n.getMinutes();
+  const ts = [2,5,8,11,14,17,20,23]; let b=2;
+  for (const t of ts) { if (h>t||(h===t&&m>=10)) b=t; }
+  return String(b).padStart(2,"0")+"00";
 }
 
 async function fetchWeatherAuto() {
-  if (W.fetchedDate === getTodayStr() && W.temp !== null) { renderWeather(); return; }
-  await fetchWeatherNow();
-}
-
-async function fetchWeatherNow() {
-  const url = `${NCST_URL}?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON`
-    + `&base_date=${getBaseDateStr()}&base_time=${getBaseTime()}&nx=${S.nx}&ny=${S.ny}`;
+  if (W.fetchedDate === today() && W.temp !== null) { renderWeather(); return; }
+  const url = NCST+"?serviceKey="+API_KEY+"&numOfRows=10&pageNo=1&dataType=JSON"
+    +"&base_date="+todayNum()+"&base_time="+baseTime()+"&nx="+S.nx+"&ny="+S.ny;
   try {
-    const res = await fetch(url);
-    const json = await res.json();
-    const items = json?.response?.body?.items?.item;
-    if (!items) throw new Error("항목 없음");
-    items.forEach(item => {
-      if (item.category === "T1H") W.temp = parseFloat(item.obsrValue);
-      if (item.category === "RN1") W.rain = parseFloat(item.obsrValue)||0;
-      if (item.category === "WSD") W.wind = parseFloat(item.obsrValue);
-      if (item.category === "SKY") W.sky  = parseInt(item.obsrValue);
-      if (item.category === "PTY") W.pty  = parseInt(item.obsrValue)||0;
+    const r = await fetch(url);
+    const j = await r.json();
+    const items = j?.response?.body?.items?.item;
+    if (!items) throw new Error("데이터 없음");
+    items.forEach(it => {
+      if (it.category==="T1H") W.temp = parseFloat(it.obsrValue);
+      if (it.category==="RN1") W.rain = parseFloat(it.obsrValue)||0;
+      if (it.category==="WSD") W.wind = parseFloat(it.obsrValue);
+      if (it.category==="SKY") W.sky  = parseInt(it.obsrValue);
+      if (it.category==="PTY") W.pty  = parseInt(it.obsrValue)||0;
     });
-    W.sunHours = estimateSun(W.sky, W.pty);
-    W.fetchedDate = getTodayStr();
+    W.sunH = estSun(W.sky, W.pty);
+    W.fetchedDate = today();
     W.lastFetch = new Date().toLocaleTimeString("ko-KR");
     saveW();
     renderWeather();
-    updateHeaderWeather();
-    // Firebase에 날씨 기반 성장 업데이트
-    pushRankingData();
+    updateHdrWeather();
   } catch(e) {
-    showToast("날씨 불러오기 실패: " + e.message, "red");
+    toast("날씨 불러오기 실패: "+e.message,"red");
   }
 }
 
-function estimateSun(sky, pty) {
+function estSun(sky, pty) {
   const m = new Date().getMonth()+1;
   const base = [0,6,7,8,9,10,11,12,11,10,9,7,6][m];
-  if (pty > 0) return Math.max(0, base-5);
+  if (pty>0) return Math.max(0,base-5);
   if (sky===1) return base;
   if (sky===3) return base*0.5;
   if (sky===4) return base*0.2;
   return base*0.8;
 }
-function skyText(s) {
-  if (s===1) return "맑음 ☀️"; if (s===3) return "구름 ⛅"; if (s===4) return "흐림 ☁️"; return "--";
-}
-function skyIcon(s) {
-  if (s===1) return "☀️"; if (s===3) return "⛅"; if (s===4) return "☁️"; return "🌤";
-}
+function skyTxt(s){ return s===1?"맑음 ☀️":s===3?"구름 ⛅":s===4?"흐림 ☁️":"--"; }
+function skyIco(s){ return s===1?"☀️":s===3?"⛅":s===4?"☁️":"🌤"; }
 
 function renderWeather() {
-  const d = W;
-  document.getElementById("w-region").textContent = S.regionName||"--";
-  document.getElementById("w-temp").textContent   = d.temp!==null ? d.temp+"°C" : "--°C";
-  document.getElementById("w-rain").textContent   = d.rain>0 ? d.rain+"mm/h":"없음";
-  document.getElementById("w-wind").textContent   = d.wind!==null ? d.wind+"m/s":"--";
-  document.getElementById("w-sun").textContent    = Math.round(d.sunHours||0)+"시간";
-  document.getElementById("w-time").textContent   = "업데이트: "+(d.lastFetch||"--");
+  document.getElementById("w-region").textContent = S.region||"--";
+  document.getElementById("w-temp").textContent   = W.temp!==null?W.temp+"°C":"--°C";
+  document.getElementById("w-rain").textContent   = W.rain>0?W.rain+"mm/h":"없음";
+  document.getElementById("w-wind").textContent   = W.wind!==null?W.wind+"m/s":"--";
+  document.getElementById("w-sun").textContent    = Math.round(W.sunH||0)+"시간";
+  document.getElementById("w-time").textContent   = "업데이트: "+(W.lastFetch||"--");
 
-  const sunBlocks = document.getElementById("sun-blocks");
-  sunBlocks.innerHTML = "";
-  const h = Math.min(12, Math.round(d.sunHours||0));
-  for (let i=0;i<12;i++) {
-    const div = document.createElement("div");
-    div.className = "sun-block"+(i<h?" on":"");
-    sunBlocks.appendChild(div);
+  const blocks = document.getElementById("sun-blocks");
+  blocks.innerHTML = "";
+  const h = Math.min(12, Math.round(W.sunH||0));
+  for (let i=0;i<12;i++){
+    const d=document.createElement("div");
+    d.className="sun-block"+(i<h?" on":"");
+    blocks.appendChild(d);
   }
-  const sp = Math.min(100, Math.round((d.sunHours||0)/12*100));
-  document.getElementById("sun-bar").style.width = sp+"%";
-  document.getElementById("sun-pct").textContent = sp+"%";
+  const sp = Math.min(100,Math.round((W.sunH||0)/12*100));
+  document.getElementById("bar-sun").style.width = sp+"%";
+  document.getElementById("pct-sun").textContent = sp+"%";
 
-  if (d.temp!==null) {
-    document.getElementById("st-temp").textContent = d.temp+"°C";
-    const b = document.getElementById("st-temp-box");
-    b.className = "status-item";
-    if (d.temp<10||d.temp>35) b.classList.add("status-danger");
-    else if (d.temp<15||d.temp>30) b.classList.add("status-warn");
+  if (W.temp!==null) {
+    document.getElementById("sv-temp").textContent = W.temp+"°C";
+    const b = document.getElementById("st-temp");
+    b.className = "stat-item";
+    if (W.temp<10||W.temp>35) b.classList.add("stat-danger");
+    else if (W.temp<15||W.temp>30) b.classList.add("stat-warn");
   }
-  if (d.sky) {
-    document.getElementById("st-sky-icon").textContent = skyIcon(d.sky);
-    document.getElementById("st-sky").textContent = skyText(d.sky).replace(/ .+/,"");
+  if (W.sky) {
+    document.getElementById("si-sky").textContent = skyIco(W.sky);
+    document.getElementById("sv-sky").textContent = skyTxt(W.sky).replace(/ .+/,"");
   }
   updateAlerts();
 }
 
-function updateHeaderWeather() {
-  document.getElementById("header-weather").textContent =
-    skyIcon(W.sky)+" "+(W.temp!==null?W.temp+"°C":"--")+" · "+(S.regionName?S.regionName.split(" ").pop():"--");
-}
-
-async function testWeather() {
-  const el = document.getElementById("weather-test-result");
-  el.textContent = "⏳ 테스트 중...";
-  W.fetchedDate = "";
-  await fetchWeatherNow();
-  el.textContent = W.temp!==null
-    ? "✅ 성공! 기온: "+W.temp+"°C, 날씨: "+skyText(W.sky)+" (지역: "+S.regionName+")"
-    : "❌ 실패. 지역 설정 및 API 키를 확인하세요.";
+function updateHdrWeather() {
+  document.getElementById("hdr-weather").textContent =
+    skyIco(W.sky)+" "+(W.temp!==null?W.temp+"°C":"--")+" · "+(S.region?S.region.split(" ").pop():"--");
 }
 
 // =============================================
-//  성장 계산
+//  성장
 // =============================================
+function getStage() {
+  let s = STAGES[0];
+  for (const st of STAGES) { if (S.growth >= st.min) s = st; }
+  return s;
+}
+
 function growthTick() {
-  if (!T.plantDate) return;
-  const today = getTodayStr();
-  const plantDay = new Date(T.plantDate);
-  const todayDay = new Date(today);
+  if (!S.plantDate) return;
+  const t = today();
+  const plantDay = new Date(S.plantDate);
+  const todayDay = new Date(t);
   if (todayDay < plantDay) return;
 
-  S.startDate = T.plantDate;
-
-  if (S.lastGrowthDate !== today) {
-    const gain = calcGrowth();
-    S.growth = Math.min(100, S.growth + gain);
-    S.lastGrowthDate = today;
-    const loss = 8 + Math.random()*7;
-    S.water = Math.max(0, S.water - loss);
-    if (S.actionDate !== today) {
-      S.actionsToday = [];
-      S.actionDate = today;
-    }
-    saveS();
-    pushRankingData();
-  }
-
-  renderGame();
-  if (S.growth >= 98 && !S.harvested) {
-    S.score = calcScore();
-    saveS();
-    setTimeout(showHarvest, 800);
+  if (S.lastGrowthDate !== t) {
+    const g = calcGrowth();
+    S.growth = Math.min(100, S.growth + g);
+    S.lastGrowthDate = t;
+    S.water = Math.max(0, S.water - (8 + Math.random()*7));
+    if (S.actionDate !== t) { S.todayActions = []; S.actionDate = t; }
+    save();
   }
 }
 
@@ -1085,188 +944,111 @@ function calcGrowth() {
     else if (W.temp<10||W.temp>35) g-=1.0;
     else g-=0.3;
   }
-  const sh = W.sunHours||6;
+  const sh = W.sunH||6;
   if (sh>=8) g+=1.0; else if (sh>=5) g+=0.5; else g-=0.5;
   if (S.water>=50) g+=0.8; else if (S.water>=30) g+=0.3; else g-=1.0;
-  return Math.max(0, g);
-}
-function calcScore() {
-  return Math.min(1000, Math.round(S.growth*3) + S.waterCount*10 + S.checkCount*5 + (S.photos||[]).length*8);
-}
-
-// =============================================
-//  학생 행동
-// =============================================
-function todayDone(key) {
-  return (S.actionsToday||[]).includes(key+"-"+getTodayStr());
-}
-function markDone(key) {
-  if (!S.actionsToday) S.actionsToday=[];
-  S.actionsToday.push(key+"-"+getTodayStr());
-}
-function addLog(txt) {
-  const log = document.getElementById("action-log");
-  if (log.children.length===1 && log.children[0].style.color==="rgb(187, 187, 187)") log.innerHTML="";
-  const d = document.createElement("div"); d.className="log-item"; d.textContent=txt;
-  log.insertBefore(d, log.firstChild);
-}
-function addDiary(icon, txt) {
-  if (!S.diary) S.diary=[];
-  S.diary.unshift({date:getTodayStr(), icon, txt});
-  if (S.diary.length>100) S.diary.pop();
-}
-
-function doWater() {
-  if (todayDone("water")) { showToast("오늘은 이미 물을 줬어요! 💧","blue"); return; }
-  S.water = Math.min(100, S.water+30);
-  S.waterCount++;
-  markDone("water");
-  addDiary("💧","물을 주었어요! 수분이 "+Math.round(S.water)+"% 가 됐어요.");
-  addLog("💧 물 주기 완료! 수분: "+Math.round(S.water)+"%");
-  saveS(); renderGame(); showToast("💧 물을 줬어요!","blue");
-  pushRankingData();
-}
-function doVent() {
-  if (todayDone("vent")) { showToast("오늘은 이미 환기했어요!","orange"); return; }
-  let msg = W.temp&&W.temp>30 ? "더운 날 환기 효과! 성장에 도움됐어요 🌬" : "시원하게 환기했어요.";
-  if (W.temp&&W.temp>30) S.growth = Math.min(100, S.growth+0.5);
-  S.ventCount++;
-  markDone("vent");
-  addDiary("🌬","환기를 했어요. "+msg);
-  addLog("🌬 환기 완료!");
-  saveS(); renderGame(); showToast(msg,"orange");
-}
-function doWarm() {
-  if (todayDone("warm")) { showToast("오늘은 이미 보온했어요!","orange"); return; }
-  let msg = W.temp&&W.temp<15 ? "추운 날 보온 효과! 성장에 도움됐어요 🧥" : "따뜻하게 보온해 줬어요.";
-  if (W.temp&&W.temp<15) S.growth = Math.min(100, S.growth+0.5);
-  S.warmCount++;
-  markDone("warm");
-  addDiary("🧥","보온을 했어요. "+msg);
-  addLog("🧥 보온 완료!");
-  saveS(); renderGame(); showToast(msg,"green");
-}
-function doCheck() {
-  if (todayDone("check")) { showToast("오늘은 이미 관찰했어요!","green"); return; }
-  S.checkCount++;
-  markDone("check");
-  const stage = getStage();
-  addDiary("🔍","관찰했어요. "+stageDesc(stage.name));
-  addLog("🔍 관찰! 현재: "+stage.name+" 단계");
-  saveS(); renderGame(); showToast("🔍 "+stageDesc(stage.name),"green");
-}
-
-function stageDesc(name) {
-  const map = {
-    "씨앗":"씨앗이 흙 속에서 잠자고 있어요.",
-    "발아":"새싹이 땅 위로 올라오고 있어요!",
-    "본잎":"진짜 잎이 자라고 있어요.",
-    "꽃봉오리":"꽃봉오리가 맺히기 시작했어요!",
-    "개화":"노란 꽃이 피었어요!",
-    "열매":"초록 열매가 맺혔어요!",
-    "익는 중":"빨갛게 익어가고 있어요!",
-    "수확 가능":"다 익었어요! 수확해요!"
-  };
-  return map[name]||"잘 자라고 있어요.";
+  return Math.max(0,g);
 }
 
 // =============================================
 //  렌더링
 // =============================================
-function getStage() {
-  let s = STAGES[0];
-  for (const st of STAGES) { if (S.growth >= st.min) s = st; }
-  return s;
-}
-
 function renderGame() {
-  const hasSeed = !!T.plantDate && !!S.startDate;
-  document.getElementById("no-seed-view").style.display  = hasSeed ? "none" : "block";
-  document.getElementById("game-content").style.display  = hasSeed ? "block" : "none";
+  growthTick();
+
+  const hasSeed = !!S.plantDate;
+  document.getElementById("no-seed").style.display    = hasSeed ? "none"  : "block";
+  document.getElementById("game-content").style.display = hasSeed ? "block" : "none";
   if (!hasSeed) return;
 
   const stage = getStage();
-  document.getElementById("plant-img").textContent       = stage.emoji;
-  document.getElementById("stage-badge").textContent     = stage.name+" 단계";
-  document.getElementById("growth-bar").style.width      = S.growth+"%";
-  document.getElementById("growth-pct").textContent      = Math.round(S.growth)+"%";
-  document.getElementById("water-bar").style.width       = S.water+"%";
-  document.getElementById("water-pct").textContent       = Math.round(S.water)+"%";
+  document.getElementById("plant-emoji").textContent  = stage.emoji;
+  document.getElementById("plant-name").textContent   = S.name + "의 방울토마토";
+  document.getElementById("stage-badge").textContent  = stage.name + " 단계";
+  document.getElementById("bar-growth").style.width   = S.growth + "%";
+  document.getElementById("pct-growth").textContent   = Math.round(S.growth) + "%";
+  document.getElementById("bar-water").style.width    = S.water + "%";
+  document.getElementById("pct-water").textContent    = Math.round(S.water) + "%";
 
-  const wb = document.getElementById("st-water-box");
-  const wv = document.getElementById("st-water-val");
-  wb.className = "status-item";
-  if (S.water>=60) { wv.textContent="충분 💧"; }
-  else if (S.water>=30) { wv.textContent="보통"; wb.classList.add("status-warn"); }
-  else { wv.textContent="부족 ⚠️"; wb.classList.add("status-danger"); }
+  const wb = document.getElementById("st-water");
+  const wv = document.getElementById("sv-water");
+  wb.className = "stat-item";
+  if (S.water>=60)      { wv.textContent="충분 💧"; }
+  else if (S.water>=30) { wv.textContent="보통";    wb.classList.add("stat-warn"); }
+  else                  { wv.textContent="부족 ⚠️"; wb.classList.add("stat-danger"); }
 
-  const days = Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/(86400000)))+1;
-  document.getElementById("st-day").textContent = days+"일차";
+  const days = Math.max(0, Math.floor((new Date(today())-new Date(S.plantDate))/86400000))+1;
+  document.getElementById("sv-day").textContent = days + "일차";
 
   renderWeather();
   updateAlerts();
+
+  if (S.growth >= 98 && !S.harvested) {
+    S.score = calcScore();
+    save();
+    setTimeout(showHarvest, 800);
+  }
 }
 
 function updateAlerts() {
   const wa = document.getElementById("alert-water");
   const ta = document.getElementById("alert-temp");
-  wa.classList.toggle("show", S.water<30);
-  if (S.water<30) document.getElementById("alert-water-text").textContent =
+  wa.classList.toggle("show", S.water < 30);
+  if (S.water<30) document.getElementById("alert-water-txt").textContent =
     "물이 부족해요! 빨리 물을 주세요! ("+Math.round(S.water)+"%)";
   const td = W.temp!==null&&(W.temp<8||W.temp>38);
   ta.classList.toggle("show", td);
-  if (td) document.getElementById("alert-temp-text").textContent =
-    W.temp<8 ? "기온이 너무 낮아요! ("+W.temp+"°C) 보온하세요!" : "기온이 너무 높아요! ("+W.temp+"°C) 환기하세요!";
+  if (td) document.getElementById("alert-temp-txt").textContent =
+    W.temp<8?"기온이 너무 낮아요! ("+W.temp+"°C) 보온하세요!":"기온이 너무 높아요! ("+W.temp+"°C) 환기하세요!";
 }
 
 // =============================================
-//  랭킹 (Firebase)
+//  행동
 // =============================================
-function pushRankingData() {
-  if (!S.playerName) return;
-  const key = S.playerName.replace(/[.#$[\]]/g,"_") + "_" + (S.className||"").replace(/[.#$[\]]/g,"_");
-  db.ref("tomatoRanking/" + key).set({
-    name: S.playerName,
-    className: S.className||"",
-    growth: Math.round(S.growth*10)/10,
-    stage: getStage().name,
-    emoji: getStage().emoji,
-    water: S.waterCount,
-    check: S.checkCount,
-    region: S.regionName,
-    updatedAt: getTodayStr(),
-    harvested: S.harvested||false,
-  }).catch(e => console.warn("랭킹 업로드 실패:", e));
+function doneTd(k) { return (S.todayActions||[]).includes(k+"-"+today()); }
+function markTd(k) { if(!S.todayActions)S.todayActions=[]; S.todayActions.push(k+"-"+today()); }
+function addLog(txt) {
+  const log = document.getElementById("act-log");
+  const first = log.firstElementChild;
+  if (first && first.style.color) log.innerHTML="";
+  const d = document.createElement("div"); d.className="act-log-item"; d.textContent=txt;
+  log.insertBefore(d, log.firstChild);
+}
+function addDiary(icon, txt) {
+  if (!S.diary) S.diary=[];
+  S.diary.unshift({date:today(), icon, txt});
+  if (S.diary.length>100) S.diary.pop();
 }
 
-function loadRanking() {
-  const el = document.getElementById("ranking-list");
-  el.innerHTML = '<div style="text-align:center;padding:24px;color:#aaa;"><div class="loading-spin"></div><div style="margin-top:8px;font-size:.88rem;">불러오는 중...</div></div>';
-
-  db.ref("tomatoRanking").once("value").then(snap => {
-    const data = snap.val();
-    if (!data) { el.innerHTML='<div style="text-align:center;padding:24px;color:#aaa;">아직 참여한 친구가 없어요 🌱</div>'; return; }
-
-    const list = Object.values(data).sort((a,b) => b.growth - a.growth);
-    el.innerHTML = "";
-    list.forEach((item, i) => {
-      const isMe = item.name === S.playerName && item.className === (S.className||"");
-      const numClass = i===0?"gold":i===1?"silver":i===2?"bronze":"";
-      const num = i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1);
-      el.innerHTML += '<div class="rank-item'+(isMe?" rank-me":"")+'">'+
-        '<div class="rank-num '+numClass+'">'+num+'</div>'+
-        '<div class="rank-plant">'+item.emoji+'</div>'+
-        '<div class="rank-info">'+
-          '<div class="rank-name">'+item.name+(item.className?" ("+item.className+")":"")+(isMe?" ⬅ 나":"")+'</div>'+
-          '<div class="rank-stage">'+item.stage+' 단계'+(item.harvested?" 🍅수확완료":"")+'</div>'+
-          '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+item.growth+'%"></div></div>'+
-        '</div>'+
-        '<div class="rank-pct">'+Math.round(item.growth)+'%</div>'+
-      '</div>';
-    });
-  }).catch(e => {
-    el.innerHTML = '<div style="text-align:center;padding:16px;color:#e53935;font-size:.88rem;">랭킹 불러오기 실패<br>'+e.message+'</div>';
-  });
+function doAction(type) {
+  if (doneTd(type)) {
+    const msgs = {water:"오늘은 이미 물을 줬어요! 💧",vent:"오늘은 이미 환기했어요!",
+      warm:"오늘은 이미 보온했어요!",check:"오늘은 이미 관찰했어요!"};
+    toast(msgs[type]||"이미 했어요!","blue"); return;
+  }
+  if (type==="water") {
+    S.water = Math.min(100, S.water+30); S.waterCnt++;
+    addDiary("💧","물을 주었어요! 수분 "+Math.round(S.water)+"%");
+    addLog("💧 물 주기 완료! 수분: "+Math.round(S.water)+"%");
+    toast("💧 물을 줬어요!","blue");
+  } else if (type==="vent") {
+    if (W.temp&&W.temp>30) { S.growth=Math.min(100,S.growth+0.5); toast("더운 날 환기 효과! 🌬","orange"); }
+    else toast("시원하게 환기했어요.","orange");
+    S.ventCnt++;
+    addDiary("🌬","환기를 했어요."); addLog("🌬 환기 완료!");
+  } else if (type==="warm") {
+    if (W.temp&&W.temp<15) { S.growth=Math.min(100,S.growth+0.5); toast("추운 날 보온 효과! 🧥","green"); }
+    else toast("따뜻하게 보온해 줬어요.","green");
+    S.warmCnt++;
+    addDiary("🧥","보온을 했어요."); addLog("🧥 보온 완료!");
+  } else if (type==="check") {
+    const stage = getStage();
+    S.checkCnt++;
+    addDiary("🔍","관찰: "+STAGE_DESC[stage.name]);
+    addLog("🔍 관찰! "+stage.name+" 단계");
+    toast("🔍 "+STAGE_DESC[stage.name],"green");
+  }
+  markTd(type); save(); renderGame();
 }
 
 // =============================================
@@ -1274,78 +1056,67 @@ function loadRanking() {
 // =============================================
 function openPhotoAdd() {
   currentPhotoData = null;
-  document.getElementById("photo-file-input").value = "";
+  document.getElementById("photo-file").value = "";
   document.getElementById("photo-preview").innerHTML =
-    '<span style="color:#bbb;font-size:.88rem;">사진을 선택하면 미리보기가 나타납니다</span>';
+    '<span style="color:#bbb;font-size:.85rem;">사진을 선택하면 미리보기가 나타납니다</span>';
   document.getElementById("photo-note").value = "";
-  openModal("modal-photo-add");
+  openModal("modal-add");
 }
 
-function previewPhoto(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+function onPhotoFile(e) {
+  const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onload = ev => {
     currentPhotoData = ev.target.result;
     document.getElementById("photo-preview").innerHTML =
-      '<img src="'+currentPhotoData+'" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain;">';
+      '<img src="'+currentPhotoData+'" style="max-width:100%;max-height:180px;border-radius:8px;object-fit:contain;">';
   };
   reader.readAsDataURL(file);
 }
 
 function savePhoto() {
-  if (!currentPhotoData) { showToast("사진을 선택해 주세요!", "red"); return; }
-  const note = document.getElementById("photo-note").value.trim();
+  if (!currentPhotoData) { toast("사진을 선택해 주세요!","red"); return; }
+  const note  = document.getElementById("photo-note").value.trim();
   const stage = getStage();
-  if (!S.photos) S.photos = [];
-
-  // 이미지 리사이즈 (localStorage 절약)
-  resizeImage(currentPhotoData, 600, function(resized) {
-    S.photos.unshift({
-      date: getTodayStr(),
-      img: resized,
-      note: note,
-      stage: stage.name,
-      emoji: stage.emoji,
-      growth: Math.round(S.growth),
-    });
-    if (S.photos.length > 30) S.photos.pop();
-    saveS();
-    closeModal("modal-photo-add");
-    renderDiaryGrid();
-    showToast("📷 사진이 저장됐어요!", "green");
-    addDiary("📷", "사진을 찍었어요! ("+stage.name+" 단계, 성장 "+Math.round(S.growth)+"%)");
+  if (!S.photos) S.photos=[];
+  resizeImg(currentPhotoData, 600, resized => {
+    S.photos.unshift({ date:today(), img:resized, note, stage:stage.name, emoji:stage.emoji, growth:Math.round(S.growth) });
+    if (S.photos.length>30) S.photos.pop();
+    save();
+    closeModal("modal-add");
+    renderPhotos();
+    addDiary("📷","사진을 찍었어요! "+stage.name+" 단계 ("+Math.round(S.growth)+"%)");
+    toast("📷 사진이 저장됐어요!","green");
   });
 }
 
-function resizeImage(dataUrl, maxW, cb) {
+function resizeImg(dataUrl, maxW, cb) {
   const img = new Image();
   img.onload = function() {
-    const ratio = Math.min(maxW/img.width, maxW/img.height, 1);
-    const w = Math.round(img.width*ratio);
-    const h = Math.round(img.height*ratio);
-    const canvas = document.createElement("canvas");
-    canvas.width = w; canvas.height = h;
-    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-    cb(canvas.toDataURL("image/jpeg", 0.75));
+    const r = Math.min(maxW/img.width, maxW/img.height, 1);
+    const w = Math.round(img.width*r), h = Math.round(img.height*r);
+    const c = document.createElement("canvas");
+    c.width=w; c.height=h;
+    c.getContext("2d").drawImage(img,0,0,w,h);
+    cb(c.toDataURL("image/jpeg",0.75));
   };
   img.src = dataUrl;
 }
 
-function renderDiaryGrid() {
-  const grid = document.getElementById("diary-grid");
-  grid.innerHTML = '<div class="add-photo-btn" onclick="openPhotoAdd()"><span>📷</span><p>사진 추가</p></div>';
-  if (!S.photos || S.photos.length === 0) return;
-  S.photos.forEach((p, i) => {
+function renderPhotos() {
+  const grid = document.getElementById("photo-grid");
+  grid.innerHTML = '<div class="add-photo" onclick="openPhotoAdd()"><span>📷</span><p>사진 추가</p></div>';
+  if (!S.photos||S.photos.length===0) return;
+  S.photos.forEach((p,i) => {
     const div = document.createElement("div");
-    div.className = "diary-photo-card";
+    div.className = "photo-card";
     div.onclick = () => viewPhoto(i);
     div.innerHTML =
-      '<div class="diary-photo-img"><img src="'+p.img+'" alt="성장사진" loading="lazy"></div>'+
-      '<div class="diary-photo-info">'+
-        '<div class="diary-photo-stage">'+p.emoji+' '+p.stage+' ('+p.growth+'%)</div>'+
-        '<div class="diary-photo-date">'+p.date+'</div>'+
-        (p.note ? '<div class="diary-photo-note">'+p.note+'</div>' : '')+
+      '<div class="photo-img-wrap"><img src="'+p.img+'" alt="" loading="lazy"></div>'+
+      '<div class="photo-info">'+
+        '<div class="photo-stage">'+p.emoji+' '+p.stage+' ('+p.growth+'%)</div>'+
+        '<div class="photo-date">'+p.date+'</div>'+
+        (p.note?'<div class="photo-note">'+p.note+'</div>':'')+
       '</div>';
     grid.appendChild(div);
   });
@@ -1354,105 +1125,90 @@ function renderDiaryGrid() {
 function viewPhoto(idx) {
   currentPhotoIdx = idx;
   const p = S.photos[idx];
-  document.getElementById("photo-view-img").src = p.img;
-  document.getElementById("photo-view-info").textContent = p.date+" · "+p.emoji+" "+p.stage+" ("+p.growth+"%)";
-  document.getElementById("photo-view-note").textContent = p.note || "";
-  openModal("modal-photo-view");
+  document.getElementById("view-img").src  = p.img;
+  document.getElementById("view-meta").textContent = p.date+" · "+p.emoji+" "+p.stage+" ("+p.growth+"%)";
+  document.getElementById("view-note").textContent = p.note||"";
+  openModal("modal-view");
 }
 function deletePhoto() {
   if (!confirm("이 사진을 삭제할까요?")) return;
-  S.photos.splice(currentPhotoIdx, 1);
-  saveS();
-  closeModal("modal-photo-view");
-  renderDiaryGrid();
-  showToast("사진을 삭제했어요.", "orange");
+  S.photos.splice(currentPhotoIdx,1);
+  save(); closeModal("modal-view"); renderPhotos();
+  toast("사진을 삭제했어요.","orange");
 }
 
 // =============================================
 //  수확
 // =============================================
+function calcScore() {
+  return Math.min(1000, Math.round(S.growth*3)+S.waterCnt*10+S.checkCnt*5+(S.photos||[]).length*8);
+}
 function showHarvest() {
-  S.harvested = true;
-  S.score = calcScore();
-  saveS();
-  pushRankingData();
-
-  const days = Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/86400000))+1;
-  document.getElementById("h-sub").textContent = S.playerName+"님의 방울토마토가 잘 익었어요! 🎉";
+  S.harvested = true; S.score = calcScore(); save();
+  const days = Math.max(0,Math.floor((new Date(today())-new Date(S.plantDate))/86400000))+1;
+  document.getElementById("h-sub").textContent   = S.name+"님의 방울토마토가 잘 익었어요! 🎉";
   document.getElementById("h-days").textContent  = days+"일";
-  document.getElementById("h-water").textContent = S.waterCount+"회";
-  document.getElementById("h-check").textContent = S.checkCount+"회";
+  document.getElementById("h-water").textContent = S.waterCnt+"회";
+  document.getElementById("h-check").textContent = S.checkCnt+"회";
   document.getElementById("h-photo").textContent = (S.photos||[]).length+"장";
   document.getElementById("h-score").textContent = S.score+"점";
-  showScreen("harvest");
+  goScreen("harvest");
 }
-
 function restartGame() {
   if (!confirm("다시 처음부터 심을까요? 기존 기록은 사라져요.")) return;
-  const name = S.playerName, cn = S.className, nx = S.nx, ny = S.ny, rn = S.regionName;
-  S = { playerName:name, className:cn, nx, ny, regionName:rn,
-    growth:0, water:60, lastGrowthDate:"", lastWaterDate:"",
-    waterCount:0, checkCount:0, ventCount:0, warmCount:0,
-    actionsToday:[], actionDate:"", diary:[], photos:[],
-    harvested:false, score:0, startDate:"" };
-  saveS();
-  showScreen("game");
-  renderGame();
-  renderDiaryGrid();
+  const {name,cls,nx,ny,region,plantDate} = S;
+  S = { name,cls,nx,ny,region,plantDate, growth:0,water:60,
+    lastGrowthDate:"",waterCnt:0,checkCnt:0,ventCnt:0,warmCnt:0,
+    todayActions:[],actionDate:"",photos:[],diary:[],harvested:false,score:0 };
+  save(); goGame();
 }
 
 // =============================================
 //  보고서 출력
 // =============================================
 function printReport() {
-  const days = T.plantDate
-    ? Math.max(0, Math.floor((new Date(getTodayStr())-new Date(T.plantDate))/86400000))+1 : "--";
+  const days = S.plantDate
+    ? Math.max(0,Math.floor((new Date(today())-new Date(S.plantDate))/86400000))+1 : "--";
   const photos = (S.photos||[]).slice(0,6);
-
-  const photoHtml = photos.length > 0
-    ? '<div class="report-section"><h3>📷 성장 사진 기록 (최근 '+ photos.length+'장)</h3><div class="report-photos">'
-      + photos.map(p =>
-          '<div class="report-photo">'+
-          '<img src="'+p.img+'" alt="">'+
-          '<p>'+p.date+'<br>'+p.emoji+' '+p.stage+'</p>'+
-          '</div>'
-        ).join("")
-      + '</div></div>'
-    : '<div class="report-section"><h3>📷 성장 사진</h3><p style="color:#aaa;font-size:.88rem;">사진 기록이 없어요.</p></div>';
-
-  const diaryItems = (S.diary||[]).slice(0,15).map(d =>
-    '<div class="report-diary-item">'+d.date+' '+d.icon+' '+d.txt+'</div>'
+  const photoHtml = photos.length>0
+    ? '<div class="rpt-section"><h3>📷 성장 사진 (최근 '+photos.length+'장)</h3>'+
+      '<div class="rpt-photos">'+photos.map(p=>
+        '<div class="rpt-photo"><img src="'+p.img+'" alt=""><p>'+p.date+'<br>'+p.emoji+' '+p.stage+'</p></div>'
+      ).join("")+'</div></div>'
+    : '<div class="rpt-section"><h3>📷 성장 사진</h3><p style="color:#aaa;font-size:.85rem;">사진 기록이 없어요.</p></div>';
+  const diaryHtml = (S.diary||[]).slice(0,15).map(d=>
+    '<div class="rpt-diary-item">'+d.date+' '+d.icon+' '+d.txt+'</div>'
   ).join("");
 
   document.getElementById("report-area").innerHTML =
-    '<div class="report-header">'+
-      '<div class="report-title">🍅 방울토마토 재배 보고서</div>'+
-      '<div class="report-sub">'+S.playerName+' · '+(S.className||"")+'</div>'+
-      '<div style="font-size:.82rem;color:#aaa;margin-top:4px;">출력일: '+getTodayStr()+'</div>'+
+    '<div class="rpt-header">'+
+      '<div class="rpt-title">🍅 방울토마토 재배 보고서</div>'+
+      '<div class="rpt-sub">'+S.name+' · '+(S.cls||"")+'</div>'+
+      '<div style="font-size:.78rem;color:#aaa;margin-top:3px;">출력일: '+today()+'</div>'+
     '</div>'+
-    '<div class="report-section"><h3>📊 재배 결과</h3>'+
-      '<div class="report-grid">'+
-        '<div class="report-stat"><div class="report-stat-label">재배 기간</div><div class="report-stat-value">'+days+'일</div></div>'+
-        '<div class="report-stat"><div class="report-stat-label">최종 성장률</div><div class="report-stat-value">'+Math.round(S.growth)+'%</div></div>'+
-        '<div class="report-stat"><div class="report-stat-label">물 준 횟수</div><div class="report-stat-value">'+S.waterCount+'회</div></div>'+
-        '<div class="report-stat"><div class="report-stat-label">관찰 횟수</div><div class="report-stat-value">'+S.checkCount+'회</div></div>'+
-        '<div class="report-stat"><div class="report-stat-label">사진 기록</div><div class="report-stat-value">'+photos.length+'장</div></div>'+
-        '<div class="report-stat"><div class="report-stat-label">최종 점수</div><div class="report-stat-value">'+S.score+'점</div></div>'+
+    '<div class="rpt-section"><h3>📊 재배 결과</h3>'+
+      '<div class="rpt-grid">'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">재배 기간</div><div class="rpt-stat-value">'+days+'일</div></div>'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">최종 성장률</div><div class="rpt-stat-value">'+Math.round(S.growth)+'%</div></div>'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">물 준 횟수</div><div class="rpt-stat-value">'+S.waterCnt+'회</div></div>'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">관찰 횟수</div><div class="rpt-stat-value">'+S.checkCnt+'회</div></div>'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">사진 기록</div><div class="rpt-stat-value">'+photos.length+'장</div></div>'+
+        '<div class="rpt-stat"><div class="rpt-stat-label">최종 점수</div><div class="rpt-stat-value">'+S.score+'점</div></div>'+
       '</div>'+
     '</div>'+
     photoHtml+
-    '<div class="report-section"><h3>📔 성장 일지 (최근 15개)</h3>'+
-      '<div class="report-diary">'+diaryItems+'</div>'+
-    '</div>'+
-    '<div class="report-watermark">made by 박선생</div>';
-
+    '<div class="rpt-section"><h3>📔 성장 일지</h3><div>'+diaryHtml+'</div></div>'+
+    '<div class="rpt-wm">made by 박선생</div>';
   window.print();
 }
 
 // =============================================
-//  유틸
+//  모달 / 토스트
 // =============================================
-function showToast(msg, color) {
+function openModal(id)  { document.getElementById(id).classList.add("show"); }
+function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+function toast(msg, color) {
   const t = document.getElementById("toast");
   t.textContent = msg;
   t.className = "toast "+(color||"");
