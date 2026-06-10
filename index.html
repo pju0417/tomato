@@ -78,6 +78,18 @@ header h1{font-size:1.2rem;}
 .plant-visual:hover{transform:scale(1.05) rotate(-1deg);}
 .plant-visual svg{width:100%;height:100%;}
 
+/* 식물 2.5D 입체감 및 관리 상태 표현 */
+.plant-visual{perspective:700px;}
+.plant-visual svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 10px 12px rgba(54,35,16,.28)) saturate(1.08) contrast(1.04);}
+.plant-visual.plant-healthy svg{filter:drop-shadow(0 12px 16px rgba(32,96,42,.30)) saturate(1.22) contrast(1.08);}
+.plant-visual.plant-ok svg{filter:drop-shadow(0 10px 13px rgba(54,35,16,.25)) saturate(1.05);}
+.plant-visual.plant-dry svg{filter:drop-shadow(0 8px 10px rgba(88,53,17,.28)) saturate(.72) sepia(.22) brightness(.92);}
+.plant-visual.plant-overwater svg{filter:drop-shadow(0 9px 12px rgba(22,87,142,.28)) saturate(.90) hue-rotate(8deg) brightness(.95);}
+.plant-visual.plant-pest svg{filter:drop-shadow(0 9px 12px rgba(87,62,24,.25)) saturate(.78) sepia(.15);}
+.plant-visual.plant-dead svg{filter:drop-shadow(0 8px 10px rgba(60,40,20,.25)) saturate(.25) sepia(.35) brightness(.78);}
+.plant-visual.plant-dry{transform:rotate(-1.5deg);}
+.plant-visual.plant-dead{transform:rotate(-3deg);}
+
 /* 흔들림 애니메이션 */
 @keyframes sway{
   0%,100%{transform:rotate(0deg);}
@@ -234,6 +246,33 @@ header h1{font-size:1.2rem;}
 /* 씨앗 대기 */
 .no-seed{text-align:center;padding:50px 20px;}
 
+
+/* 단계별 행동 해금 */
+.action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}
+@media(max-width:580px){.action-grid{grid-template-columns:1fr;}}
+.action-btn,.locked-action{min-height:72px;border-radius:14px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+.action-btn{border:none;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .1s, filter .2s;}
+.action-btn:active{transform:scale(.98);}
+.action-btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.2);}
+.action-btn strong{font-size:.92rem;line-height:1.2;}
+.action-btn small{font-size:.72rem;line-height:1.35;opacity:.92;font-weight:500;}
+.action-water{background:var(--blue);}
+.action-check{background:var(--green);}
+.action-vent{background:var(--orange);}
+.action-warm{background:var(--brown);}
+.action-fertilize{background:#43a047;}
+.action-stake{background:#795548;}
+.action-pollinate{background:#f9a825;color:#5d4037;}
+.action-prune{background:#00897b;}
+.action-fruitCheck{background:#e53935;}
+.locked-action{border:2px dashed #cfcfcf;background:#fafafa;color:#888;align-items:center;text-align:center;font-weight:800;}
+.locked-action .lock-icon{font-size:1.25rem;}
+.locked-action small{font-size:.78rem;line-height:1.35;font-weight:700;}
+.unlock-modal-icon{font-size:2.4rem;text-align:center;margin-bottom:6px;}
+.unlock-title{text-align:center;font-size:1.08rem;font-weight:900;color:var(--dgreen);margin-bottom:10px;}
+.unlock-msg{background:var(--lgreen);border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.6;color:#333;margin-bottom:14px;}
+.unlock-tip{font-size:.78rem;color:#777;line-height:1.5;margin-top:-5px;margin-bottom:12px;text-align:center;}
+
 .watermark{text-align:center;padding:14px;font-size:.75rem;color:#ccc;}
 
 /* 재배 기간 모드 선택 */
@@ -374,7 +413,7 @@ header h1{font-size:1.2rem;}
 
     <div id="game-content" style="display:none;">
       <!-- 화분 -->
-      <div class="card pot-card">
+      <div class="card pot-card" id="capture-pot-card">
         <div style="text-align:center;flex-shrink:0;">
           <div class="plant-visual" id="plant-visual"></div>
         </div>
@@ -396,7 +435,7 @@ header h1{font-size:1.2rem;}
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div id="capture-info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <!-- 상태 -->
         <div class="card">
           <div class="card-title">📊 현재 상태</div>
@@ -440,14 +479,7 @@ header h1{font-size:1.2rem;}
       <!-- 행동 -->
       <div class="card">
         <div class="card-title">🖐 오늘 할 일</div>
-        <div class="act-row">
-          <button class="btn btn-blue"   onclick="doAction('water')">💧 물 주기</button>
-          <button class="btn btn-orange" onclick="doAction('vent')">🌬 환기</button>
-        </div>
-        <div class="act-row">
-          <button class="btn btn-brown"  onclick="doAction('warm')">🧥 보온</button>
-          <button class="btn btn-green"  onclick="doAction('check')">🔍 관찰</button>
-        </div>
+        <div class="action-grid" id="action-box"></div>
         <div class="act-log" id="act-log">
           <div class="act-log-item" style="color:#bbb;">오늘의 활동이 기록돼요</div>
         </div>
@@ -598,6 +630,18 @@ header h1{font-size:1.2rem;}
       <button class="btn btn-red"  onclick="deletePhoto()">🗑 삭제</button>
       <button class="btn btn-gray" onclick="closeModal('modal-view')">닫기</button>
     </div>
+  </div>
+</div>
+
+
+<!-- 새 행동 해금 안내 모달 -->
+<div class="modal-bg" id="modal-unlock">
+  <div class="modal" style="max-width:430px;">
+    <div class="unlock-modal-icon" id="unlock-icon">🎉</div>
+    <div class="unlock-title" id="unlock-title">새로운 행동이 열렸어요!</div>
+    <div class="unlock-msg" id="unlock-msg"></div>
+    <div class="unlock-tip">새 행동은 실제 방울토마토가 그 단계에서 필요한 관리 방법이에요.</div>
+    <button class="btn btn-green" style="width:100%;" onclick="closeUnlockModal()">알겠어요</button>
   </div>
 </div>
 
@@ -1059,6 +1103,58 @@ const SPEED_LABEL = {
   long:  { name:"길게 🌿", days:"약 90~100일", color:"#2e7d32" },
 };
 
+// 성장 단계별 행동 해금 목록
+// unlockStage보다 낮은 단계에서는 행동 이름을 숨기고 자물쇠 안내만 보여줍니다.
+const ACTIONS = [
+  {
+    id:"water", label:"💧 물 주기", short:"흙이 마르지 않게 물을 줘요.", unlockStage:0,
+    colorClass:"action-water", repeat:true,
+    icon:"💧", title:"💧 물 주기", msg:"방울토마토는 물이 부족하면 잎이 시들고 성장이 느려져요. 하지만 너무 많이 주면 뿌리가 숨을 쉬기 어려워질 수 있어요."
+  },
+  {
+    id:"check", label:"🔍 관찰", short:"잎, 줄기, 흙 상태를 살펴봐요.", unlockStage:0,
+    colorClass:"action-check",
+    icon:"🔍", title:"🔍 관찰", msg:"식물을 잘 기르려면 매일 조금씩 달라지는 잎, 줄기, 흙 상태를 살펴보는 것이 중요해요."
+  },
+  {
+    id:"vent", label:"🌬 환기", short:"더운 공기와 습기를 빼줘요.", unlockStage:1,
+    colorClass:"action-vent",
+    icon:"🌬", title:"🌬 환기가 열렸어요!", msg:"새싹이 자라면 주변 공기가 너무 덥거나 습하지 않게 관리해야 해요. 환기를 하면 병충해와 고온 피해를 줄이는 데 도움이 돼요."
+  },
+  {
+    id:"warm", label:"🧥 보온", short:"추운 날 식물을 보호해요.", unlockStage:1,
+    colorClass:"action-warm",
+    icon:"🧥", title:"🧥 보온이 열렸어요!", msg:"새싹은 추위에 약해요. 기온이 낮을 때 따뜻하게 보호하면 냉해를 줄이고 성장을 도울 수 있어요."
+  },
+  {
+    id:"fertilize", label:"🌿 비료 주기", short:"자라는 데 필요한 영양분을 보충해요.", unlockStage:2,
+    colorClass:"action-fertilize",
+    icon:"🌿", title:"🌿 비료 주기가 열렸어요!", msg:"본잎이 자라면 잎과 줄기를 키우는 데 더 많은 영양분이 필요해요. 다만 비료를 너무 많이 주면 오히려 식물이 약해질 수 있어요."
+  },
+  {
+    id:"stake", label:"🪵 지지대 세우기", short:"줄기가 쓰러지지 않게 받쳐줘요.", unlockStage:3,
+    colorClass:"action-stake",
+    icon:"🪵", title:"🪵 지지대 세우기가 열렸어요!", msg:"꽃봉오리가 생길 만큼 자라면 줄기가 길어지고 약해질 수 있어요. 지지대를 세우면 열매가 달려도 줄기가 잘 버틸 수 있어요."
+  },
+  {
+    id:"pollinate", label:"🌼 꽃 흔들어주기", short:"꽃이 열매로 바뀌도록 도와요.", unlockStage:4,
+    colorClass:"action-pollinate",
+    icon:"🌼", title:"🌼 꽃 흔들어주기가 열렸어요!", msg:"꽃가루가 잘 옮겨져야 꽃이 열매로 변할 수 있어요. 교실 창가처럼 바람이나 벌이 적은 곳에서는 꽃을 살짝 흔들어 주면 착과에 도움이 돼요."
+  },
+  {
+    id:"prune", label:"✂️ 곁순 정리", short:"영양분이 열매로 잘 가게 해요.", unlockStage:5,
+    colorClass:"action-prune",
+    icon:"✂️", title:"✂️ 곁순 정리가 열렸어요!", msg:"줄기 사이에서 새순이 너무 많이 자라면 영양분이 여러 곳으로 나뉘어요. 곁순을 정리하면 열매가 자라는 데 도움이 돼요."
+  },
+  {
+    id:"fruitCheck", label:"🍅 열매 살피기", short:"갈라짐과 익은 정도를 확인해요.", unlockStage:6,
+    colorClass:"action-fruitCheck",
+    icon:"🍅", title:"🍅 열매 살피기가 열렸어요!", msg:"열매가 커지고 익을 때는 갈라짐, 병든 부분, 익은 정도를 자주 살펴야 해요. 그래야 알맞은 수확 시기를 알 수 있어요."
+  }
+];
+const BASE_UNLOCKED_ACTIONS = ACTIONS.filter(a => a.unlockStage === 0).map(a => a.id);
+
+
 // =============================================
 //  상태
 // =============================================
@@ -1069,9 +1165,14 @@ let S = {
   todayActions:[], actionDate:"", photos:[], diary:[],
   harvested:false, score:0,
   env:"outdoor",       // "outdoor" | "window"
+  unlockedActions:["water","check"], // 단계별 해금된 행동
+  fertCnt:0, stakeSet:false, pollinateCnt:0, pruneCnt:0, fruitCheckCnt:0,
   pestAlert:false,     // 병충해 발생 여부
   pestDay:"",          // 병충해 발생일
   rainDamage:false,    // 폭우 피해 여부
+  stress:0,           // 누적 스트레스: 물 부족·과습·병충해·이상기온이 계속되면 증가
+  dead:false,         // 심각한 관리 실패가 오래 누적되면 true
+  careMark:"ok",     // healthy | ok | dry | overwater | pest | dead
   speedMode:"mid",     // "short" | "mid" | "long"
 };
 let W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", fetchedTs:0, lastFetch:"", pty:0 };
@@ -1086,6 +1187,16 @@ function saveW() { localStorage.setItem("tmW", JSON.stringify(W)); }
 function load() {
   try { const s=localStorage.getItem("tmS"); if(s) S=Object.assign(S,JSON.parse(s)); } catch(e){}
   try { const w=localStorage.getItem("tmW"); if(w) W=Object.assign(W,JSON.parse(w)); } catch(e){}
+  if (!Array.isArray(S.unlockedActions)) S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
+  if (typeof S.stress !== "number") S.stress = 0;
+  if (typeof S.dead !== "boolean") S.dead = false;
+  if (!S.careMark) S.careMark = "ok";
+  BASE_UNLOCKED_ACTIONS.forEach(id => { if (!S.unlockedActions.includes(id)) S.unlockedActions.push(id); });
+  if (typeof S.fertCnt !== "number") S.fertCnt = 0;
+  if (typeof S.pollinateCnt !== "number") S.pollinateCnt = 0;
+  if (typeof S.pruneCnt !== "number") S.pruneCnt = 0;
+  if (typeof S.fruitCheckCnt !== "number") S.fruitCheckCnt = 0;
+  if (typeof S.stakeSet !== "boolean") S.stakeSet = false;
 }
 
 // =============================================
@@ -1278,7 +1389,13 @@ function saveSettings() {
     const found = (RD[sido]||[]).find(r => r.n === sg);
     if (found) { S.nx = found.x; S.ny = found.y; S.region = sido+" "+sg; W.fetchedDate=""; saveW(); }
   }
-  if (pd) S.plantDate = pd;
+  if (pd && pd !== S.plantDate) {
+    S.plantDate = pd;
+    S.growth = 0; S.lastGrowthDate = "";
+    S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
+    S.fertCnt = 0; S.stakeSet = false; S.pollinateCnt = 0; S.pruneCnt = 0; S.fruitCheckCnt = 0;
+    S.stress = 0; S.dead = false; S.careMark = "ok";
+  } else if (pd) S.plantDate = pd;
   save();
   toast("✅ 저장됐어요!","green");
   setTimeout(closeSettings, 800);
@@ -1293,7 +1410,10 @@ function resetAll() {
     lastGrowthDate:"", waterCnt:0, checkCnt:0, ventCnt:0, warmCnt:0,
     todayActions:[], actionDate:"", photos:[], diary:[],
     harvested:false, score:0,
-    env:"outdoor", pestAlert:false, pestDay:"", rainDamage:false,
+    env:"outdoor", unlockedActions:["water","check"],
+    fertCnt:0, stakeSet:false, pollinateCnt:0, pruneCnt:0, fruitCheckCnt:0,
+    pestAlert:false, pestDay:"", rainDamage:false,
+    stress:0, dead:false, careMark:"ok",
     speedMode:"mid" };
   W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
   toast("초기화 완료!","orange");
@@ -1425,13 +1545,18 @@ function growthTick() {
   if (todayDay < plantDay) return;
 
   if (S.lastGrowthDate !== t) {
-    const g = calcGrowth();
-    S.growth = Math.max(0, Math.min(1000, S.growth + g));
-    S.lastGrowthDate = t;
-    // 과수분이면 더 빠르게 빠짐 (증발+배수), 정상이면 8~15%
-    const drainExtra = S.water > 120 ? (S.water - 100) * 0.3 : 0;
-    S.water = Math.max(0, S.water - (8 + Math.random()*7) - drainExtra);
     if (S.actionDate !== t) { S.todayActions = []; S.actionDate = t; }
+
+    if (!S.dead) {
+      const g = calcGrowth();
+      S.growth = Math.max(0, Math.min(1000, S.growth + g));
+      updateStress(g);
+      // 과수분이면 더 빠르게 빠짐 (증발+배수), 정상이면 8~15%
+      const drainExtra = S.water > 120 ? (S.water - 100) * 0.3 : 0;
+      S.water = Math.max(0, S.water - (8 + Math.random()*7) - drainExtra);
+    }
+
+    S.lastGrowthDate = t;
     save();
   }
 }
@@ -1516,9 +1641,130 @@ function calcGrowth() {
   else if (S.water >= 10)  g -= 2.0;
   else                     g -= 5.0; // 극심한 가뭄
 
+  // ── 단계별 관리 행동 효과 ──
+  // 지지대는 열매가 달린 뒤 줄기 쓰러짐 위험을 줄여 줍니다.
+  if (getStage().idx >= 5 && !S.stakeSet) g -= 1.5;
+  // 최근에 꽃을 흔들어 주면 착과가 조금 유리합니다.
+  if (S.pollinateCnt > 0 && getStage().idx >= 4 && getStage().idx <= 5) g += 0.8;
+  // 곁순을 정리한 기록이 있으면 열매 단계 이후 영양 분산을 조금 줄입니다.
+  if (S.pruneCnt > 0 && getStage().idx >= 5) g += 0.6;
+
   // 재배 기간 모드 배율 적용
   const multi = SPEED_MULTI[S.speedMode || "mid"];
   return Math.max(-8 * multi, g * multi);
+}
+
+
+// =============================================
+//  식물 건강 상태와 2.5D SVG 장식
+// =============================================
+function daysSincePlant() {
+  if (!S.plantDate) return 0;
+  return Math.max(0, Math.floor((new Date(today()) - new Date(S.plantDate)) / 86400000)) + 1;
+}
+
+function getCareProfile() {
+  const days = Math.max(1, daysSincePlant());
+  const waterRate = (S.waterCnt || 0) / days;
+  const checkRate = (S.checkCnt || 0) / days;
+  const stageIdx = getStage().idx;
+
+  // 즉시 드러나는 상태가 우선입니다.
+  if (S.dead) return "dead";
+  if (S.pestAlert) return "pest";
+  if (S.water <= 15) return "dry";
+  if (S.water >= 150) return "overwater";
+
+  // 누적 관리가 좋은 학생은 더 풍성하고 윤기 있게 보입니다.
+  if (stageIdx >= 2 && S.stress <= 12 && waterRate >= 0.45 && checkRate >= 0.15 && S.water >= 45 && S.water <= 125) {
+    return "healthy";
+  }
+  // 물을 자주 빼먹거나 누적 스트레스가 크면 약간 시든 느낌으로 보입니다.
+  if (S.stress >= 35 || (days >= 7 && waterRate < 0.22)) return "dry";
+  return "ok";
+}
+
+function updateStress(growthDelta) {
+  if (S.dead) return;
+  let stress = S.stress || 0;
+  if (S.water <= 8) stress += 18;
+  else if (S.water <= 20) stress += 9;
+  else if (S.water >= 170) stress += 12;
+  else if (S.water >= 145) stress += 7;
+  else if (S.water >= 45 && S.water <= 125) stress -= 4;
+
+  if (S.pestAlert) stress += 6;
+  if (S.rainDamage) stress += 5;
+  if (W.temp !== null && (W.temp < 8 || W.temp > 36)) stress += 7;
+  if (growthDelta < 0) stress += Math.abs(growthDelta) * 0.8;
+  if ((S.checkCnt || 0) > 0 && (S.waterCnt || 0) > 0 && !S.pestAlert) stress -= 1;
+
+  S.stress = Math.max(0, Math.min(120, Math.round(stress)));
+  // 스트레스가 오래 누적되면 죽은 식물 상태로 전환합니다.
+  if (S.stress >= 100 || (S.water <= 3 && daysSincePlant() >= 4)) {
+    S.dead = true;
+    S.careMark = "dead";
+    S.growth = Math.max(0, S.growth - 60);
+    addDiary("🥀", "식물이 심하게 약해졌어요. 물 부족·과습·병충해 같은 스트레스가 오래 계속되면 식물이 죽을 수 있어요.");
+  }
+}
+
+function buildDeadPlantSVG() {
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="deadSoil" cx="50%" cy="35%"><stop offset="0%" stop-color="#7b5432"/><stop offset="100%" stop-color="#3d2415"/></radialGradient>
+      <linearGradient id="deadPot" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c06b43"/><stop offset="100%" stop-color="#6d3b25"/></linearGradient>
+      <filter id="deadShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity=".25"/></filter>
+    </defs>
+    <ellipse cx="100" cy="214" rx="54" ry="8" fill="#000" opacity=".18"/>
+    <g filter="url(#deadShadow)">
+      <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#deadPot)"/>
+      <ellipse cx="100" cy="145" rx="51" ry="11" fill="#87482d"/>
+      <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#deadSoil)"/>
+      <path d="M101,143 C96,124 106,112 100,95 C94,78 80,64 72,49" stroke="#5d3a1f" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M99,112 C83,100 67,99 55,91" stroke="#6b4424" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M101,96 C121,91 135,78 145,63" stroke="#6b4424" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M56,91 Q70,88 82,101 Q66,106 56,91" fill="#8a6a36" opacity=".9"/>
+      <path d="M145,63 Q132,75 120,89 Q138,88 145,63" fill="#7a5a2e" opacity=".9"/>
+      <path d="M73,49 Q84,61 91,78 Q74,73 73,49" fill="#6f512a" opacity=".9"/>
+      <circle cx="124" cy="126" r="5" fill="#8b3a2e" opacity=".65"/>
+      <circle cx="78" cy="132" r="4" fill="#8b3a2e" opacity=".55"/>
+    </g>
+    <text x="100" y="36" text-anchor="middle" font-size="16" font-weight="800" fill="#6d4c41">🥀 회복이 필요해요</text>
+  </svg>`;
+}
+
+function enhancePlantSVG(svg, stageIdx, profile) {
+  if (profile === "dead") return buildDeadPlantSVG();
+
+  const overlays = [];
+  overlays.push(`<defs>
+    <radialGradient id="softGlow3d" cx="35%" cy="18%"><stop offset="0%" stop-color="#ffffff" stop-opacity=".65"/><stop offset="55%" stop-color="#ffffff" stop-opacity=".12"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <filter id="miniDepth" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#2e4d1f" flood-opacity=".25"/></filter>
+  </defs>`);
+  overlays.push(`<ellipse cx="100" cy="214" rx="55" ry="8" fill="#000" opacity=".16"/>`);
+  overlays.push(`<ellipse cx="82" cy="54" rx="34" ry="46" fill="url(#softGlow3d)" opacity=".16" pointer-events="none"/>`);
+
+  if (profile === "healthy") {
+    overlays.push(`<g opacity=".55" filter="url(#miniDepth)">
+      <circle cx="66" cy="87" r="2.2" fill="#dcedc8"/><circle cx="137" cy="69" r="2" fill="#dcedc8"/><circle cx="100" cy="53" r="2" fill="#f1f8e9"/>
+    </g>`);
+    if (stageIdx >= 5) {
+      overlays.push(`<g opacity=".55"><circle cx="53" cy="57" r="3" fill="#fff"/><circle cx="133" cy="46" r="2.6" fill="#fff"/><circle cx="69" cy="25" r="2.4" fill="#fff"/></g>`);
+    }
+  } else if (profile === "dry") {
+    overlays.push(`<g opacity=".42"><path d="M62 112 q12 9 27 4" stroke="#8d6e63" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M126 91 q-10 10 -25 8" stroke="#8d6e63" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="72" cy="88" r="3" fill="#a1887f"/><circle cx="132" cy="75" r="2.5" fill="#a1887f"/></g>`);
+  } else if (profile === "overwater") {
+    overlays.push(`<g opacity=".72"><ellipse cx="98" cy="148" rx="38" ry="7" fill="#90caf9" opacity=".45"/><path d="M64 123 c-5 8 5 12 8 5 c2-5-4-10-4-10 s-2 3-4 5" fill="#64b5f6"/><path d="M132 119 c-5 8 5 12 8 5 c2-5-4-10-4-10 s-2 3-4 5" fill="#64b5f6"/></g>`);
+  } else if (profile === "pest") {
+    overlays.push(`<g opacity=".8"><circle cx="73" cy="86" r="3" fill="#5d4037"/><circle cx="126" cy="92" r="2.8" fill="#5d4037"/><circle cx="111" cy="64" r="2.4" fill="#5d4037"/><text x="146" y="56" font-size="18">🐛</text></g>`);
+  }
+
+  // 빨갛거나 초록 열매 단계에서는 앞쪽 열매에 하이라이트를 더해 3D감을 강화합니다.
+  if (stageIdx >= 5) {
+    overlays.push(`<g opacity=".38"><ellipse cx="52" cy="58" rx="5" ry="3" fill="#fff" transform="rotate(-25 52 58)"/><ellipse cx="137" cy="48" rx="4.5" ry="2.7" fill="#fff" transform="rotate(-25 137 48)"/><ellipse cx="73" cy="28" rx="4.2" ry="2.5" fill="#fff" transform="rotate(-25 73 28)"/></g>`);
+  }
+  return svg.replace('</svg>', overlays.join('') + '</svg>');
 }
 
 // =============================================
@@ -1534,8 +1780,11 @@ function renderGame() {
 
   const stage = getStage();
   const pv = document.getElementById("plant-visual");
-  pv.innerHTML = PLANT_SVG[stage.idx] || PLANT_SVG[0];
-  pv.classList.remove("grow-in","sway");
+  const careProfile = getCareProfile();
+  S.careMark = careProfile;
+  pv.innerHTML = enhancePlantSVG(PLANT_SVG[stage.idx] || PLANT_SVG[0], stage.idx, careProfile);
+  pv.classList.remove("grow-in","sway","plant-healthy","plant-ok","plant-dry","plant-overwater","plant-pest","plant-dead");
+  pv.classList.add("plant-" + careProfile);
   void pv.offsetWidth; // reflow
   pv.classList.add("grow-in");
   setTimeout(() => { pv.classList.remove("grow-in"); pv.classList.add("sway"); }, 500);
@@ -1557,7 +1806,15 @@ function renderGame() {
 
   renderWeather();
   renderEnv();
+  renderActions();
   updateAlerts();
+  checkNewUnlockedActions();
+
+  if (S.dead) {
+    const waterAlert = document.getElementById("alert-water");
+    if (waterAlert) { waterAlert.classList.add("show","red"); document.getElementById("alert-water-txt").textContent = "식물이 심하게 약해졌어요. 다시 심거나 관리 기록을 살펴보세요."; }
+    return;
+  }
 
   if (S.growth >= 980 && !S.harvested) {
     S.score = calcScore();
@@ -1603,6 +1860,8 @@ function selectSpeed(mode, ctx) {
     }
     S.growth = 0;
     S.lastGrowthDate = "";
+    S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
+    S.fertCnt = 0; S.stakeSet = false; S.pollinateCnt = 0; S.pruneCnt = 0; S.fruitCheckCnt = 0;
   }
   S.speedMode = mode;
   if (ctx === 'set') { save(); }
@@ -1673,6 +1932,53 @@ function renderEnv() {
 // =============================================
 //  행동
 // =============================================
+
+function isActionUnlocked(action) {
+  return getStage().idx >= action.unlockStage;
+}
+function renderActions() {
+  const box = document.getElementById("action-box");
+  if (!box) return;
+  const stage = getStage();
+  box.innerHTML = ACTIONS.map(a => {
+    if (stage.idx >= a.unlockStage) {
+      const disabled = (!a.repeat && doneTd(a.id)) ? " disabled" : "";
+      const doneTxt = (!a.repeat && doneTd(a.id)) ? "오늘은 완료했어요." : a.short;
+      return '<button class="action-btn '+a.colorClass+'" onclick="doAction(\''+a.id+'\')"'+disabled+'>'+ 
+        '<strong>'+a.label+'</strong><small>'+doneTxt+'</small></button>';
+    }
+    const unlockStageName = STAGES[a.unlockStage] ? STAGES[a.unlockStage].name : "다음";
+    return '<div class="locked-action"><div class="lock-icon">🔒</div><small>'+unlockStageName+' 단계 이상일 때 열립니다.</small></div>';
+  }).join("");
+}
+function checkNewUnlockedActions() {
+  if (!Array.isArray(S.unlockedActions)) S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
+  let firstNew = null;
+  ACTIONS.forEach(a => {
+    if (a.unlockStage > 0 && isActionUnlocked(a) && !S.unlockedActions.includes(a.id)) {
+      S.unlockedActions.push(a.id);
+      if (!firstNew) firstNew = a;
+      addDiary("🎉", a.label.replace(/^\S+\s?/, "") + " 행동이 열렸어요. " + a.msg);
+    }
+  });
+  if (firstNew) {
+    save();
+    setTimeout(() => showUnlockModal(firstNew), 300);
+  }
+}
+function showUnlockModal(action) {
+  const bg = document.getElementById("modal-unlock");
+  if (!bg || !action) return;
+  document.getElementById("unlock-icon").textContent = action.icon || "🎉";
+  document.getElementById("unlock-title").textContent = action.title || "새로운 행동이 열렸어요!";
+  document.getElementById("unlock-msg").textContent = action.msg || "이 단계에서 필요한 관리 방법이에요.";
+  bg.classList.add("show");
+}
+function closeUnlockModal() {
+  const bg = document.getElementById("modal-unlock");
+  if (bg) bg.classList.remove("show");
+}
+
 function doneTd(k) { return (S.todayActions||[]).includes(k+"-"+today()); }
 function markTd(k) { if(!S.todayActions)S.todayActions=[]; S.todayActions.push(k+"-"+today()); }
 function addLog(txt) {
@@ -1689,12 +1995,28 @@ function addDiary(icon, txt) {
 }
 
 function doAction(type) {
+  const action = ACTIONS.find(a => a.id === type);
+  if (S.dead && type !== "check") {
+    toast("🥀 식물이 죽은 상태예요. 다시 심기를 해주세요.", "red");
+    return;
+  }
+  if (action && !isActionUnlocked(action)) {
+    const unlockStageName = STAGES[action.unlockStage] ? STAGES[action.unlockStage].name : "다음";
+    toast("🔒 "+unlockStageName+" 단계 이상일 때 열립니다.", "blue");
+    return;
+  }
+
   // 물주기는 횟수 제한 없음 (과수분 페널티로 자연 조절)
-  if (type !== "water" && doneTd(type)) {
-    const msgs = {vent:"오늘은 이미 환기했어요!",
-      warm:"오늘은 이미 보온했어요!",check:"오늘은 이미 관찰했어요!"};
+  if (type !== "water" && type !== "pest" && doneTd(type)) {
+    const msgs = {
+      vent:"오늘은 이미 환기했어요!", warm:"오늘은 이미 보온했어요!", check:"오늘은 이미 관찰했어요!",
+      fertilize:"오늘은 이미 비료를 줬어요!", stake:"오늘은 이미 지지대를 확인했어요!",
+      pollinate:"오늘은 이미 꽃을 흔들어 줬어요!", prune:"오늘은 이미 곁순을 정리했어요!",
+      fruitCheck:"오늘은 이미 열매를 살폈어요!"
+    };
     toast(msgs[type]||"이미 했어요!","blue"); return;
   }
+
   if (type==="water") {
     S.water = S.water + 30; // 100% 초과 허용
     S.waterCnt++;
@@ -1710,35 +2032,68 @@ function doAction(type) {
       addDiary("💧","물을 주었어요! 수분 "+Math.round(S.water)+"%");
     }
     addLog(wmsg);
+    if (S.water >= 45 && S.water <= 125) S.stress = Math.max(0, (S.stress||0) - 6);
+    S.dead = false;
     toast(wmsg, wcolor);
-    save(); renderGame(); return; // 물주기는 횟수 제한 없이 바로 저장
-  } else if (type==="water-skip") {
-    return; // (placeholder)
+    save(); renderGame(); return;
   } else if (type==="vent") {
-    if (W.temp&&W.temp>30) { S.growth=Math.min(100,S.growth+0.5); toast("더운 날 환기 효과! 🌬","orange"); }
+    if (W.temp&&W.temp>30) { S.growth=Math.min(1000,S.growth+5); toast("더운 날 환기 효과! 🌬","orange"); }
     else toast("시원하게 환기했어요.","orange");
     S.ventCnt++;
-    addDiary("🌬","환기를 했어요."); addLog("🌬 환기 완료!");
+    addDiary("🌬","환기를 했어요. 더운 공기와 습기를 빼 주었어요."); addLog("🌬 환기 완료!");
   } else if (type==="warm") {
-    if (W.temp&&W.temp<15) { S.growth=Math.min(100,S.growth+0.5); toast("추운 날 보온 효과! 🧥","green"); }
+    if (W.temp&&W.temp<15) { S.growth=Math.min(1000,S.growth+5); toast("추운 날 보온 효과! 🧥","green"); }
     else toast("따뜻하게 보온해 줬어요.","green");
     S.warmCnt++;
-    addDiary("🧥","보온을 했어요."); addLog("🧥 보온 완료!");
+    addDiary("🧥","보온을 했어요. 낮은 기온으로부터 식물을 보호했어요."); addLog("🧥 보온 완료!");
   } else if (type==="check") {
     const stage = getStage();
     S.checkCnt++;
+    S.stress = Math.max(0, (S.stress||0) - 2);
     addDiary("🔍","관찰: "+stage.desc);
     addLog("🔍 관찰! "+stage.name+" 단계");
     toast("🔍 "+stage.desc,"green");
+  } else if (type==="fertilize") {
+    S.fertCnt = (S.fertCnt||0) + 1;
+    S.stress = Math.max(0, (S.stress||0) - 3);
+    S.growth = Math.min(1000, S.growth + 8);
+    addDiary("🌿","비료를 조금 주었어요. 잎과 줄기가 자라는 데 필요한 영양분을 보충했어요.");
+    addLog("🌿 비료 주기 완료!");
+    toast("🌿 영양분을 보충했어요! 너무 자주 주지는 마세요.","green");
+  } else if (type==="stake") {
+    S.stakeSet = true;
+    S.growth = Math.min(1000, S.growth + 5);
+    addDiary("🪵","지지대를 세웠어요. 줄기가 쓰러지지 않도록 받쳐 주었어요.");
+    addLog("🪵 지지대 세우기 완료!");
+    toast("🪵 줄기를 튼튼하게 받쳐 주었어요!","green");
+  } else if (type==="pollinate") {
+    S.pollinateCnt = (S.pollinateCnt||0) + 1;
+    S.growth = Math.min(1000, S.growth + 8);
+    addDiary("🌼","꽃을 살짝 흔들어 주었어요. 꽃가루가 옮겨져 열매가 맺히는 데 도움이 돼요.");
+    addLog("🌼 꽃 흔들어주기 완료!");
+    toast("🌼 열매가 맺힐 가능성이 높아졌어요!","orange");
+  } else if (type==="prune") {
+    S.pruneCnt = (S.pruneCnt||0) + 1;
+    S.growth = Math.min(1000, S.growth + 6);
+    addDiary("✂️","곁순을 정리했어요. 영양분이 열매로 잘 가도록 도왔어요.");
+    addLog("✂️ 곁순 정리 완료!");
+    toast("✂️ 영양분이 열매로 잘 갈 수 있게 했어요!","green");
+  } else if (type==="fruitCheck") {
+    S.fruitCheckCnt = (S.fruitCheckCnt||0) + 1;
+    S.checkCnt++;
+    addDiary("🍅","열매를 살폈어요. 갈라짐, 병든 부분, 익은 정도를 확인했어요.");
+    addLog("🍅 열매 살피기 완료!");
+    toast("🍅 열매 상태를 확인했어요!","red");
   } else if (type==="pest") {
     S.pestAlert = false; S.pestDay = "";
+    S.stress = Math.max(0, (S.stress||0) - 12);
     S.growth = Math.max(0, S.growth - 20); // 처리 후 소폭 성장 손실
     addDiary("🌿","병충해를 처리했어요! 이제 괜찮아요.");
     addLog("🌿 병충해 처리 완료!");
     toast("🌿 병충해를 처리했어요!","green");
     save(); renderGame(); updateAlerts(); return;
   }
-  if (type !== "water") markTd(type);
+  if (type !== "water" && type !== "pest") markTd(type);
   save(); renderGame();
 }
 
@@ -1763,15 +2118,37 @@ async function openCaptureModal() {
   await new Promise(r => setTimeout(r, 250));
 
   try {
-    const target = document.getElementById("screen-game");
-    const canvas = await html2canvas(target, {
+    // 캡처 대상: 방울토마토 단계/상태 카드 + 현재 상태/오늘 날씨 카드만 저장
+    const potCard  = document.getElementById("capture-pot-card");
+    const infoGrid = document.getElementById("capture-info-grid");
+    if (!potCard || !infoGrid) throw new Error("캡처할 화면 요소를 찾을 수 없습니다.");
+
+    const captureArea = document.createElement("div");
+    const captureWidth = Math.min(900, Math.max(320, window.innerWidth - 32));
+    captureArea.style.position = "fixed";
+    captureArea.style.left = "-10000px";
+    captureArea.style.top = "0";
+    captureArea.style.width = captureWidth + "px";
+    captureArea.style.padding = "16px";
+    captureArea.style.boxSizing = "border-box";
+    captureArea.style.background = "linear-gradient(135deg,#e8f5e9 0%,#fffde7 100%)";
+
+    const potClone  = potCard.cloneNode(true);
+    const gridClone = infoGrid.cloneNode(true);
+    potClone.style.marginBottom = "14px";
+    gridClone.style.marginBottom = "0";
+    captureArea.appendChild(potClone);
+    captureArea.appendChild(gridClone);
+    document.body.appendChild(captureArea);
+
+    const canvas = await html2canvas(captureArea, {
       scale: 1.5,
       useCORS: true,
       allowTaint: true,
       backgroundColor: "#f1f8e9",
-      logging: false,
-      ignoreElements: el => el.classList.contains("modal-bg")
+      logging: false
     });
+    document.body.removeChild(captureArea);
 
     const dataUrl  = canvas.toDataURL("image/jpeg", 0.82);
     const stage    = getStage();
@@ -1936,7 +2313,10 @@ function restartGame() {
   S = { name,cls,nx,ny,region,plantDate, growth:0,water:60,
     lastGrowthDate:"",waterCnt:0,checkCnt:0,ventCnt:0,warmCnt:0,
     todayActions:[],actionDate:"",photos:[],diary:[],harvested:false,score:0,
-    env:env||"outdoor",pestAlert:false,pestDay:"",rainDamage:false,
+    env:env||"outdoor",unlockedActions:["water","check"],
+    fertCnt:0, stakeSet:false, pollinateCnt:0, pruneCnt:0, fruitCheckCnt:0,
+    pestAlert:false,pestDay:"",rainDamage:false,
+    stress:0, dead:false, careMark:"ok",
     speedMode:speedMode||"mid" };
   save(); goGame();
 }
