@@ -1174,6 +1174,9 @@ let S = {
   dead:false,         // 심각한 관리 실패가 오래 누적되면 true
   careMark:"ok",     // healthy | ok | dry | overwater | pest | dead
   speedMode:"mid",     // "short" | "mid" | "long"
+  lastActiveAt:"",     // 프로그램을 마지막으로 사용한 시각
+  lastOfflineProcessedAt:"", // 종료 후 날씨 경과를 마지막으로 반영한 시각
+  offlineReports:[],    // 종료 중 날씨 반영 요약 기록
 };
 let W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", fetchedTs:0, lastFetch:"", pty:0 };
 let currentPhotoData = null;
@@ -1197,6 +1200,9 @@ function load() {
   if (typeof S.pruneCnt !== "number") S.pruneCnt = 0;
   if (typeof S.fruitCheckCnt !== "number") S.fruitCheckCnt = 0;
   if (typeof S.stakeSet !== "boolean") S.stakeSet = false;
+  if (!Array.isArray(S.offlineReports)) S.offlineReports = [];
+  if (typeof S.lastActiveAt !== "string") S.lastActiveAt = "";
+  if (typeof S.lastOfflineProcessedAt !== "string") S.lastOfflineProcessedAt = "";
 }
 
 // =============================================
@@ -1204,6 +1210,7 @@ function load() {
 // =============================================
 function init() {
   load();
+  setupLifecycleSaving();
   buildSido("sel-sido","sel-sg","onSidoChange");
   buildSido("set-sido","set-sg","setOnSidoChange");
 
@@ -1218,11 +1225,14 @@ function init() {
   renderSpeedUI();
   // 실시간 업데이트: 1분마다 수분 감소 + 화면 갱신
   setInterval(realtimeTick, 60000);
+  // 사용 중에도 마지막 활동 시각을 주기적으로 저장
+  setInterval(markActiveNow, 60000);
   // 1시간마다 날씨 재조회
   setInterval(fetchWeatherAuto, 3600000);
 }
 
 function realtimeTick() {
+  markActiveNow();
   if (!S.name || !S.plantDate) return;
   // 시간당 수분 감소량을 분 단위로 분배 (하루 약 11% → 분당 약 0.0076%)
   const minDrain = (8 + 4) / (24 * 60);
@@ -1272,8 +1282,9 @@ function goScreen(id) {
   }
 }
 
-function goGame() {
+async function goGame() {
   goScreen("game");
+  await processOfflineWeatherRecovery();
   renderGame();
   fetchWeatherAuto();
   renderPhotos();
@@ -1350,6 +1361,8 @@ function startGame() {
   S.nx = found.x; S.ny = found.y;
   S.region = sido + " " + sg;
   S.plantDate = pd;
+  S.lastActiveAt = new Date().toISOString();
+  S.lastOfflineProcessedAt = S.lastActiveAt;
   // speedMode는 selectSpeed로 이미 S에 저장됨 (기본값 "mid")
   if (!S.speedMode) S.speedMode = "mid";
   save();
@@ -1395,6 +1408,8 @@ function saveSettings() {
     S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
     S.fertCnt = 0; S.stakeSet = false; S.pollinateCnt = 0; S.pruneCnt = 0; S.fruitCheckCnt = 0;
     S.stress = 0; S.dead = false; S.careMark = "ok";
+    S.lastActiveAt = new Date().toISOString();
+    S.lastOfflineProcessedAt = S.lastActiveAt;
   } else if (pd) S.plantDate = pd;
   save();
   toast("✅ 저장됐어요!","green");
@@ -1414,7 +1429,7 @@ function resetAll() {
     fertCnt:0, stakeSet:false, pollinateCnt:0, pruneCnt:0, fruitCheckCnt:0,
     pestAlert:false, pestDay:"", rainDamage:false,
     stress:0, dead:false, careMark:"ok",
-    speedMode:"mid" };
+    speedMode:"mid", lastActiveAt:"", lastOfflineProcessedAt:"", offlineReports:[] };
   W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
   toast("초기화 완료!","orange");
   setTimeout(() => goScreen("start"), 600);
@@ -1526,6 +1541,273 @@ function renderWeather() {
 function updateHdrWeather() {
   document.getElementById("hdr-weather").textContent =
     skyIco(W.sky)+" "+(W.temp!==null?W.temp+"°C":"--")+" · "+(S.region?S.region.split(" ").pop():"--");
+}
+
+// =============================================
+//  종료 중 날씨 경과 반영
+// =============================================
+function markActiveNow() {
+  if (!S || !S.name) return;
+  S.lastActiveAt = new Date().toISOString();
+  try { save(); } catch(e) {}
+}
+
+function setupLifecycleSaving() {
+  window.addEventListener("beforeunload", markActiveNow);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") markActiveNow();
+  });
+}
+
+function parseDateSafe(v) {
+  const d = v ? new Date(v) : null;
+  return d && !isNaN(d.getTime()) ? d : null;
+}
+
+function fmtKmaDate(d) {
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+}
+function fmtKmaHour(d) {
+  return String(d.getHours()).padStart(2,"0")+"00";
+}
+function previousFcstBase(d) {
+  const bases = [2,5,8,11,14,17,20,23];
+  const x = new Date(d);
+  let h = x.getHours();
+  let picked = null;
+  for (const b of bases) if (h >= b) picked = b;
+  if (picked === null) { x.setDate(x.getDate()-1); picked = 23; }
+  x.setHours(picked,0,0,0);
+  return {date:fmtKmaDate(x), time:String(picked).padStart(2,"0")+"00"};
+}
+function seasonalTemp(d) {
+  const m = d.getMonth()+1;
+  return [0,-1,2,7,13,18,22,25,26,21,15,8,2][m] || 18;
+}
+function daylightFactor(d) {
+  const h = d.getHours();
+  const m = d.getMonth()+1;
+  const start = (m>=5 && m<=8) ? 6 : (m>=3 && m<=10 ? 7 : 8);
+  const end   = (m>=5 && m<=8) ? 19 : (m>=3 && m<=10 ? 18 : 17);
+  return h >= start && h <= end ? 1 : 0;
+}
+
+async function fetchWeatherSnapshotAt(d) {
+  const nx = S.nx || 54, ny = S.ny || 100;
+  const ncstBase = "?serviceKey="+API_KEY+"&numOfRows=30&pageNo=1&dataType=JSON"
+    +"&base_date="+fmtKmaDate(d)+"&base_time="+fmtKmaHour(d)+"&nx="+nx+"&ny="+ny;
+  const fc = previousFcstBase(d);
+  const fcstBase = "?serviceKey="+API_KEY+"&numOfRows=60&pageNo=1&dataType=JSON"
+    +"&base_date="+fc.date+"&base_time="+fc.time+"&nx="+nx+"&ny="+ny;
+  const snap = {
+    temp: W.temp ?? seasonalTemp(d), rain:0, wind:3, pty:0, sky: W.sky || 1,
+    source:"추정", at:d.toISOString()
+  };
+  try {
+    const r1 = await fetch(NCST + ncstBase);
+    const j1 = await r1.json();
+    const items = j1?.response?.body?.items?.item || [];
+    if (items.length) {
+      items.forEach(it => {
+        if (it.category==="T1H") snap.temp = parseFloat(it.obsrValue);
+        if (it.category==="RN1") snap.rain = parseFloat(it.obsrValue)||0;
+        if (it.category==="WSD") snap.wind = parseFloat(it.obsrValue)||0;
+        if (it.category==="PTY") snap.pty  = parseInt(it.obsrValue)||0;
+      });
+      snap.source = "기상청";
+    }
+  } catch(e) {}
+  try {
+    const r2 = await fetch(FCST + fcstBase);
+    const j2 = await r2.json();
+    const items = j2?.response?.body?.items?.item || [];
+    const targetDate = fmtKmaDate(d);
+    const targetHour = fmtKmaHour(d);
+    const sky = items.find(it => it.category==="SKY" && it.fcstDate===targetDate && it.fcstTime===targetHour)
+      || items.find(it => it.category==="SKY");
+    if (sky) snap.sky = parseInt(sky.fcstValue);
+  } catch(e) {}
+  const daySun = estSun(snap.sky, snap.pty);
+  snap.sunH = daySun * daylightFactor(d);
+  return snap;
+}
+
+function calcOfflineDailyGrowth(snap) {
+  let g = 5.0;
+  const temp = snap.temp, rawSun = snap.sunH || 0, rain = snap.rain || 0, wind = snap.wind || 0, pty = snap.pty || 0;
+  if (temp !== null && temp !== undefined) {
+    if (temp >= 22 && temp <= 27)      g += 4.0;
+    else if (temp >= 18 && temp <= 30) g += 2.0;
+    else if (temp >= 12 && temp <= 34) g += 0.5;
+    else if (temp < 8 || temp > 36)    g -= 3.0;
+    else                               g -= 1.0;
+  }
+  if ((S.env || "outdoor") === "outdoor") {
+    if (rawSun >= 8)       g += 3.0;
+    else if (rawSun >= 5)  g += 1.5;
+    else if (rawSun >= 2)  g -= 0.5;
+    else                   g -= 1.2;
+    if (pty > 0 && rain >= 5) g -= 4.0;
+    if (wind >= 10) g -= 2.0;
+    if (S.pestAlert) g -= 5.0;
+  } else {
+    const winSun = rawSun * 0.65;
+    if (winSun >= 5)       g += 1.5;
+    else if (winSun >= 3)  g += 0.5;
+    else                   g -= 1.2;
+    if (S.pestAlert) g -= 3.0;
+    if (temp !== null && temp !== undefined && temp < 10) g -= 1.5;
+  }
+  if (S.water > 150)       g -= 6.0;
+  else if (S.water > 120)  g -= 2.5;
+  else if (S.water >= 50)  g += 1.5;
+  else if (S.water >= 30)  g += 0.5;
+  else if (S.water >= 10)  g -= 2.0;
+  else                     g -= 5.0;
+  if (getStage().idx >= 5 && !S.stakeSet) g -= 1.5;
+  if (S.pollinateCnt > 0 && getStage().idx >= 4 && getStage().idx <= 5) g += 0.8;
+  if (S.pruneCnt > 0 && getStage().idx >= 5) g += 0.6;
+  const multi = SPEED_MULTI[S.speedMode || "mid"];
+  return Math.max(-8 * multi, g * multi);
+}
+
+function applyOfflineSpan(snap, hours, summary) {
+  if (S.dead || !S.plantDate) return;
+  const env = S.env || "outdoor";
+  const pty = snap.pty || 0, rain = snap.rain || 0, wind = snap.wind || 0, temp = snap.temp;
+  let waterBefore = S.water;
+
+  if (env === "outdoor" && pty > 0 && rain > 0) {
+    const add = Math.min(70, rain * hours * 2.2);
+    S.water = Math.min(190, S.water + add);
+    summary.rainHours += hours;
+    summary.rainWater += add;
+  }
+
+  const daylight = daylightFactor(new Date(snap.at));
+  let drain = 0.45 * hours;
+  if (daylight) drain += 0.18 * hours;
+  if (temp !== null && temp !== undefined && temp >= 30) drain += 0.18 * hours;
+  if (temp !== null && temp !== undefined && temp <= 8) drain -= 0.08 * hours;
+  if (wind >= 8 && env === "outdoor") drain += 0.15 * hours;
+  if (env === "window") drain *= 0.75;
+  if (S.water > 130) drain += ((S.water - 120) * 0.015 * hours);
+  S.water = Math.max(0, S.water - Math.max(0.05, drain));
+
+  const dailyG = calcOfflineDailyGrowth(snap);
+  const delta = dailyG * (hours / 24);
+  S.growth = Math.max(0, Math.min(1000, S.growth + delta));
+  summary.growth += delta;
+  summary.waterDelta += (S.water - waterBefore);
+  summary.samples++;
+  if (snap.source === "기상청") summary.kmaSamples++;
+  if (daylight) summary.sunHours += hours * Math.max(0, Math.min(1, (snap.sky===1?1:snap.sky===3?0.5:snap.sky===4?0.2:0.7)));
+  if (temp !== null && temp !== undefined) { summary.tempSum += temp; summary.tempCnt++; }
+
+  // 오프라인 병충해와 스트레스 처리
+  if (!S.pestAlert) {
+    const pestPerDay = env === "outdoor" ? ((temp > 25 && pty > 0) ? 0.10 : 0.05) : 0.02;
+    if (Math.random() < pestPerDay * (hours / 24)) {
+      S.pestAlert = true; S.pestDay = today(); summary.pest = true;
+    }
+  }
+  let stress = S.stress || 0;
+  if (S.water <= 8) stress += 3.0 * hours;
+  else if (S.water <= 20) stress += 1.4 * hours;
+  else if (S.water >= 170) stress += 1.8 * hours;
+  else if (S.water >= 145) stress += 0.9 * hours;
+  else if (S.water >= 45 && S.water <= 125) stress -= 0.18 * hours;
+  if (S.pestAlert) stress += 0.25 * hours;
+  if (env === "outdoor" && pty > 0 && rain >= 5) { stress += 0.8 * hours; S.rainDamage = true; summary.heavyRain = true; }
+  if (temp !== null && temp !== undefined && (temp < 8 || temp > 36)) stress += 0.7 * hours;
+  if (delta < 0) stress += Math.abs(delta) * 0.35;
+  S.stress = Math.max(0, Math.min(120, Math.round(stress)));
+  if (S.stress >= 100 || (S.water <= 3 && daysSincePlant() >= 4)) {
+    S.dead = true; S.careMark = "dead"; summary.dead = true;
+  }
+}
+
+async function processOfflineWeatherRecovery() {
+  if (!S.name || !S.plantDate) return;
+  const now = new Date();
+  const plantStart = new Date(S.plantDate + "T00:00:00");
+  const lastActive = parseDateSafe(S.lastActiveAt);
+  const lastProcessed = parseDateSafe(S.lastOfflineProcessedAt);
+  let start = lastProcessed || lastActive;
+  if (!start) {
+    S.lastActiveAt = now.toISOString();
+    S.lastOfflineProcessedAt = now.toISOString();
+    save();
+    return;
+  }
+  if (start < plantStart) start = plantStart;
+  const gapHours = (now - start) / 3600000;
+  if (gapHours < 0.5) {
+    S.lastActiveAt = now.toISOString();
+    save();
+    return;
+  }
+
+  const maxWeatherHours = 24 * 7; // API 과부하 방지를 위해 최근 7일은 시간대별 조회, 그 이전은 계절 평균 추정
+  const summary = {hours:gapHours, samples:0, kmaSamples:0, growth:0, waterDelta:0, rainHours:0, rainWater:0, sunHours:0, tempSum:0, tempCnt:0, pest:false, heavyRain:false, dead:false};
+
+  let cursor = new Date(start);
+  const olderHours = Math.max(0, gapHours - maxWeatherHours);
+  if (olderHours > 0) {
+    const mid = new Date(cursor.getTime() + olderHours * 1800000);
+    const snap = {temp:seasonalTemp(mid), rain:0, wind:3, pty:0, sky:1, sunH:estSun(1,0)*daylightFactor(mid), source:"추정", at:mid.toISOString()};
+    applyOfflineSpan(snap, olderHours, summary);
+    cursor = new Date(cursor.getTime() + olderHours * 3600000);
+  }
+
+  const intervalHours = gapHours > 72 ? 6 : 3;
+  while (cursor < now && !S.dead) {
+    const next = new Date(Math.min(now.getTime(), cursor.getTime() + intervalHours*3600000));
+    const h = Math.max(0.1, (next - cursor) / 3600000);
+    const mid = new Date(cursor.getTime() + (next - cursor)/2);
+    let snap;
+    try { snap = await fetchWeatherSnapshotAt(mid); }
+    catch(e) { snap = {temp:seasonalTemp(mid), rain:0, wind:3, pty:0, sky:1, sunH:estSun(1,0)*daylightFactor(mid), source:"추정", at:mid.toISOString()}; }
+    applyOfflineSpan(snap, h, summary);
+    cursor = next;
+  }
+
+  S.lastOfflineProcessedAt = now.toISOString();
+  S.lastActiveAt = now.toISOString();
+  S.lastGrowthDate = today(); // 같은 날 기본 growthTick이 중복 적용되지 않게 함
+  if (S.actionDate !== today()) { S.todayActions = []; S.actionDate = today(); }
+  const avgTemp = summary.tempCnt ? (summary.tempSum/summary.tempCnt).toFixed(1) : "--";
+  const msg = "프로그램을 꺼둔 동안 약 "+Math.round(summary.hours*10)/10+"시간이 지났어요. "+
+    "기상청 자료 "+summary.kmaSamples+"회/전체 "+summary.samples+"회 기준으로 성장 "+(summary.growth>=0?"+":"")+summary.growth.toFixed(1)+"pt, "+
+    "수분 "+(summary.waterDelta>=0?"+":"")+summary.waterDelta.toFixed(1)+"%, 평균 기온 "+avgTemp+"℃로 반영했어요.";
+  addDiary("⏱", msg + (summary.heavyRain?" 폭우 피해 가능성이 있었어요.":"") + (summary.pest?" 병충해가 발생했어요.":""));
+  if (!S.offlineReports) S.offlineReports = [];
+  S.offlineReports.unshift({date:today(), msg});
+  if (S.offlineReports.length > 20) S.offlineReports.pop();
+  save();
+  showOfflineSummary(summary, msg);
+}
+
+function showOfflineSummary(summary, msg) {
+  if (!summary || summary.hours < 0.5) return;
+  const old = document.getElementById("modal-offline-summary");
+  if (old) old.remove();
+  const bg = document.createElement("div");
+  bg.className = "modal-bg show";
+  bg.id = "modal-offline-summary";
+  const avgTemp = summary.tempCnt ? (summary.tempSum/summary.tempCnt).toFixed(1)+"℃" : "--";
+  bg.innerHTML = `<div class="modal" style="max-width:460px;">
+    <h3>⏱ 꺼져 있던 동안의 변화</h3>
+    <div style="font-size:.88rem;line-height:1.7;color:#444;background:#f9f9f9;border-radius:10px;padding:12px;margin-bottom:12px;">${msg}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.84rem;margin-bottom:12px;">
+      <div style="background:#e8f5e9;border-radius:8px;padding:9px;">🌱 성장<br><b>${summary.growth>=0?"+":""}${summary.growth.toFixed(1)}pt</b></div>
+      <div style="background:#e3f2fd;border-radius:8px;padding:9px;">💧 수분<br><b>${summary.waterDelta>=0?"+":""}${summary.waterDelta.toFixed(1)}%</b></div>
+      <div style="background:#fffde7;border-radius:8px;padding:9px;">☀️ 추정 일조<br><b>${summary.sunHours.toFixed(1)}시간</b></div>
+      <div style="background:#fff3e0;border-radius:8px;padding:9px;">🌡 평균 기온<br><b>${avgTemp}</b></div>
+    </div>
+    <button class="btn btn-green" style="width:100%;" onclick="document.getElementById('modal-offline-summary').remove();">확인</button>
+  </div>`;
+  document.body.appendChild(bg);
 }
 
 // =============================================
