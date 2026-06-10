@@ -817,6 +817,7 @@ const PLANT_SVG = [
 // =============================================
 const API_KEY = "9c5090de2d1567aeca21510c09d2ff6c8fa39a93c52f759889ff6ed98a4146d5";
 const NCST = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+const FCST = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst";
 
 // =============================================
 //  전국 시/군/구 격자좌표
@@ -965,7 +966,7 @@ let S = {
   todayActions:[], actionDate:"", photos:[], diary:[],
   harvested:false, score:0,
 };
-let W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
+let W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", fetchedTs:0, lastFetch:"", pty:0 };
 let currentPhotoData = null;
 let currentPhotoIdx  = -1;
 
@@ -995,6 +996,39 @@ function init() {
   } else {
     goScreen("start");
   }
+  // 실시간 업데이트: 1분마다 수분 감소 + 화면 갱신
+  setInterval(realtimeTick, 60000);
+  // 1시간마다 날씨 재조회
+  setInterval(fetchWeatherAuto, 3600000);
+}
+
+function realtimeTick() {
+  if (!S.name || !S.plantDate) return;
+  // 시간당 수분 감소량을 분 단위로 분배 (하루 약 11% → 분당 약 0.0076%)
+  const minDrain = (8 + 4) / (24 * 60);
+  // 과수분이면 추가 증발
+  const extra = S.water > 120 ? (S.water - 100) * 0.002 : 0;
+  S.water = Math.max(0, S.water - minDrain - extra);
+  save();
+  // 화면이 game 상태일 때만 렌더
+  const gameEl = document.getElementById("screen-game");
+  if (gameEl && gameEl.style.display !== "none") {
+    updateWaterUI();
+    updateAlerts();
+  }
+}
+
+function updateWaterUI() {
+  document.getElementById("bar-water").style.width    = Math.min(100,S.water) + "%";
+  document.getElementById("pct-water").textContent    = Math.round(S.water) + "%";
+  const wb = document.getElementById("st-water");
+  const wv = document.getElementById("sv-water");
+  wb.className = "stat-item";
+  if (S.water > 150)      { wv.textContent="과수분 ⚠️"; wb.classList.add("stat-danger"); }
+  else if (S.water > 120) { wv.textContent="많음 💦";   wb.classList.add("stat-warn"); }
+  else if (S.water >= 60) { wv.textContent="충분 💧"; }
+  else if (S.water >= 30) { wv.textContent="보통";       wb.classList.add("stat-warn"); }
+  else                    { wv.textContent="부족 ⚠️";   wb.classList.add("stat-danger"); }
 }
 
 // =============================================
@@ -1168,24 +1202,39 @@ function baseTime() {
 }
 
 async function fetchWeatherAuto() {
-  if (W.fetchedDate === today() && W.temp !== null) { renderWeather(); return; }
-  const url = NCST+"?serviceKey="+API_KEY+"&numOfRows=10&pageNo=1&dataType=JSON"
+  // 1시간마다 재조회 (오늘 날짜 + 1시간 이내면 캐시 사용)
+  const now = Date.now();
+  if (W.fetchedDate === today() && W.temp !== null && (now - (W.fetchedTs||0)) < 3600000) {
+    renderWeather(); updateHdrWeather(); return;
+  }
+  const base = "?serviceKey="+API_KEY+"&numOfRows=20&pageNo=1&dataType=JSON"
     +"&base_date="+todayNum()+"&base_time="+baseTime()+"&nx="+S.nx+"&ny="+S.ny;
   try {
-    const r = await fetch(url);
-    const j = await r.json();
-    const items = j?.response?.body?.items?.item;
-    if (!items) throw new Error("데이터 없음");
-    items.forEach(it => {
+    // 실황(기온·강수·바람)과 예보(SKY) 병렬 호출
+    const [r1, r2] = await Promise.all([
+      fetch(NCST + base),
+      fetch(FCST + base)
+    ]);
+    const [j1, j2] = await Promise.all([r1.json(), r2.json()]);
+
+    // 초단기실황: T1H, RN1, WSD, PTY
+    const ncstItems = j1?.response?.body?.items?.item || [];
+    ncstItems.forEach(it => {
       if (it.category==="T1H") W.temp = parseFloat(it.obsrValue);
       if (it.category==="RN1") W.rain = parseFloat(it.obsrValue)||0;
       if (it.category==="WSD") W.wind = parseFloat(it.obsrValue);
-      if (it.category==="SKY") W.sky  = parseInt(it.obsrValue);
       if (it.category==="PTY") W.pty  = parseInt(it.obsrValue)||0;
     });
+
+    // 초단기예보: SKY (가장 가까운 예보 시각 기준)
+    const fcstItems = j2?.response?.body?.items?.item || [];
+    const skyItem = fcstItems.find(it => it.category==="SKY");
+    if (skyItem) W.sky = parseInt(skyItem.fcstValue);
+
     W.sunH = estSun(W.sky, W.pty);
     W.fetchedDate = today();
-    W.lastFetch = new Date().toLocaleTimeString("ko-KR");
+    W.fetchedTs   = Date.now();
+    W.lastFetch   = new Date().toLocaleTimeString("ko-KR");
     saveW();
     renderWeather();
     updateHdrWeather();
@@ -1263,9 +1312,11 @@ function growthTick() {
 
   if (S.lastGrowthDate !== t) {
     const g = calcGrowth();
-    S.growth = Math.min(100, S.growth + g);
+    S.growth = Math.max(0, Math.min(100, S.growth + g));
     S.lastGrowthDate = t;
-    S.water = Math.max(0, S.water - (8 + Math.random()*7));
+    // 과수분이면 더 빠르게 빠짐 (증발+배수), 정상이면 8~15%
+    const drainExtra = S.water > 120 ? (S.water - 100) * 0.3 : 0;
+    S.water = Math.max(0, S.water - (8 + Math.random()*7) - drainExtra);
     if (S.actionDate !== t) { S.todayActions = []; S.actionDate = t; }
     save();
   }
@@ -1281,8 +1332,13 @@ function calcGrowth() {
   }
   const sh = W.sunH||6;
   if (sh>=8) g+=1.0; else if (sh>=5) g+=0.5; else g-=0.5;
-  if (S.water>=50) g+=0.8; else if (S.water>=30) g+=0.3; else g-=1.0;
-  return Math.max(0,g);
+  // 수분 범위별 성장 영향
+  if (S.water > 150)       g -= 3.0; // 과수분 심각: 뿌리 썩음
+  else if (S.water > 120)  g -= 1.5; // 과수분 주의
+  else if (S.water >= 50)  g += 0.8; // 적정
+  else if (S.water >= 30)  g += 0.3; // 조금 부족
+  else                     g -= 1.0; // 매우 부족
+  return Math.max(-2, g); // 음수 성장(역효과) 허용
 }
 
 // =============================================
@@ -1313,12 +1369,7 @@ function renderGame() {
   document.getElementById("bar-water").style.width    = S.water + "%";
   document.getElementById("pct-water").textContent    = Math.round(S.water) + "%";
 
-  const wb = document.getElementById("st-water");
-  const wv = document.getElementById("sv-water");
-  wb.className = "stat-item";
-  if (S.water>=60)      { wv.textContent="충분 💧"; }
-  else if (S.water>=30) { wv.textContent="보통";    wb.classList.add("stat-warn"); }
-  else                  { wv.textContent="부족 ⚠️"; wb.classList.add("stat-danger"); }
+  updateWaterUI();
 
   const days = Math.max(0, Math.floor((new Date(today())-new Date(S.plantDate))/86400000))+1;
   document.getElementById("sv-day").textContent = days + "일차";
@@ -1364,16 +1415,31 @@ function addDiary(icon, txt) {
 }
 
 function doAction(type) {
-  if (doneTd(type)) {
-    const msgs = {water:"오늘은 이미 물을 줬어요! 💧",vent:"오늘은 이미 환기했어요!",
+  // 물주기는 횟수 제한 없음 (과수분 페널티로 자연 조절)
+  if (type !== "water" && doneTd(type)) {
+    const msgs = {vent:"오늘은 이미 환기했어요!",
       warm:"오늘은 이미 보온했어요!",check:"오늘은 이미 관찰했어요!"};
     toast(msgs[type]||"이미 했어요!","blue"); return;
   }
   if (type==="water") {
-    S.water = Math.min(100, S.water+30); S.waterCnt++;
-    addDiary("💧","물을 주었어요! 수분 "+Math.round(S.water)+"%");
-    addLog("💧 물 주기 완료! 수분: "+Math.round(S.water)+"%");
-    toast("💧 물을 줬어요!","blue");
+    S.water = S.water + 30; // 100% 초과 허용
+    S.waterCnt++;
+    let wmsg, wcolor;
+    if (S.water > 150) {
+      wmsg = "⚠️ 물이 너무 많아요! 뿌리가 썩을 수 있어요!"; wcolor = "red";
+      addDiary("⚠️","과수분! 물을 너무 많이 줬어요. 수분 "+Math.round(S.water)+"% - 성장에 악영향!");
+    } else if (S.water > 120) {
+      wmsg = "💦 물이 많아요! 잠깐 쉬게 해주세요."; wcolor = "orange";
+      addDiary("💦","물이 조금 많아요. 수분 "+Math.round(S.water)+"%");
+    } else {
+      wmsg = "💧 물을 줬어요! 수분 "+Math.round(S.water)+"%"; wcolor = "blue";
+      addDiary("💧","물을 주었어요! 수분 "+Math.round(S.water)+"%");
+    }
+    addLog(wmsg);
+    toast(wmsg, wcolor);
+    save(); renderGame(); return; // 물주기는 횟수 제한 없이 바로 저장
+  } else if (type==="water-skip") {
+    return; // (placeholder)
   } else if (type==="vent") {
     if (W.temp&&W.temp>30) { S.growth=Math.min(100,S.growth+0.5); toast("더운 날 환기 효과! 🌬","orange"); }
     else toast("시원하게 환기했어요.","orange");
