@@ -73,20 +73,30 @@ header h1{font-size:1.2rem;}
 .pot-card{display:flex;align-items:center;gap:24px;padding:22px;}
 @media(max-width:580px){.pot-card{flex-direction:column;gap:10px;text-align:center;}}
 .plant-visual{width:170px;height:187px;flex-shrink:0;
-  filter:drop-shadow(0 8px 20px rgba(0,0,0,.22));
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.10));
   transition:transform .4s ease;cursor:pointer;position:relative;}
 .plant-visual:hover{transform:scale(1.05) rotate(-1deg);}
 .plant-visual svg{width:100%;height:100%;}
 
+.plant-frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform-origin:50% 85%;will-change:transform,opacity;}
+.plant-frame svg{width:100%;height:100%;overflow:visible;}
+.plant-frame.preview{mix-blend-mode:normal;pointer-events:none;}
+.plant-frame.prev{animation:plantPrevFade .95s ease forwards;}
+.plant-frame.next{animation:plantNextPop 1.05s cubic-bezier(.22,.8,.2,1) forwards;}
+.plant-stage-chip{position:absolute;left:50%;top:2px;transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--dgreen);font-size:.72rem;font-weight:900;padding:4px 10px;border-radius:999px;box-shadow:0 4px 10px rgba(0,0,0,.12);animation:stageChipFloat 1.2s ease forwards;white-space:nowrap;z-index:3;}
+@keyframes plantPrevFade{0%{opacity:1;transform:scale(1) translateY(0);}100%{opacity:0;transform:scale(.88) translateY(12px);}}
+@keyframes plantNextPop{0%{opacity:0;transform:scale(.78) translateY(14px);}55%{opacity:1;transform:scale(1.06) translateY(-2px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes stageChipFloat{0%{opacity:0;transform:translateX(-50%) translateY(8px) scale(.92);}15%{opacity:1;}100%{opacity:0;transform:translateX(-50%) translateY(-14px) scale(1.04);}}
+
 /* 식물 2.5D 입체감 및 관리 상태 표현 */
 .plant-visual{perspective:700px;}
-.plant-visual svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 10px 12px rgba(54,35,16,.28)) saturate(1.08) contrast(1.04);}
-.plant-visual.plant-healthy svg{filter:drop-shadow(0 12px 16px rgba(32,96,42,.30)) saturate(1.22) contrast(1.08);}
-.plant-visual.plant-ok svg{filter:drop-shadow(0 10px 13px rgba(54,35,16,.25)) saturate(1.05);}
-.plant-visual.plant-dry svg{filter:drop-shadow(0 8px 10px rgba(88,53,17,.28)) saturate(.72) sepia(.22) brightness(.92);}
-.plant-visual.plant-overwater svg{filter:drop-shadow(0 9px 12px rgba(22,87,142,.28)) saturate(.90) hue-rotate(8deg) brightness(.95);}
-.plant-visual.plant-pest svg{filter:drop-shadow(0 9px 12px rgba(87,62,24,.25)) saturate(.78) sepia(.15);}
-.plant-visual.plant-dead svg{filter:drop-shadow(0 8px 10px rgba(60,40,20,.25)) saturate(.25) sepia(.35) brightness(.78);}
+.plant-visual svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 6px rgba(54,35,16,.12)) saturate(1.05) contrast(1.02);}
+.plant-visual.plant-healthy svg{filter:drop-shadow(0 5px 7px rgba(32,96,42,.14)) saturate(1.18) contrast(1.06);}
+.plant-visual.plant-ok svg{filter:drop-shadow(0 4px 6px rgba(54,35,16,.10)) saturate(1.03);}
+.plant-visual.plant-dry svg{filter:drop-shadow(0 5px 7px rgba(88,53,17,.16)) saturate(.72) sepia(.22) brightness(.95);}
+.plant-visual.plant-overwater svg{filter:drop-shadow(0 5px 7px rgba(22,87,142,.16)) saturate(.92) hue-rotate(8deg) brightness(.97);}
+.plant-visual.plant-pest svg{filter:drop-shadow(0 5px 7px rgba(87,62,24,.14)) saturate(.80) sepia(.15);}
+.plant-visual.plant-dead svg{filter:drop-shadow(0 5px 7px rgba(60,40,20,.14)) saturate(.25) sepia(.35) brightness(.80);}
 .plant-visual.plant-dry{transform:rotate(-1.5deg);}
 .plant-visual.plant-dead{transform:rotate(-3deg);}
 
@@ -301,6 +311,31 @@ header h1{font-size:1.2rem;}
 .env-name{font-size:.9rem;font-weight:700;color:#333;}
 .env-desc{font-size:.72rem;color:#888;line-height:1.4;}
 .env-btn.active .env-name{color:var(--dgreen);}
+
+/* 테스트 전용 패널 */
+.test-panel{position:fixed;right:14px;bottom:14px;z-index:500;background:rgba(255,255,255,.96);
+  border:2px solid #c8e6c9;border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.18);
+  padding:12px;width:min(330px,calc(100vw - 28px));font-size:.85rem;}
+.test-panel.hide{display:none;}
+.test-panel-title{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;font-weight:900;color:#2e7d32;margin-bottom:8px;}
+.test-panel-title button{border:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;
+  padding:4px 8px;font-weight:800;cursor:pointer;}
+.test-panel-row{display:flex;gap:8px;align-items:center;margin:7px 0;}
+.test-panel label{font-size:.78rem;font-weight:800;color:#555;min-width:64px;}
+.test-panel input[type=range]{flex:1;}
+.test-panel select,.test-panel input[type=number]{border:1px solid #cfd8dc;border-radius:8px;
+  padding:6px;font-size:.84rem;background:#fff;}
+.test-panel .mini-btn{border:none;border-radius:8px;padding:7px 9px;font-size:.78rem;
+  font-weight:800;cursor:pointer;background:#4caf50;color:#fff;flex:1;}
+.test-panel .mini-btn.gray{background:#78909c;}
+.test-panel .mini-btn.orange{background:#fb8c00;}
+.test-panel .mini-btn.red{background:#e53935;}
+.test-fab{position:fixed;right:14px;bottom:14px;z-index:499;border:none;border-radius:999px;
+  padding:11px 15px;background:#2e7d32;color:white;font-weight:900;box-shadow:0 5px 16px rgba(0,0,0,.22);cursor:pointer;}
+.test-fab.hide{display:none;}
+.test-note{font-size:.72rem;color:#888;line-height:1.45;margin-top:6px;}
+
 </style>
 <!-- html2canvas: 화면 캡처 라이브러리 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -645,6 +680,59 @@ header h1{font-size:1.2rem;}
   </div>
 </div>
 
+
+<!-- 테스트 전용 성장 조절 패널 -->
+<button id="test-fab" class="test-fab hide" onclick="toggleTestPanel()">🧪 테스트</button>
+<div id="test-panel" class="test-panel hide">
+  <div class="test-panel-title">
+    <span>🧪 성장 테스트 패널</span>
+    <button onclick="toggleTestPanel()">닫기</button>
+  </div>
+  <div class="test-panel-row">
+    <label>성장값</label>
+    <input type="range" id="test-growth-range" min="0" max="1000" step="1" oninput="testSetGrowth(this.value)">
+    <input type="number" id="test-growth-num" min="0" max="1000" step="1" style="width:72px;" onchange="testSetGrowth(this.value)">
+  </div>
+  <div class="test-panel-row">
+    <label>단계</label>
+    <select id="test-stage-select" onchange="testSetStage(this.value)">
+      <option value="0">씨앗</option>
+      <option value="1">발아</option>
+      <option value="2">본잎</option>
+      <option value="3">꽃봉오리</option>
+      <option value="4">개화</option>
+      <option value="5">열매</option>
+      <option value="6">익는 중</option>
+      <option value="7">수확 가능</option>
+    </select>
+    <button class="mini-btn orange" onclick="testNextStage()">다음 단계</button>
+  </div>
+  <div class="test-panel-row">
+    <label>상태</label>
+    <select id="test-care-select" onchange="testSetCare(this.value)">
+      <option value="auto">자동</option>
+      <option value="healthy">건강함</option>
+      <option value="ok">보통</option>
+      <option value="dry">물 부족</option>
+      <option value="overwater">과습</option>
+      <option value="pest">병충해</option>
+      <option value="dead">죽음</option>
+    </select>
+  </div>
+  <div class="test-panel-row">
+    <button class="mini-btn" onclick="testGoodCare()">좋은 관리</button>
+    <button class="mini-btn orange" onclick="testBadCare()">물 부족</button>
+    <button class="mini-btn red" onclick="testDead()">죽은 상태</button>
+  </div>
+  <div class="test-panel-row">
+    <button class="mini-btn gray" onclick="testResetPlant()">테스트 초기화</button>
+    <button class="mini-btn gray" onclick="testToggleAnimation()">승급 애니메이션</button>
+  </div>
+  <div class="test-note">
+    ※ 테스트용 파일입니다. 실제 학생용으로 배포할 때는 이 패널이 없는 버전을 사용하세요.
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -754,7 +842,7 @@ const PLANT_SVG = [
   <defs>
     <radialGradient id="sg4" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
     <linearGradient id="pt4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
-    <radialGradient id="fc4" cx="50%" cy="50%"><stop offset="0%" stop-color="#FFF176"/><stop offset="100%" stop-color="#F9A825"/></radialGradient>
+    <radialGradient id="fc4" cx="50%" cy="50%"><stop offset="0%" stop-color="#FFF9A8"/><stop offset="100%" stop-color="#F9A825"/></radialGradient>
   </defs>
   <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt4)"/>
   <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
@@ -766,38 +854,57 @@ const PLANT_SVG = [
   <path d="M99,98 Q127,83 134,64 Q114,66 99,98" fill="#4CAF50"/>
   <path d="M100,130 Q79,118 75,103 Q91,103 100,130" fill="#66BB6A"/>
   <path d="M100,130 Q121,118 125,103 Q109,103 100,130" fill="#66BB6A"/>
+
+  <!-- 아래로 매달리는 꽃 송이 -->
   <g transform="translate(62,85)">
-    <circle cx="0" cy="-7" r="5.5" fill="#FDD835"/>
-    <circle cx="6" cy="-3.5" r="5.5" fill="#FDD835"/>
-    <circle cx="6" cy="3.5" r="5.5" fill="#FDD835"/>
-    <circle cx="0" cy="7" r="5.5" fill="#FDD835"/>
-    <circle cx="-6" cy="3.5" r="5.5" fill="#FDD835"/>
-    <circle cx="-6" cy="-3.5" r="5.5" fill="#FDD835"/>
-    <circle cx="0" cy="0" r="6" fill="url(#fc4)"/>
-    <circle cx="0" cy="0" r="3" fill="#F57F17"/>
-    <circle cx="-3" cy="-4" r="1.2" fill="rgba(255,255,255,.5)"/>
+    <path d="M0,0 C-4,9 -9,14 -13,20" stroke="#33691E" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,8 8,12 10,18" stroke="#33691E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <g transform="translate(-13,20)">
+      <circle cx="0" cy="-5" r="4.5" fill="#FDD835"/><circle cx="4.5" cy="-2.5" r="4.5" fill="#FDD835"/>
+      <circle cx="4.5" cy="2.5" r="4.5" fill="#FDD835"/><circle cx="0" cy="5" r="4.5" fill="#FDD835"/>
+      <circle cx="-4.5" cy="2.5" r="4.5" fill="#FDD835"/><circle cx="-4.5" cy="-2.5" r="4.5" fill="#FDD835"/>
+      <circle cx="0" cy="0" r="4.8" fill="url(#fc4)"/><circle cx="0" cy="0" r="2.2" fill="#F57F17"/>
+    </g>
+    <g transform="translate(10,18)">
+      <circle cx="0" cy="-4.5" r="4.2" fill="#FFEE58"/><circle cx="4.2" cy="-2.2" r="4.2" fill="#FFEE58"/>
+      <circle cx="4.2" cy="2.2" r="4.2" fill="#FFEE58"/><circle cx="0" cy="4.5" r="4.2" fill="#FFEE58"/>
+      <circle cx="-4.2" cy="2.2" r="4.2" fill="#FFEE58"/><circle cx="-4.2" cy="-2.2" r="4.2" fill="#FFEE58"/>
+      <circle cx="0" cy="0" r="4.5" fill="url(#fc4)"/><circle cx="0" cy="0" r="2.1" fill="#E65100"/>
+    </g>
   </g>
+
   <g transform="translate(136,70)">
-    <circle cx="0" cy="-6" r="5" fill="#FFEE58"/>
-    <circle cx="5" cy="-3" r="5" fill="#FFEE58"/>
-    <circle cx="5" cy="3" r="5" fill="#FFEE58"/>
-    <circle cx="0" cy="6" r="5" fill="#FFEE58"/>
-    <circle cx="-5" cy="3" r="5" fill="#FFEE58"/>
-    <circle cx="-5" cy="-3" r="5" fill="#FFEE58"/>
-    <circle cx="0" cy="0" r="5.5" fill="url(#fc4)"/>
-    <circle cx="0" cy="0" r="2.5" fill="#E65100"/>
-    <circle cx="-2.5" cy="-3" r="1" fill="rgba(255,255,255,.5)"/>
+    <path d="M0,0 C-3,9 -8,14 -11,20" stroke="#33691E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,9 8,14 11,21" stroke="#33691E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <g transform="translate(-11,20)">
+      <circle cx="0" cy="-4.8" r="4.5" fill="#FFF176"/><circle cx="4.6" cy="-2.4" r="4.5" fill="#FFF176"/>
+      <circle cx="4.6" cy="2.4" r="4.5" fill="#FFF176"/><circle cx="0" cy="4.8" r="4.5" fill="#FFF176"/>
+      <circle cx="-4.6" cy="2.4" r="4.5" fill="#FFF176"/><circle cx="-4.6" cy="-2.4" r="4.5" fill="#FFF176"/>
+      <circle cx="0" cy="0" r="4.8" fill="#FBC02D"/><circle cx="0" cy="0" r="2.1" fill="#E65100"/>
+    </g>
+    <g transform="translate(11,21)">
+      <circle cx="0" cy="-4.2" r="4" fill="#FFEE58"/><circle cx="4" cy="-2" r="4" fill="#FFEE58"/>
+      <circle cx="4" cy="2" r="4" fill="#FFEE58"/><circle cx="0" cy="4.2" r="4" fill="#FFEE58"/>
+      <circle cx="-4" cy="2" r="4" fill="#FFEE58"/><circle cx="-4" cy="-2" r="4" fill="#FFEE58"/>
+      <circle cx="0" cy="0" r="4.2" fill="url(#fc4)"/><circle cx="0" cy="0" r="2" fill="#E65100"/>
+    </g>
   </g>
+
   <g transform="translate(101,46)">
-    <circle cx="0" cy="-7" r="5.5" fill="#FFF176"/>
-    <circle cx="6" cy="-3.5" r="5.5" fill="#FFF176"/>
-    <circle cx="6" cy="3.5" r="5.5" fill="#FFF176"/>
-    <circle cx="0" cy="7" r="5.5" fill="#FFF176"/>
-    <circle cx="-6" cy="3.5" r="5.5" fill="#FFF176"/>
-    <circle cx="-6" cy="-3.5" r="5.5" fill="#FFF176"/>
-    <circle cx="0" cy="0" r="6" fill="#FBC02D"/>
-    <circle cx="0" cy="0" r="3" fill="#E65100"/>
-    <circle cx="-3" cy="-4" r="1.2" fill="rgba(255,255,255,.5)"/>
+    <path d="M0,0 C-2,8 -6,12 -9,17" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C3,8 7,13 10,18" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <g transform="translate(-9,17)">
+      <circle cx="0" cy="-4.2" r="4" fill="#FFF176"/><circle cx="4" cy="-2" r="4" fill="#FFF176"/>
+      <circle cx="4" cy="2" r="4" fill="#FFF176"/><circle cx="0" cy="4.2" r="4" fill="#FFF176"/>
+      <circle cx="-4" cy="2" r="4" fill="#FFF176"/><circle cx="-4" cy="-2" r="4" fill="#FFF176"/>
+      <circle cx="0" cy="0" r="4.2" fill="#FBC02D"/><circle cx="0" cy="0" r="1.9" fill="#E65100"/>
+    </g>
+    <g transform="translate(10,18)">
+      <circle cx="0" cy="-4" r="3.8" fill="#FFEE58"/><circle cx="3.8" cy="-1.9" r="3.8" fill="#FFEE58"/>
+      <circle cx="3.8" cy="1.9" r="3.8" fill="#FFEE58"/><circle cx="0" cy="4" r="3.8" fill="#FFEE58"/>
+      <circle cx="-3.8" cy="1.9" r="3.8" fill="#FFEE58"/><circle cx="-3.8" cy="-1.9" r="3.8" fill="#FFEE58"/>
+      <circle cx="0" cy="0" r="4" fill="url(#fc4)"/><circle cx="0" cy="0" r="1.8" fill="#E65100"/>
+    </g>
   </g>
 </svg>`,
 
@@ -806,43 +913,51 @@ const PLANT_SVG = [
   <defs>
     <radialGradient id="sg5" cx="50%" cy="40%"><stop offset="0%" stop-color="#8B6344"/><stop offset="100%" stop-color="#5D3A1A"/></radialGradient>
     <linearGradient id="pt5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF8C60"/><stop offset="100%" stop-color="#BF5630"/></linearGradient>
-    <radialGradient id="tg5" cx="32%" cy="28%"><stop offset="0%" stop-color="#C5E1A5"/><stop offset="70%" stop-color="#66BB6A"/><stop offset="100%" stop-color="#388E3C"/></radialGradient>
+    <radialGradient id="tg5" cx="30%" cy="25%"><stop offset="0%" stop-color="#DCEFB7"/><stop offset="65%" stop-color="#6FC36D"/><stop offset="100%" stop-color="#2E7D32"/></radialGradient>
   </defs>
   <path d="M58,145 L142,145 L133,212 L67,212 Z" fill="url(#pt5)"/>
   <ellipse cx="100" cy="145" rx="51" ry="11" fill="#D4643A"/>
   <ellipse cx="100" cy="143" rx="51" ry="13" fill="url(#sg5)"/>
-  <path d="M100,142 Q94,114 97,84 Q99,60 101,43" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
-  <path d="M98,114 Q73,100 61,84" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M99,97 Q126,82 138,68" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M100,142 Q95,115 98,86 Q100,62 101,43" stroke="#558B2F" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M98,114 Q73,100 62,84" stroke="#558B2F" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <path d="M99,97 Q126,84 138,71" stroke="#558B2F" stroke-width="3.2" fill="none" stroke-linecap="round"/>
   <path d="M98,114 Q70,98 63,77 Q83,77 98,114" fill="#4CAF50"/>
-  <path d="M99,97 Q128,80 136,61 Q115,62 99,97" fill="#4CAF50"/>
+  <path d="M99,97 Q128,81 136,61 Q115,62 99,97" fill="#4CAF50"/>
   <path d="M100,128 Q79,117 75,102 Q91,103 100,128" fill="#66BB6A"/>
   <path d="M100,128 Q121,117 125,102 Q109,103 100,128" fill="#66BB6A"/>
+
+  <!-- 아래로 매달린 초록 열매 송이 -->
   <g transform="translate(61,82)">
-    <line x1="0" y1="0" x2="-4" y2="-15" stroke="#33691E" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="4" y2="-13" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="-4" cy="-15" r="9" fill="url(#tg5)"/>
-    <circle cx="4" cy="-13" r="8" fill="url(#tg5)"/>
-    <path d="M-8,-22 Q-4,-27 0,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <path d="M0,-20 Q4,-25 8,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="-7" cy="-21" r="2.5" fill="rgba(255,255,255,.3)"/>
-    <circle cx="1" cy="-19" r="2" fill="rgba(255,255,255,.3)"/>
+    <path d="M0,0 C-4,10 -10,15 -14,20" stroke="#33691E" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,8 8,12 10,18" stroke="#33691E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C-1,11 -1,17 0,23" stroke="#33691E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <circle cx="-14" cy="20" r="8.5" fill="url(#tg5)"/>
+    <circle cx="10" cy="18" r="7.8" fill="url(#tg5)"/>
+    <circle cx="0" cy="23" r="8.2" fill="url(#tg5)"/>
+    <path d="M-18,12 L-14,8 L-10,12 M6,11 L10,7 L14,11 M-4,15 L0,11 L4,15" stroke="#2E7D32" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-17" cy="17" r="2.2" fill="rgba(255,255,255,.28)"/>
+    <circle cx="7" cy="15" r="2" fill="rgba(255,255,255,.25)"/>
+    <circle cx="-3" cy="20" r="2" fill="rgba(255,255,255,.25)"/>
   </g>
-  <g transform="translate(138,66)">
-    <line x1="0" y1="0" x2="3" y2="-14" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="3" cy="-14" r="8.5" fill="url(#tg5)"/>
-    <path d="M-1,-21 Q3,-26 7,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="0" cy="-20" r="2.5" fill="rgba(255,255,255,.3)"/>
+
+  <g transform="translate(138,69)">
+    <path d="M0,0 C-3,9 -8,15 -11,21" stroke="#33691E" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,10 8,15 10,22" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <circle cx="-11" cy="21" r="7.7" fill="url(#tg5)"/>
+    <circle cx="10" cy="22" r="8.4" fill="url(#tg5)"/>
+    <path d="M-15,13 L-11,9 L-7,13 M6,14 L10,10 L14,14" stroke="#2E7D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-14" cy="18" r="2" fill="rgba(255,255,255,.25)"/>
+    <circle cx="7" cy="19" r="2.2" fill="rgba(255,255,255,.25)"/>
   </g>
-  <g transform="translate(101,41)">
-    <line x1="0" y1="0" x2="-5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="5" y2="-15" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="-5" cy="-13" r="9" fill="url(#tg5)"/>
-    <circle cx="5" cy="-15" r="8" fill="url(#tg5)"/>
-    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <path d="M1,-22 Q5,-27 9,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="-8" cy="-19" r="2.5" fill="rgba(255,255,255,.3)"/>
-    <circle cx="2" cy="-22" r="2" fill="rgba(255,255,255,.3)"/>
+
+  <g transform="translate(101,44)">
+    <path d="M0,0 C-3,8 -8,13 -11,18" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C3,8 8,12 11,17" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <circle cx="-11" cy="18" r="7.8" fill="url(#tg5)"/>
+    <circle cx="11" cy="17" r="7.2" fill="url(#tg5)"/>
+    <path d="M-15,10 L-11,6 L-7,10 M7,10 L11,6 L15,10" stroke="#2E7D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-14" cy="15" r="1.8" fill="rgba(255,255,255,.25)"/>
+    <circle cx="8" cy="14" r="1.8" fill="rgba(255,255,255,.25)"/>
   </g>
 </svg>`,
 
@@ -865,30 +980,39 @@ const PLANT_SVG = [
   <path d="M99,97 Q128,80 136,61 Q115,62 99,97" fill="#4CAF50"/>
   <path d="M100,128 Q79,117 75,102 Q91,103 100,128" fill="#66BB6A"/>
   <path d="M100,128 Q121,117 125,102 Q109,103 100,128" fill="#66BB6A"/>
+
+  <!-- 익어가는 열매 송이 -->
   <g transform="translate(61,82)">
-    <line x1="0" y1="0" x2="-5" y2="-14" stroke="#33691E" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="-5" cy="-14" r="9.5" fill="url(#to6a)"/>
-    <circle cx="5" cy="-13" r="8.5" fill="url(#to6b)"/>
-    <path d="M-9,-21 Q-5,-26 -1,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <path d="M1,-20 Q5,-25 9,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="-8" cy="-20" r="3" fill="rgba(255,255,255,.3)"/>
-    <circle cx="2" cy="-19" r="2.5" fill="rgba(255,255,255,.3)"/>
+    <path d="M0,0 C-4,10 -11,16 -15,22" stroke="#33691E" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,8 10,13 12,20" stroke="#33691E" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C-1,11 0,17 2,25" stroke="#33691E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <circle cx="-15" cy="22" r="9" fill="url(#to6a)"/>
+    <circle cx="12" cy="20" r="8" fill="url(#to6b)"/>
+    <circle cx="2" cy="25" r="8.5" fill="url(#tg6)"/>
+    <path d="M-19,14 L-15,10 L-11,14 M8,13 L12,9 L16,13 M-2,17 L2,13 L6,17" stroke="#2E7D32" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-18" cy="19" r="2.6" fill="rgba(255,255,255,.3)"/>
+    <circle cx="9" cy="17" r="2.2" fill="rgba(255,255,255,.3)"/>
+    <circle cx="-1" cy="22" r="2.2" fill="rgba(255,255,255,.22)"/>
   </g>
+
   <g transform="translate(138,66)">
-    <line x1="0" y1="0" x2="3" y2="-14" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="3" cy="-14" r="9" fill="url(#to6a)"/>
-    <path d="M-1,-21 Q3,-26 7,-21" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="0" cy="-20" r="2.5" fill="rgba(255,255,255,.3)"/>
+    <path d="M0,0 C-4,10 -9,16 -12,22" stroke="#33691E" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C3,10 8,16 10,24" stroke="#33691E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="-12" cy="22" r="8.2" fill="url(#to6a)"/>
+    <circle cx="10" cy="24" r="9" fill="url(#to6b)"/>
+    <path d="M-16,14 L-12,10 L-8,14 M6,16 L10,12 L14,16" stroke="#2E7D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-15" cy="19" r="2.1" fill="rgba(255,255,255,.3)"/>
+    <circle cx="7" cy="21" r="2.4" fill="rgba(255,255,255,.3)"/>
   </g>
+
   <g transform="translate(101,41)">
-    <line x1="0" y1="0" x2="-5" y2="-13" stroke="#33691E" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="5" y2="-15" stroke="#33691E" stroke-width="1.8"/>
-    <circle cx="-5" cy="-13" r="9.5" fill="url(#to6b)"/>
-    <circle cx="5" cy="-15" r="8.5" fill="url(#tg6)"/>
-    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <path d="M1,-22 Q5,-27 9,-22" stroke="#33691E" stroke-width="1.5" fill="none"/>
-    <circle cx="-8" cy="-19" r="3" fill="rgba(255,255,255,.3)"/>
+    <path d="M0,0 C-3,8 -7,13 -10,18" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,8 8,12 11,18" stroke="#33691E" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <circle cx="-10" cy="18" r="8.2" fill="url(#to6b)"/>
+    <circle cx="11" cy="18" r="7.5" fill="url(#tg6)"/>
+    <path d="M-14,10 L-10,6 L-6,10 M7,10 L11,6 L15,10" stroke="#2E7D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-13" cy="15" r="2" fill="rgba(255,255,255,.28)"/>
+    <circle cx="8" cy="15" r="1.9" fill="rgba(255,255,255,.2)"/>
   </g>
 </svg>`,
 
@@ -913,43 +1037,42 @@ const PLANT_SVG = [
   <path d="M100,129 Q78,118 74,102 Q91,103 100,129" fill="#4CAF50"/>
   <path d="M100,129 Q122,118 126,102 Q109,103 100,129" fill="#4CAF50"/>
   <path d="M100,73 Q78,59 72,45 Q86,44 100,73" fill="#4CAF50"/>
+
+  <!-- 아래로 풍성하게 매달린 빨간 열매 송이 -->
   <g transform="translate(58,81)">
-    <line x1="0" y1="0" x2="-5" y2="-12" stroke="#1B5E20" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="5" y2="-14" stroke="#1B5E20" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="-9" y2="-18" stroke="#1B5E20" stroke-width="1.8"/>
-    <circle cx="-9" cy="-18" r="10" fill="url(#tr7a)"/>
-    <circle cx="-5" cy="-12" r="9" fill="url(#tr7b)"/>
-    <circle cx="5" cy="-14" r="9.5" fill="url(#tr7c)"/>
-    <path d="M-13,-25 Q-9,-30 -5,-25" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <path d="M-9,-20 Q-5,-25 -1,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <path d="M1,-21 Q5,-26 9,-21" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <circle cx="-12" cy="-24" r="3" fill="rgba(255,255,255,.35)"/>
-    <circle cx="-8" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
-    <circle cx="2" cy="-20" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <path d="M0,0 C-5,10 -12,17 -16,24" stroke="#1B5E20" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C0,11 1,18 3,26" stroke="#1B5E20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C6,9 12,15 16,23" stroke="#1B5E20" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+    <circle cx="-16" cy="24" r="9.5" fill="url(#tr7a)"/>
+    <circle cx="3" cy="26" r="9" fill="url(#tr7b)"/>
+    <circle cx="16" cy="23" r="9.3" fill="url(#tr7c)"/>
+    <path d="M-20,16 L-16,11 L-12,16 M-1,18 L3,13 L7,18 M12,15 L16,10 L20,15" stroke="#1B5E20" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-19" cy="20" r="2.8" fill="rgba(255,255,255,.35)"/>
+    <circle cx="0" cy="21" r="2.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="13" cy="19" r="2.5" fill="rgba(255,255,255,.35)"/>
   </g>
+
   <g transform="translate(140,63)">
-    <line x1="0" y1="0" x2="4" y2="-13" stroke="#1B5E20" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="-5" y2="-15" stroke="#1B5E20" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="8" y2="-18" stroke="#1B5E20" stroke-width="1.8"/>
-    <circle cx="4" cy="-13" r="9.5" fill="url(#tr7b)"/>
-    <circle cx="-5" cy="-15" r="9" fill="url(#tr7a)"/>
-    <circle cx="8" cy="-18" r="8.5" fill="url(#tr7c)"/>
-    <path d="M0,-20 Q4,-25 8,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <path d="M-9,-22 Q-5,-27 -1,-22" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <path d="M4,-25 Q8,-30 12,-25" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <circle cx="1" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
-    <circle cx="-8" cy="-21" r="2.5" fill="rgba(255,255,255,.35)"/>
-    <circle cx="5" cy="-24" r="2.2" fill="rgba(255,255,255,.35)"/>
+    <path d="M0,0 C-5,11 -11,18 -15,25" stroke="#1B5E20" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C0,10 2,17 4,24" stroke="#1B5E20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C6,10 10,16 13,22" stroke="#1B5E20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="-15" cy="25" r="9.2" fill="url(#tr7a)"/>
+    <circle cx="4" cy="24" r="9.7" fill="url(#tr7b)"/>
+    <circle cx="13" cy="22" r="8.6" fill="url(#tr7c)"/>
+    <path d="M-19,17 L-15,12 L-11,17 M0,17 L4,12 L8,17 M9,14 L13,9 L17,14" stroke="#1B5E20" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-18" cy="21" r="2.6" fill="rgba(255,255,255,.35)"/>
+    <circle cx="1" cy="20" r="2.7" fill="rgba(255,255,255,.35)"/>
+    <circle cx="10" cy="18" r="2.3" fill="rgba(255,255,255,.35)"/>
   </g>
+
   <g transform="translate(73,44)">
-    <line x1="0" y1="0" x2="-4" y2="-13" stroke="#1B5E20" stroke-width="1.8"/>
-    <line x1="0" y1="0" x2="5" y2="-12" stroke="#1B5E20" stroke-width="1.8"/>
-    <circle cx="-4" cy="-13" r="9" fill="url(#tr7a)"/>
-    <circle cx="5" cy="-12" r="8.5" fill="url(#tr7b)"/>
-    <path d="M-8,-20 Q-4,-25 0,-20" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <path d="M1,-19 Q5,-24 9,-19" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
-    <circle cx="-7" cy="-19" r="2.5" fill="rgba(255,255,255,.35)"/>
-    <circle cx="2" cy="-18" r="2.2" fill="rgba(255,255,255,.35)"/>
+    <path d="M0,0 C-4,9 -8,15 -11,20" stroke="#1B5E20" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <path d="M0,0 C4,8 8,14 10,19" stroke="#1B5E20" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+    <circle cx="-11" cy="20" r="8.8" fill="url(#tr7a)"/>
+    <circle cx="10" cy="19" r="8.5" fill="url(#tr7b)"/>
+    <path d="M-15,12 L-11,7 L-7,12 M6,11 L10,6 L14,11" stroke="#1B5E20" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-14" cy="16" r="2.4" fill="rgba(255,255,255,.35)"/>
+    <circle cx="7" cy="15" r="2.2" fill="rgba(255,255,255,.35)"/>
   </g>
 </svg>`
 ];
@@ -1092,6 +1215,8 @@ const STAGES = [
 ];
 // STAGE_DESC는 STAGES[].desc 로 통합
 
+const PLANT_VIEW_STATE = { lastStageIdx:null, lastProfile:'ok', lastGrowth:0, animLock:false, animTimer:null };
+
 // 재배 기간 모드별 성장 배율
 // short: 하루 ~70pt → 약 14일 수확
 // mid:   하루 ~22pt → 약 45일 수확
@@ -1127,12 +1252,12 @@ const ACTIONS = [
     icon:"🧥", title:"🧥 보온이 열렸어요!", msg:"새싹은 추위에 약해요. 기온이 낮을 때 따뜻하게 보호하면 냉해를 줄이고 성장을 도울 수 있어요."
   },
   {
-    id:"fertilize", label:"🌿 비료 주기", short:"자라는 데 필요한 영양분을 보충해요.", unlockStage:2,
+    id:"fertilize", label:"🌿 비료 주기", short:"권장: 전체 재배 중 2~3회, 최소 5일 간격", unlockStage:2,
     colorClass:"action-fertilize",
-    icon:"🌿", title:"🌿 비료 주기가 열렸어요!", msg:"본잎이 자라면 잎과 줄기를 키우는 데 더 많은 영양분이 필요해요. 다만 비료를 너무 많이 주면 오히려 식물이 약해질 수 있어요."
+    icon:"🌿", title:"🌿 비료 주기가 열렸어요!", msg:"비료는 본잎 이후부터 조금씩 주면 좋아요. 권장 횟수는 전체 재배 중 2~3회 정도이고, 한 번 준 뒤 최소 5일 정도 간격을 두는 것이 좋아요. 너무 자주 주면 뿌리가 상할 수 있어요."
   },
   {
-    id:"stake", label:"🪵 지지대 세우기", short:"줄기가 쓰러지지 않게 받쳐줘요.", unlockStage:3,
+    id:"stake", label:"🪵 지지대 세우기", short:"한 번 세우면 계속 유지돼요.", unlockStage:3,
     colorClass:"action-stake",
     icon:"🪵", title:"🪵 지지대 세우기가 열렸어요!", msg:"꽃봉오리가 생길 만큼 자라면 줄기가 길어지고 약해질 수 있어요. 지지대를 세우면 열매가 달려도 줄기가 잘 버틸 수 있어요."
   },
@@ -1194,6 +1319,8 @@ function load() {
   if (typeof S.stress !== "number") S.stress = 0;
   if (typeof S.dead !== "boolean") S.dead = false;
   if (!S.careMark) S.careMark = "ok";
+  if (!S.testCare) S.testCare = "auto";
+  if (!S.actionCounts || typeof S.actionCounts !== "object") S.actionCounts = {};
   BASE_UNLOCKED_ACTIONS.forEach(id => { if (!S.unlockedActions.includes(id)) S.unlockedActions.push(id); });
   if (typeof S.fertCnt !== "number") S.fertCnt = 0;
   if (typeof S.pollinateCnt !== "number") S.pollinateCnt = 0;
@@ -1223,6 +1350,7 @@ function init() {
     goScreen("start");
   }
   renderSpeedUI();
+  showTestFab();
   // 실시간 업데이트: 1분마다 수분 감소 + 화면 갱신
   setInterval(realtimeTick, 60000);
   // 사용 중에도 마지막 활동 시각을 주기적으로 저장
@@ -1407,9 +1535,10 @@ function saveSettings() {
     S.growth = 0; S.lastGrowthDate = "";
     S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
     S.fertCnt = 0; S.stakeSet = false; S.pollinateCnt = 0; S.pruneCnt = 0; S.fruitCheckCnt = 0;
-    S.stress = 0; S.dead = false; S.careMark = "ok";
+    S.stress = 0; S.dead = false; S.careMark = "ok"; S.testCare = "auto";
     S.lastActiveAt = new Date().toISOString();
     S.lastOfflineProcessedAt = S.lastActiveAt;
+    PLANT_VIEW_STATE.lastStageIdx = null; PLANT_VIEW_STATE.lastProfile = 'ok'; PLANT_VIEW_STATE.lastGrowth = 0;
   } else if (pd) S.plantDate = pd;
   save();
   toast("✅ 저장됐어요!","green");
@@ -1429,8 +1558,9 @@ function resetAll() {
     fertCnt:0, stakeSet:false, pollinateCnt:0, pruneCnt:0, fruitCheckCnt:0,
     pestAlert:false, pestDay:"", rainDamage:false,
     stress:0, dead:false, careMark:"ok",
-    speedMode:"mid", lastActiveAt:"", lastOfflineProcessedAt:"", offlineReports:[] };
+    speedMode:"mid", lastActiveAt:"", lastOfflineProcessedAt:"", offlineReports:[], testCare:"auto", actionCounts:{} };
   W = { temp:null, sky:null, rain:0, wind:null, sunH:8, fetchedDate:"", lastFetch:"", pty:0 };
+  PLANT_VIEW_STATE.lastStageIdx = null; PLANT_VIEW_STATE.lastProfile = 'ok'; PLANT_VIEW_STATE.lastGrowth = 0;
   toast("초기화 완료!","orange");
   setTimeout(() => goScreen("start"), 600);
 }
@@ -1819,6 +1949,50 @@ function getStage() {
   return s;
 }
 
+function getStageProgressInfo() {
+  const stage = getStage();
+  const next = STAGES[stage.idx + 1] || null;
+  const min = stage.min;
+  const max = next ? next.min : 1000;
+  const span = Math.max(1, max - min);
+  const progress = Math.max(0, Math.min(1, (S.growth - min) / span));
+  return { stage, next, progress, min, max, span };
+}
+
+function buildPlantFrame(svg, className, inlineStyle = "") {
+  return `<div class="plant-frame ${className}" style="${inlineStyle}">${svg}</div>`;
+}
+
+function buildPlantVisualMarkup(stageInfo, careProfile) {
+  const { stage, next, progress } = stageInfo;
+  const currentSVG = enhancePlantSVG(PLANT_SVG[stage.idx] || PLANT_SVG[0], stage.idx, careProfile);
+  const baseScale = 0.92 + Math.min(stage.idx, 6) * 0.008 + progress * 0.085;
+  const lift = Math.max(0, (1 - progress) * 4);
+  let html = "";
+
+  if (next) {
+    const previewOpacity = Math.max(0, (progress - 0.68) / 0.32) * 0.42;
+    if (previewOpacity > 0.01) {
+      const nextSVG = enhancePlantSVG(PLANT_SVG[next.idx] || PLANT_SVG[stage.idx], next.idx, careProfile);
+      html += buildPlantFrame(nextSVG, 'preview', `opacity:${previewOpacity.toFixed(3)};transform:translateY(${(lift * 0.55).toFixed(2)}px) scale(${(baseScale + 0.035).toFixed(3)});`);
+    }
+  }
+
+  html += buildPlantFrame(currentSVG, 'current', `opacity:1;transform:translateY(${lift.toFixed(2)}px) scale(${baseScale.toFixed(3)});`);
+  return html;
+}
+
+function buildStageChangeMarkup(prevStageIdx, nextStageIdx, prevProfile, nextProfile, nextProgress) {
+  const prevSVG = enhancePlantSVG(PLANT_SVG[prevStageIdx] || PLANT_SVG[0], prevStageIdx, prevProfile || nextProfile);
+  const nextSVG = enhancePlantSVG(PLANT_SVG[nextStageIdx] || PLANT_SVG[0], nextStageIdx, nextProfile || prevProfile || 'ok');
+  const nextScale = 0.96 + Math.min(nextStageIdx, 6) * 0.008 + nextProgress * 0.07;
+  return `
+    ${buildPlantFrame(prevSVG, 'prev', 'opacity:1;transform:translateY(0) scale(1);')}
+    ${buildPlantFrame(nextSVG, 'next', `opacity:0;transform:translateY(12px) scale(${(nextScale * 0.84).toFixed(3)});`)}
+    <div class="plant-stage-chip">✨ ${STAGES[nextStageIdx].name} 단계!</div>
+  `;
+}
+
 function growthTick() {
   if (!S.plantDate) return;
   const t = today();
@@ -1945,7 +2119,29 @@ function daysSincePlant() {
   return Math.max(0, Math.floor((new Date(today()) - new Date(S.plantDate)) / 86400000)) + 1;
 }
 
+function normalizeCareState() {
+  // 테스트 패널에서 선택한 상태도 실제 조건값으로만 남기고, 화면 판정은 항상 자동으로 돌립니다.
+  if (S.testCare && S.testCare !== "auto") S.testCare = "auto";
+
+  // 병충해는 '병충해 처리하기'를 해야 사라지지만, 처리 후에는 즉시 자동 상태로 돌아와야 합니다.
+  if (!S.pestAlert && S.careMark === "pest") S.careMark = "ok";
+
+  // 물 부족은 수분과 스트레스가 회복되면 자동으로 해제됩니다.
+  if (S.water > 30 && (S.stress || 0) < 35 && S.careMark === "dry") S.careMark = "ok";
+
+  // 과습은 수분이 충분히 내려가면 자동으로 해제됩니다.
+  if (S.water < 140 && S.careMark === "overwater") S.careMark = "ok";
+
+  // 죽은 상태는 일반 상태 변화로는 풀리지 않지만, 테스트용 '좋은 관리/초기화'에서는 해제됩니다.
+  if (S.dead && (S.stress || 0) < 90 && S.water > 30 && S.testRecoveredFromDead) {
+    S.dead = false;
+    S.careMark = "ok";
+    S.testRecoveredFromDead = false;
+  }
+}
+
 function getCareProfile() {
+  normalizeCareState();
   const days = Math.max(1, daysSincePlant());
   const waterRate = (S.waterCnt || 0) / days;
   const checkRate = (S.checkCnt || 0) / days;
@@ -2016,16 +2212,108 @@ function buildDeadPlantSVG() {
   </svg>`;
 }
 
+
+function adjustFruitAbundanceByCare(svg, stageIdx, profile) {
+  if (stageIdx < 5 || !svg) return svg;
+  if (profile === "healthy" || profile === "ok" || profile === "dead") return svg;
+  let out = svg;
+  const replacements = {
+    5: {
+      dry: [
+        ['<circle cx="10" cy="18" r="7.8" fill="url(#tg5)"/>',''],
+        ['<circle cx="10" cy="22" r="8.4" fill="url(#tg5)"/>',''],
+        ['<circle cx="11" cy="17" r="7.2" fill="url(#tg5)"/>','']
+      ],
+      overwater: [
+        ['<circle cx="0" cy="23" r="8.2" fill="url(#tg5)"/>',''],
+        ['<circle cx="-11" cy="21" r="7.7" fill="url(#tg5)"/>','']
+      ],
+      pest: [
+        ['<circle cx="-14" cy="20" r="8.5" fill="url(#tg5)"/>',''],
+        ['<circle cx="11" cy="17" r="7.2" fill="url(#tg5)"/>','']
+      ]
+    },
+    6: {
+      dry: [
+        ['<circle cx="12" cy="20" r="8" fill="url(#to6b)"/>',''],
+        ['<circle cx="10" cy="24" r="9" fill="url(#to6b)"/>',''],
+        ['<circle cx="11" cy="18" r="7.5" fill="url(#tg6)"/>','']
+      ],
+      overwater: [
+        ['<circle cx="2" cy="25" r="8.5" fill="url(#tg6)"/>',''],
+        ['<circle cx="-12" cy="22" r="8.2" fill="url(#to6a)"/>','']
+      ],
+      pest: [
+        ['<circle cx="-15" cy="22" r="9" fill="url(#to6a)"/>',''],
+        ['<circle cx="11" cy="18" r="7.5" fill="url(#tg6)"/>','']
+      ]
+    },
+    7: {
+      dry: [
+        ['<circle cx="16" cy="23" r="9.3" fill="url(#tr7c)"/>',''],
+        ['<circle cx="13" cy="22" r="8.6" fill="url(#tr7c)"/>',''],
+        ['<circle cx="10" cy="19" r="8.5" fill="url(#tr7b)"/>','']
+      ],
+      overwater: [
+        ['<circle cx="3" cy="26" r="9" fill="url(#tr7b)"/>',''],
+        ['<circle cx="4" cy="24" r="9.7" fill="url(#tr7b)"/>','']
+      ],
+      pest: [
+        ['<circle cx="-16" cy="24" r="9.5" fill="url(#tr7a)"/>',''],
+        ['<circle cx="-11" cy="20" r="8.8" fill="url(#tr7a)"/>','']
+      ]
+    }
+  };
+  ((replacements[stageIdx] || {})[profile] || []).forEach(([from, to]) => { out = out.replace(from, to); });
+  return out;
+}
+
+function buildBonusFruitOverlay(stageIdx, profile) {
+  if (profile !== "healthy" || stageIdx < 5) return "";
+  if (stageIdx === 5) {
+    return `<g opacity=".98" filter="url(#miniDepth)">
+      <path d="M120,82 C123,91 127,96 130,102" stroke="#2E7D32" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <path d="M82,68 C79,76 75,82 72,88" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="130" cy="102" r="7.2" fill="url(#tg5)"/>
+      <circle cx="72" cy="88" r="6.6" fill="url(#tg5)"/>
+      <path d="M126,95 L130,91 L134,95 M68,81 L72,77 L76,81" stroke="#2E7D32" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="127" cy="99" r="1.8" fill="rgba(255,255,255,.25)"/>
+      <circle cx="69" cy="85" r="1.6" fill="rgba(255,255,255,.25)"/>
+    </g>`;
+  }
+  if (stageIdx === 6) {
+    return `<g opacity=".98" filter="url(#miniDepth)">
+      <path d="M120,82 C123,92 127,97 130,104" stroke="#2E7D32" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <path d="M82,68 C79,76 75,82 72,89" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="130" cy="104" r="7.4" fill="url(#to6a)"/>
+      <circle cx="72" cy="89" r="6.8" fill="url(#to6b)"/>
+      <path d="M126,97 L130,93 L134,97 M68,82 L72,78 L76,82" stroke="#2E7D32" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="127" cy="101" r="1.9" fill="rgba(255,255,255,.28)"/>
+      <circle cx="69" cy="86" r="1.7" fill="rgba(255,255,255,.28)"/>
+    </g>`;
+  }
+  return `<g opacity=".98" filter="url(#miniDepth)">
+      <path d="M120,81 C123,91 128,98 132,106" stroke="#1B5E20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M82,67 C79,75 75,83 71,91" stroke="#1B5E20" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <circle cx="132" cy="106" r="8.2" fill="url(#tr7a)"/>
+      <circle cx="71" cy="91" r="7.6" fill="url(#tr7b)"/>
+      <path d="M128,99 L132,94 L136,99 M67,84 L71,79 L75,84" stroke="#1B5E20" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="129" cy="102" r="2.1" fill="rgba(255,255,255,.35)"/>
+      <circle cx="68" cy="87" r="1.9" fill="rgba(255,255,255,.35)"/>
+    </g>`;
+}
+
 function enhancePlantSVG(svg, stageIdx, profile) {
   if (profile === "dead") return buildDeadPlantSVG();
 
+  svg = adjustFruitAbundanceByCare(svg, stageIdx, profile);
   const overlays = [];
   overlays.push(`<defs>
     <radialGradient id="softGlow3d" cx="35%" cy="18%"><stop offset="0%" stop-color="#ffffff" stop-opacity=".65"/><stop offset="55%" stop-color="#ffffff" stop-opacity=".12"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-    <filter id="miniDepth" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#2e4d1f" flood-opacity=".25"/></filter>
+    <filter id="miniDepth" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#2e4d1f" flood-opacity=".12"/></filter>
   </defs>`);
-  overlays.push(`<ellipse cx="100" cy="214" rx="55" ry="8" fill="#000" opacity=".16"/>`);
-  overlays.push(`<ellipse cx="82" cy="54" rx="34" ry="46" fill="url(#softGlow3d)" opacity=".16" pointer-events="none"/>`);
+  overlays.push(`<ellipse cx="100" cy="214" rx="50" ry="6" fill="#000" opacity=".07"/>`);
+  overlays.push(`<ellipse cx="82" cy="54" rx="30" ry="40" fill="url(#softGlow3d)" opacity=".08" pointer-events="none"/>`);
 
   if (profile === "healthy") {
     overlays.push(`<g opacity=".55" filter="url(#miniDepth)">
@@ -2045,8 +2333,161 @@ function enhancePlantSVG(svg, stageIdx, profile) {
   // 빨갛거나 초록 열매 단계에서는 앞쪽 열매에 하이라이트를 더해 3D감을 강화합니다.
   if (stageIdx >= 5) {
     overlays.push(`<g opacity=".38"><ellipse cx="52" cy="58" rx="5" ry="3" fill="#fff" transform="rotate(-25 52 58)"/><ellipse cx="137" cy="48" rx="4.5" ry="2.7" fill="#fff" transform="rotate(-25 137 48)"/><ellipse cx="73" cy="28" rx="4.2" ry="2.5" fill="#fff" transform="rotate(-25 73 28)"/></g>`);
+    overlays.push(buildBonusFruitOverlay(stageIdx, profile));
   }
   return svg.replace('</svg>', overlays.join('') + '</svg>');
+}
+
+
+// =============================================
+//  테스트 전용 성장 조절 기능
+// =============================================
+function toggleTestPanel() {
+  const p = document.getElementById("test-panel");
+  const f = document.getElementById("test-fab");
+  if (!p || !f) return;
+  const willShow = p.classList.contains("hide");
+  p.classList.toggle("hide", !willShow);
+  f.classList.toggle("hide", willShow);
+  syncTestPanel();
+}
+
+function showTestFab() {
+  const f = document.getElementById("test-fab");
+  if (f) f.classList.remove("hide");
+}
+
+function syncTestPanel() {
+  const gr = document.getElementById("test-growth-range");
+  const gn = document.getElementById("test-growth-num");
+  const ss = document.getElementById("test-stage-select");
+  const cs = document.getElementById("test-care-select");
+  if (gr) gr.value = Math.round(S.growth || 0);
+  if (gn) gn.value = Math.round(S.growth || 0);
+  if (ss) ss.value = String(getStage().idx);
+  if (cs) cs.value = "auto";
+}
+
+function testSetGrowth(v) {
+  if (!S.plantDate) S.plantDate = today();
+  S.growth = Math.max(0, Math.min(1000, Number(v) || 0));
+  S.harvested = false;
+  S.dead = false;
+  if (S.testCare === "dead") S.testCare = "auto";
+  save();
+  renderGame();
+  syncTestPanel();
+}
+
+function testSetStage(idx) {
+  idx = Number(idx) || 0;
+  const st = STAGES[idx] || STAGES[0];
+  const next = STAGES[idx + 1];
+  let target = st.min;
+  if (next) target = Math.min(next.min - 1, st.min + Math.round((next.min - st.min) * 0.45));
+  else target = st.min;
+  testSetGrowth(target);
+}
+
+function testNextStage() {
+  const now = getStage().idx;
+  const next = Math.min(7, now + 1);
+  // 애니메이션을 보이게 하려고 현재 단계 정보를 남긴 뒤 성장값을 다음 단계 시작점으로 이동
+  PLANT_VIEW_STATE.lastStageIdx = now;
+  PLANT_VIEW_STATE.lastProfile = getCareProfile();
+  testSetGrowth(STAGES[next].min);
+}
+
+function testSetCare(v) {
+  const selected = v || "auto";
+  if (selected === "dead") {
+    S.dead = true;
+    S.water = 0;
+    S.stress = 110;
+  } else if (selected === "dry") {
+    S.dead = false;
+    S.water = 10;
+    S.stress = Math.max(S.stress || 0, 45);
+    S.pestAlert = false;
+  } else if (selected === "overwater") {
+    S.dead = false;
+    S.water = 170;
+    S.stress = Math.max(S.stress || 0, 30);
+    S.pestAlert = false;
+  } else if (selected === "pest") {
+    S.dead = false;
+    S.pestAlert = true;
+    S.stress = Math.max(S.stress || 0, 30);
+  } else if (selected === "healthy") {
+    S.dead = false;
+    S.water = 80;
+    S.stress = 0;
+    S.pestAlert = false;
+    S.rainDamage = false;
+    S.testRecoveredFromDead = true;
+  }
+  // 선택값은 실제 수치만 바꾸고, 이후 화면 상태는 자동 판정으로 맡깁니다.
+  S.testCare = "auto";
+  save();
+  renderGame();
+  syncTestPanel();
+}
+
+function testGoodCare() {
+  S.testCare = "auto";
+  S.testRecoveredFromDead = true;
+  S.water = 85;
+  S.stress = 0;
+  S.dead = false;
+  S.pestAlert = false;
+  S.waterCnt = Math.max(S.waterCnt || 0, daysSincePlant());
+  S.checkCnt = Math.max(S.checkCnt || 0, Math.ceil(daysSincePlant() / 2));
+  save(); renderGame(); syncTestPanel();
+}
+
+function testBadCare() {
+  S.testCare = "auto";
+  S.water = 8;
+  S.stress = 55;
+  S.dead = false;
+  S.pestAlert = false;
+  save(); renderGame(); syncTestPanel();
+}
+
+function testDead() {
+  S.testCare = "auto";
+  S.dead = true;
+  S.stress = 110;
+  S.water = 0;
+  save(); renderGame(); syncTestPanel();
+}
+
+function testResetPlant() {
+  S.growth = 0;
+  S.water = 60;
+  S.stress = 0;
+  S.dead = false;
+  S.harvested = false;
+  S.pestAlert = false;
+  S.rainDamage = false;
+  S.testCare = "auto";
+  S.testRecoveredFromDead = false;
+  S.actionCounts = {};
+  S.unlockedActions = BASE_UNLOCKED_ACTIONS.slice();
+  PLANT_VIEW_STATE.lastStageIdx = null;
+  PLANT_VIEW_STATE.lastProfile = "ok";
+  PLANT_VIEW_STATE.lastGrowth = 0;
+  save(); renderGame(); syncTestPanel();
+  toast("🧪 테스트 상태를 초기화했어요.", "blue");
+}
+
+function testToggleAnimation() {
+  const now = getStage().idx;
+  const prev = Math.max(0, now - 1);
+  PLANT_VIEW_STATE.lastStageIdx = prev;
+  PLANT_VIEW_STATE.lastProfile = getCareProfile();
+  S.growth = STAGES[now].min;
+  save(); renderGame(); syncTestPanel();
 }
 
 // =============================================
@@ -2060,16 +2501,41 @@ function renderGame() {
   document.getElementById("game-content").style.display = hasSeed ? "block" : "none";
   if (!hasSeed) return;
 
-  const stage = getStage();
+  const stageInfo = getStageProgressInfo();
+  const stage = stageInfo.stage;
   const pv = document.getElementById("plant-visual");
+  normalizeCareState();
   const careProfile = getCareProfile();
   S.careMark = careProfile;
-  pv.innerHTML = enhancePlantSVG(PLANT_SVG[stage.idx] || PLANT_SVG[0], stage.idx, careProfile);
+  const prevStageIdx = PLANT_VIEW_STATE.lastStageIdx;
+  const stageChanged = prevStageIdx !== null && prevStageIdx !== stage.idx;
+
   pv.classList.remove("grow-in","sway","plant-healthy","plant-ok","plant-dry","plant-overwater","plant-pest","plant-dead");
   pv.classList.add("plant-" + careProfile);
-  void pv.offsetWidth; // reflow
-  pv.classList.add("grow-in");
-  setTimeout(() => { pv.classList.remove("grow-in"); pv.classList.add("sway"); }, 500);
+
+  if (PLANT_VIEW_STATE.animTimer) { clearTimeout(PLANT_VIEW_STATE.animTimer); PLANT_VIEW_STATE.animTimer = null; }
+
+  if (stageChanged) {
+    pv.innerHTML = buildStageChangeMarkup(prevStageIdx, stage.idx, PLANT_VIEW_STATE.lastProfile, careProfile, stageInfo.progress);
+    toast(`🌟 ${stage.name} 단계로 자랐어요!`, "green");
+    void pv.offsetWidth;
+    pv.classList.add("grow-in");
+    PLANT_VIEW_STATE.animTimer = setTimeout(() => {
+      pv.innerHTML = buildPlantVisualMarkup(stageInfo, careProfile);
+      pv.classList.remove("grow-in");
+      pv.classList.add("sway");
+      PLANT_VIEW_STATE.animTimer = null;
+    }, 1050);
+  } else {
+    pv.innerHTML = buildPlantVisualMarkup(stageInfo, careProfile);
+    void pv.offsetWidth;
+    pv.classList.add("grow-in");
+    setTimeout(() => { pv.classList.remove("grow-in"); pv.classList.add("sway"); }, 500);
+  }
+
+  PLANT_VIEW_STATE.lastStageIdx = stage.idx;
+  PLANT_VIEW_STATE.lastProfile = careProfile;
+  PLANT_VIEW_STATE.lastGrowth = S.growth;
 
   document.getElementById("plant-name").textContent   = S.name + "의 방울토마토";
   const sb = document.getElementById("stage-badge");
@@ -2091,6 +2557,8 @@ function renderGame() {
   renderActions();
   updateAlerts();
   checkNewUnlockedActions();
+
+  syncTestPanel();
 
   if (S.dead) {
     const waterAlert = document.getElementById("alert-water");
@@ -2206,7 +2674,7 @@ function renderEnv() {
   wb.classList.toggle("active", env==="window");
   if (st) {
     const sunEff = env==="outdoor" ? "100%" : "65%";
-    const risk   = env==="outdoor" ? "비·강풍·병충해 가능" : "안전 (병충해 낮음)";
+    const risk   = env==="outdoor" ? "자연 환기 중 · 비·강풍·병충해 가능" : "환기 관리 필요 · 병충해 낮음";
     st.textContent = "현재: "+( env==="outdoor"?"야외 ☀️":"교실 창가 🪟")+" | 일조 효율 "+sunEff+" | "+risk;
   }
 }
@@ -2222,12 +2690,21 @@ function renderActions() {
   const box = document.getElementById("action-box");
   if (!box) return;
   const stage = getStage();
+  const env = S.env || "outdoor";
   box.innerHTML = ACTIONS.map(a => {
+    if (a.id === "vent" && env === "outdoor") {
+      return '<div class="locked-action"><div class="lock-icon">🌬</div><small>야외에서는 자연 환기가 되고 있어요.</small></div>';
+    }
     if (stage.idx >= a.unlockStage) {
-      const disabled = (!a.repeat && doneTd(a.id)) ? " disabled" : "";
-      const doneTxt = (!a.repeat && doneTd(a.id)) ? "오늘은 완료했어요." : a.short;
-      return '<button class="action-btn '+a.colorClass+'" onclick="doAction(\''+a.id+'\')"'+disabled+'>'+ 
-        '<strong>'+a.label+'</strong><small>'+doneTxt+'</small></button>';
+      const n = actionUseCount(a.id);
+      if (a.id === "stake" && S.stakeSet) {
+        return '<button class="action-btn '+a.colorClass+'" disabled>'+ 
+          '<strong>🪵 지지대 설치 완료</strong><small>한 번 세운 지지대가 계속 받쳐주고 있어요.</small></button>';
+      }
+      let countTxt = n > 0 ? "오늘 " + n + "회 실행" : a.short;
+      if (a.id === "fertilize") countTxt = fertilizeGuideText();
+      return '<button class="action-btn '+a.colorClass+'" onclick="doAction(\''+a.id+'\')">'+ 
+        '<strong>'+a.label+'</strong><small>'+countTxt+'</small></button>';
     }
     const unlockStageName = STAGES[a.unlockStage] ? STAGES[a.unlockStage].name : "다음";
     return '<div class="locked-action"><div class="lock-icon">🔒</div><small>'+unlockStageName+' 단계 이상일 때 열립니다.</small></div>';
@@ -2262,6 +2739,86 @@ function closeUnlockModal() {
 }
 
 function doneTd(k) { return (S.todayActions||[]).includes(k+"-"+today()); }
+
+function countActionUse(type) {
+  const key = type + "-" + today();
+  if (!S.actionCounts || typeof S.actionCounts !== "object") S.actionCounts = {};
+  S.actionCounts[key] = (S.actionCounts[key] || 0) + 1;
+  return S.actionCounts[key];
+}
+
+function actionUseCount(type) {
+  const key = type + "-" + today();
+  return (S.actionCounts && S.actionCounts[key]) || 0;
+}
+
+function daysSinceLastAction(type) {
+  const arr = (S.diary || []).filter(d => (d.txt || "").includes(type));
+  return arr.length ? Math.floor((Date.now() - new Date(arr[0].date || today()).getTime()) / 86400000) : 999;
+}
+
+function fertilizeGuideText() {
+  const total = S.fertCnt || 0;
+  const stage = getStage().idx;
+  let base = "권장: 전체 재배 중 2~3회, 최소 5일 간격";
+  if (stage < 2) return "본잎 단계부터 필요해요.";
+  if (total === 0) return base + " · 아직 0회";
+  if (total <= 2) return base + " · 현재 " + total + "회로 적정";
+  if (total === 3) return base + " · 현재 3회, 이제 충분해요";
+  return "현재 " + total + "회 · 비료 과다 주의!";
+}
+
+function canStakeAgain() {
+  return !S.stakeSet;
+}
+
+function applyOverActionPenalty(type) {
+  const n = actionUseCount(type);
+  if (n <= 1) return;
+
+  // 행동별 과잉 기준과 페널티
+  const overRules = {
+    check:      { safe:4, stress:1, msg:"🔍 너무 자주 만지며 관찰하면 잎과 줄기에 상처가 날 수 있어요." },
+    vent:       { safe:3, stress:2, msg:"🌬 환기를 너무 오래 하면 식물이 갑자기 차가운 바람을 맞을 수 있어요." },
+    warm:       { safe:2, stress:3, msg:"🧥 보온을 너무 많이 하면 통풍이 부족하고 웃자랄 수 있어요." },
+    fertilize:  { safe:1, stress:6, msg:"🌿 비료는 전체 2~3회 정도가 적당해요. 너무 자주 주면 뿌리가 상할 수 있어요." },
+    stake:      { safe:1, stress:0, msg:"🪵 지지대는 한 번 설치하면 계속 유지돼요." },
+    pollinate:  { safe:3, stress:2, msg:"🌼 꽃을 너무 세게 또는 자주 흔들면 꽃이 떨어질 수 있어요." },
+    prune:      { safe:1, stress:7, msg:"✂️ 곁순을 너무 많이 정리하면 잎이 부족해져 성장에 불리해요." },
+    fruitCheck: { safe:3, stress:2, msg:"🍅 열매를 너무 자주 만지면 열매가 상처 입을 수 있어요." }
+  };
+  const rule = overRules[type];
+  if (!rule || n <= rule.safe) return;
+
+  const excess = n - rule.safe;
+  S.stress = Math.min(120, (S.stress || 0) + rule.stress * excess);
+
+  if (type === "vent") {
+    S.water = Math.max(0, S.water - 4 * excess);
+    if (W.temp !== null && W.temp < 15) S.growth = Math.max(0, S.growth - 2 * excess);
+  }
+  if (type === "warm") {
+    S.water = Math.max(0, S.water - 3 * excess);
+    if (S.env === "window") S.pestAlert = Math.random() < 0.18 * excess ? true : S.pestAlert;
+  }
+  if (type === "fertilize") {
+    S.growth = Math.max(0, S.growth - 5 * excess);
+    S.water = Math.max(0, S.water - 2 * excess);
+  }
+  if (type === "prune") {
+    S.growth = Math.max(0, S.growth - 6 * excess);
+  }
+  if (type === "pollinate") {
+    S.growth = Math.max(0, S.growth - 2 * excess);
+  }
+
+  if (n === rule.safe + 1 || n % 3 === 0) {
+    addDiary("⚠️", rule.msg + " 오늘 같은 행동을 " + n + "번 했어요.");
+    addLog("⚠️ 과잉 관리 주의: " + rule.msg);
+    toast(rule.msg, "orange");
+  }
+}
+
 function markTd(k) { if(!S.todayActions)S.todayActions=[]; S.todayActions.push(k+"-"+today()); }
 function addLog(txt) {
   const log = document.getElementById("act-log");
@@ -2288,16 +2845,12 @@ function doAction(type) {
     return;
   }
 
-  // 물주기는 횟수 제한 없음 (과수분 페널티로 자연 조절)
-  if (type !== "water" && type !== "pest" && doneTd(type)) {
-    const msgs = {
-      vent:"오늘은 이미 환기했어요!", warm:"오늘은 이미 보온했어요!", check:"오늘은 이미 관찰했어요!",
-      fertilize:"오늘은 이미 비료를 줬어요!", stake:"오늘은 이미 지지대를 확인했어요!",
-      pollinate:"오늘은 이미 꽃을 흔들어 줬어요!", prune:"오늘은 이미 곁순을 정리했어요!",
-      fruitCheck:"오늘은 이미 열매를 살폈어요!"
-    };
-    toast(msgs[type]||"이미 했어요!","blue"); return;
+  // 행동 횟수 제한은 없지만, 같은 행동을 과도하게 반복하면 문제가 생깁니다.
+  if (type === "vent" && (S.env || "outdoor") === "outdoor") {
+    toast("🌬 야외에서는 이미 자연 환기가 되고 있어요. 환기 행동은 교실 창가에서 필요해요.", "blue");
+    return;
   }
+  countActionUse(type);
 
   if (type==="water") {
     S.water = S.water + 30; // 100% 초과 허용
@@ -2314,61 +2867,105 @@ function doAction(type) {
       addDiary("💧","물을 주었어요! 수분 "+Math.round(S.water)+"%");
     }
     addLog(wmsg);
-    if (S.water >= 45 && S.water <= 125) S.stress = Math.max(0, (S.stress||0) - 6);
-    S.dead = false;
+    if (S.water >= 45 && S.water <= 125) {
+      S.stress = Math.max(0, (S.stress||0) - 18);
+      if (S.testCare === "dry") S.testCare = "auto";
+      if (S.careMark === "dry") S.careMark = "ok";
+    }
+    // 물을 줘서 정상 범위로 돌아오면 '물 부족' 강제 표시를 해제합니다.
+    // 단, 과습 범위가 되면 자동 상태 판정에서 과습으로 보이게 둡니다.
+    if (S.water > 30) S.testCare = "auto";
+    if (S.water >= 45 && S.water <= 125) { S.dead = false; S.testRecoveredFromDead = true; }
+    normalizeCareState();
     toast(wmsg, wcolor);
     save(); renderGame(); return;
   } else if (type==="vent") {
+    const n = actionUseCount("vent");
     if (W.temp&&W.temp>30) { S.growth=Math.min(1000,S.growth+5); toast("더운 날 환기 효과! 🌬","orange"); }
     else toast("시원하게 환기했어요.","orange");
     S.ventCnt++;
-    addDiary("🌬","환기를 했어요. 더운 공기와 습기를 빼 주었어요."); addLog("🌬 환기 완료!");
+    if (S.water > 120) S.water = Math.max(0, S.water - 12);
+    if (S.water < 140 && S.careMark === "overwater") S.careMark = "ok";
+    addDiary("🌬","환기를 했어요. 더운 공기와 습기를 빼 주었어요. 오늘 "+n+"번째 환기예요.");
+    addLog("🌬 환기 완료! ("+n+"회)");
+    applyOverActionPenalty("vent");
   } else if (type==="warm") {
+    const n = actionUseCount("warm");
     if (W.temp&&W.temp<15) { S.growth=Math.min(1000,S.growth+5); toast("추운 날 보온 효과! 🧥","green"); }
     else toast("따뜻하게 보온해 줬어요.","green");
     S.warmCnt++;
-    addDiary("🧥","보온을 했어요. 낮은 기온으로부터 식물을 보호했어요."); addLog("🧥 보온 완료!");
+    addDiary("🧥","보온을 했어요. 낮은 기온으로부터 식물을 보호했어요. 오늘 "+n+"번째 보온이에요.");
+    addLog("🧥 보온 완료! ("+n+"회)");
+    applyOverActionPenalty("warm");
   } else if (type==="check") {
     const stage = getStage();
+    const n = actionUseCount("check");
     S.checkCnt++;
     S.stress = Math.max(0, (S.stress||0) - 2);
-    addDiary("🔍","관찰: "+stage.desc);
-    addLog("🔍 관찰! "+stage.name+" 단계");
+    if (S.testCare === "dry" && S.water > 30) S.testCare = "auto";
+    addDiary("🔍","관찰: "+stage.desc+" 오늘 "+n+"번째 관찰이에요.");
+    addLog("🔍 관찰! "+stage.name+" 단계 ("+n+"회)");
     toast("🔍 "+stage.desc,"green");
+    applyOverActionPenalty("check");
   } else if (type==="fertilize") {
+    const n = actionUseCount("fertilize");
     S.fertCnt = (S.fertCnt||0) + 1;
-    S.stress = Math.max(0, (S.stress||0) - 3);
-    S.growth = Math.min(1000, S.growth + 8);
-    addDiary("🌿","비료를 조금 주었어요. 잎과 줄기가 자라는 데 필요한 영양분을 보충했어요.");
-    addLog("🌿 비료 주기 완료!");
-    toast("🌿 영양분을 보충했어요! 너무 자주 주지는 마세요.","green");
+    const total = S.fertCnt || 0;
+
+    if (total <= 3 && n === 1) {
+      S.stress = Math.max(0, (S.stress||0) - 3);
+      S.growth = Math.min(1000, S.growth + 8);
+      addDiary("🌿","비료를 조금 주었어요. 권장 횟수는 전체 재배 중 2~3회 정도예요. 현재 총 "+total+"회입니다.");
+      addLog("🌿 비료 주기 완료! 총 "+total+"회 / 권장 2~3회");
+      toast("🌿 영양분을 보충했어요! 권장 총 2~3회, 최소 5일 간격이 좋아요.","green");
+    } else {
+      S.stress = Math.min(120, (S.stress||0) + 8);
+      S.growth = Math.max(0, S.growth - 5);
+      addDiary("⚠️","비료를 너무 자주 주었어요. 비료 과다는 뿌리를 상하게 하고 성장을 방해할 수 있어요. 현재 총 "+total+"회입니다.");
+      addLog("⚠️ 비료 과다 주의! 총 "+total+"회");
+      toast("⚠️ 비료가 너무 많아요. 전체 2~3회 정도가 적당해요.","orange");
+    }
+    applyOverActionPenalty("fertilize");
   } else if (type==="stake") {
+    if (S.stakeSet) {
+      toast("🪵 지지대는 이미 세워져 있어요. 한 번 설치하면 계속 유지됩니다.", "blue");
+      addLog("🪵 지지대는 이미 설치되어 있어요.");
+      save(); renderGame(); return;
+    }
+    const n = actionUseCount("stake");
     S.stakeSet = true;
     S.growth = Math.min(1000, S.growth + 5);
-    addDiary("🪵","지지대를 세웠어요. 줄기가 쓰러지지 않도록 받쳐 주었어요.");
-    addLog("🪵 지지대 세우기 완료!");
+    addDiary("🪵","지지대를 확인했어요. 줄기가 쓰러지지 않도록 받쳐 주었어요. 오늘 "+n+"번째 지지대 확인이에요.");
+    addLog("🪵 지지대 확인 완료! ("+n+"회)");
     toast("🪵 줄기를 튼튼하게 받쳐 주었어요!","green");
+    applyOverActionPenalty("stake");
   } else if (type==="pollinate") {
+    const n = actionUseCount("pollinate");
     S.pollinateCnt = (S.pollinateCnt||0) + 1;
     S.growth = Math.min(1000, S.growth + 8);
-    addDiary("🌼","꽃을 살짝 흔들어 주었어요. 꽃가루가 옮겨져 열매가 맺히는 데 도움이 돼요.");
-    addLog("🌼 꽃 흔들어주기 완료!");
+    addDiary("🌼","꽃을 살짝 흔들어 주었어요. 꽃가루가 옮겨져 열매가 맺히는 데 도움이 돼요. 오늘 "+n+"번째예요.");
+    addLog("🌼 꽃 흔들어주기 완료! ("+n+"회)");
     toast("🌼 열매가 맺힐 가능성이 높아졌어요!","orange");
+    applyOverActionPenalty("pollinate");
   } else if (type==="prune") {
+    const n = actionUseCount("prune");
     S.pruneCnt = (S.pruneCnt||0) + 1;
     S.growth = Math.min(1000, S.growth + 6);
-    addDiary("✂️","곁순을 정리했어요. 영양분이 열매로 잘 가도록 도왔어요.");
-    addLog("✂️ 곁순 정리 완료!");
+    addDiary("✂️","곁순을 정리했어요. 영양분이 열매로 잘 가도록 도왔어요. 오늘 "+n+"번째 정리예요.");
+    addLog("✂️ 곁순 정리 완료! ("+n+"회)");
     toast("✂️ 영양분이 열매로 잘 갈 수 있게 했어요!","green");
+    applyOverActionPenalty("prune");
   } else if (type==="fruitCheck") {
+    const n = actionUseCount("fruitCheck");
     S.fruitCheckCnt = (S.fruitCheckCnt||0) + 1;
     S.checkCnt++;
-    addDiary("🍅","열매를 살폈어요. 갈라짐, 병든 부분, 익은 정도를 확인했어요.");
-    addLog("🍅 열매 살피기 완료!");
+    addDiary("🍅","열매를 살폈어요. 갈라짐, 병든 부분, 익은 정도를 확인했어요. 오늘 "+n+"번째예요.");
+    addLog("🍅 열매 살피기 완료! ("+n+"회)");
     toast("🍅 열매 상태를 확인했어요!","red");
+    applyOverActionPenalty("fruitCheck");
   } else if (type==="pest") {
-    S.pestAlert = false; S.pestDay = "";
-    S.stress = Math.max(0, (S.stress||0) - 12);
+    S.pestAlert = false; S.pestDay = ""; S.testCare = "auto"; S.careMark = "ok";
+    S.stress = Math.max(0, (S.stress||0) - 18);
     S.growth = Math.max(0, S.growth - 20); // 처리 후 소폭 성장 손실
     addDiary("🌿","병충해를 처리했어요! 이제 괜찮아요.");
     addLog("🌿 병충해 처리 완료!");
