@@ -1,0 +1,30 @@
+const fs=require('fs'), vm=require('vm'), assert=require('assert');
+const html=fs.readFileSync('index.html','utf8');
+const code=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).join('\n');
+new vm.Script(code);
+function section(a,b){return code.slice(code.indexOf(a),code.indexOf(b,code.indexOf(a)));}
+const elements={};
+function element(){return {children:[],style:{},append(...v){this.children.push(...v)},replaceChildren(){this.children=[]}};}
+elements['growth-comparison']=element();
+const c={S:{stars:0,items:[],equip:{},photos:[]},save(){},renderShop(){},document:{getElementById:id=>elements[id],createElement:element}};
+vm.createContext(c);
+vm.runInContext(section('const ITEMS =','let SHOP_TAB ='),c);
+vm.runInContext(section('function itemUnlocked(','function renderShop('),c);
+vm.runInContext(section('function findItem(','function openShop('),c);
+vm.runInContext(section('function renderGrowthComparison(','function renderPhotos('),c);
+vm.runInContext('unlockItem("pot_label")',c);
+assert.equal(c.S.equip.pot_label,'pot_label');
+assert.equal(c.S.stars,0);
+vm.runInContext('unlockItem("basket")',c);
+assert.equal(c.S.equip.basket,'basket');
+vm.runInContext('renderGrowthComparison()',c);
+assert.equal(elements['growth-comparison'].children.length,0);
+c.S.photos=[{img:'latest',stage:'열매'},{img:'first',stage:'새싹'}];
+vm.runInContext('renderGrowthComparison()',c);
+const row=elements['growth-comparison'].children[1];
+assert.equal(row.children[0].children[0].src,'first');
+assert.equal(row.children[1].children[0].src,'latest');
+c.S.photos=[];
+vm.runInContext('renderGrowthComparison()',c);
+assert.equal(elements['growth-comparison'].children.length,0);
+console.log('PASS: syntax, free cosmetics without progress/currency, album chronology and empty state');

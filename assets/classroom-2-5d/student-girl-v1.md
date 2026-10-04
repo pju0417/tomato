@@ -1,0 +1,9 @@
+# 여학생 캐릭터
+
+student-girl-poses-v1.png — 1536×1024 투명 PNG. 내장 image_gen으로 기존 학생 시트를 참조하여 제작했습니다.
+윗줄: 정면 / 오른쪽 / 뒷모습 / 왼쪽. 아랫줄: 걷기 / 화분 들기 / 물주기 / 관찰.
+기존 학생과 같은 크림 셔츠, 세이지 멜빵바지, 복숭아색 운동화와 점토 질감에 짧은 양갈래 머리를 적용했습니다.
+자세 시안이며 연속 애니메이션이 아닙니다. 실제 적용 전 개별 영역 분리와 크기·발밑 기준점 정렬이 필요합니다.
+
+## 최종 생성 프롬프트
+Use case: stylized-concept. Create a matching GIRL elementary-school student sprite sheet using this existing student sheet as exact style, proportions, lighting, clothing material and layout reference. A friendly young schoolgirl with dark brown hair in two short low pigtails tied with tiny muted peach hair ties, gently curved bangs, same simple dark oval eyes, rosy cheeks and warm smile as reference. Cream short sleeve shirt, sage green short gardening overalls, cream socks and peach sneakers. Practical child clothing, same body size as existing student. Cute rounded matte clay 2.5D classroom game aesthetic, softly elevated viewpoint, warm upper-left light. Exactly eight separate full-body poses in a spacious 4-column 2-row sheet. Row 1: front facing viewer, right profile facing right, back view with no face visible, left profile facing left. Row 2: walking toward right in three-quarter view; carrying a small terracotta potted cherry tomato in both hands; watering a small tomato pot with sage green watering can; crouching observing a small tomato plant. Same girl identity, pigtails, clothes and body proportions in ALL eight sprites. Entire bodies and props fully contained with generous padding, no overlaps between cells. Genuinely transparent background with clean alpha, no painted backdrop, no room, no colored halo or vignette, no checkerboard painted, no text or labels or watermark. Preserve existing reference's visual style so girl and original student belong in the same game. This is a new companion asset, do not include original student.
