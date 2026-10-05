@@ -1,0 +1,35 @@
+/* Warm ceramic controls and wooden trim, matching the classroom artwork. */
+:root{--bg:#f7f0e2;--bg2:#eee1cb;--green:#708b59;--dgreen:#41583b;--lgreen:#e2e9d3;--mgreen:#edf0e2;--red:#c87960;--brown:#886448;--ink:#493c30;--ink2:#736451;--line:#ddceb5;--shadow:0 5px 0 #d9c8ab,0 12px 24px #785f3510;--radius:24px}
+body{background:radial-gradient(ellipse at top,#fffaf0,#f3e8d5);color:var(--ink)}
+header,.room-hud{background:linear-gradient(#faf1de,#eddbbd);color:#4d5139;border-bottom:4px solid #bf966b;box-shadow:inset 0 2px #fffdf4,0 4px 12px #785c3820;padding:12px 18px;gap:12px}
+.room-hud .rh-title{font-size:1rem;letter-spacing:.02em}.room-hud .rh-sub{color:#6c644f;opacity:1;margin-top:3px}
+.rh-pill,.weather-badge,.mode-badge{color:#475a3d;background:#e5ead8;border:1px solid #c6d1b4;box-shadow:inset 0 2px 2px #ffffffab;padding:8px 12px}
+.rh-btn,.act-mini{background:linear-gradient(#fffbef,#e9d9bd);color:#665039;border:1px solid #c9ad87;box-shadow:inset 0 2px #fff,0 3px 0 #bca07c;border-radius:16px;min-height:44px}
+#screen-room,.room-stage{background:#f8f3e8}.room-stage{background:radial-gradient(ellipse at center,#fffdf8,#f0e5d2)}
+#room-canvas{border-radius:22px}
+.room-controls{background:linear-gradient(#f3e7d2,#e9d6b8);border-top:3px solid #cfad80;height:138px;padding:12px 22px 18px;box-shadow:inset 0 2px #fff9ed}
+.joystick{background:radial-gradient(circle,#eee0c7 50%,#d8c2a0);border:2px solid #c3a780;box-shadow:inset 0 4px 8px #8e71452a,0 2px #fffcf4;width:98px;height:98px;opacity:1}
+.joystick .jk-knob{background:radial-gradient(circle at 35% 25%,#b6c99b,#829968);border:2px solid #718659;box-shadow:inset 0 3px 2px #dbe7c5,0 5px 7px #67583d33}
+.joystick .jk-hint{color:#73634b;bottom:-18px}.room-hintbar{color:#61523e;top:-27px;text-shadow:0 1px #fff}
+.act-big,.btn-green,.item button,.friend-card .fc-go{background:linear-gradient(#91a877,#6b8655);border:1px solid #657a50;color:#fffdf3;box-shadow:inset 0 2px #bdcda1,0 4px 0 #526b42,0 6px 12px #4d603522;border-radius:18px}
+.act-big:disabled,.btn:disabled{background:#ded2bb;color:#756a58;border:1px solid #c3b59a;box-shadow:inset 0 2px #f4edde;opacity:.8}
+.btn,.pot-menu button,.chalk-btn,.part-tab,.act-mini,.rh-btn,.item button{transition:transform .12s,box-shadow .12s,filter .12s}
+button:active:not(:disabled){transform:translateY(2px)}button:focus-visible{outline:3px solid #4e6c3d;outline-offset:4px}
+.btn-gray,.btn-blue,.btn-purple,.btn-orange,.btn-brown{background:linear-gradient(#f5e4c8,#ddbd95);border:1px solid #c6a47a;color:#57432f;box-shadow:inset 0 2px #fff5e4,0 3px 0 #b6956e}
+.card,.modal{background:#fffaf0;border:1px solid #dfcdb0;border-radius:24px;box-shadow:inset 0 2px #fff,0 5px 0 #dcc7a7,0 15px 35px #6d513f16}
+.modal{padding:24px;max-height:85dvh}.modal-bg{background:rgba(64,51,36,.36);backdrop-filter:blur(4px)}
+.modal h3,.card-title{color:#526843}.modal-x{background:#eee0c7;color:#6f5539;border-radius:50%;width:36px;height:36px}
+.helper-bubble{background:#fff9e9;border:2px solid #c6d1ad;color:#534b3b;box-shadow:0 4px 0 #d4c8a7,0 8px 20px #806d3d20;border-radius:22px}
+.helper-bubble .hb-name{color:#60754c}.interact-tip{background:#fff6e5;color:#534632;border:1px solid #ccb18c;box-shadow:0 3px 0 #b99a72}.interact-tip b{color:#4e6c3d}
+.carry-banner{background:#e5ecd7;color:#4b603c;border:2px solid #a5b68b;box-shadow:0 3px 0 #8d9f72}
+.chalk{background:linear-gradient(135deg,#607760,#3f5b48);border:9px solid #c29160;border-radius:24px;box-shadow:inset 0 0 25px #172d2438,0 5px 0 #94724e}
+.chalk-btn{background:#ffffff12;border:1px solid #b3c4a980;box-shadow:inset 0 1px #ffffff24,0 3px #263f3533;border-radius:18px}
+.pot-menu button,.sticker-grid button,.part-tab,.shop-tabs button{background:linear-gradient(#fffdf5,#f0e4ce);border:1px solid #d7bf9c;box-shadow:inset 0 2px #fff,0 3px 0 #d6bf9e;color:#61503d;border-radius:18px}
+.part-tab.on,.shop-tabs button.on{background:#e2ebd3;border-color:#98ad7c;color:#435b37;box-shadow:inset 0 2px #f3f8e9,0 3px #aabd90}
+.part-txt,.star-head{background:#f2e9d8;border-color:#dfceb0;color:#69563c;border-radius:18px}
+.item,.item.owned{background:#f7efdf;border:1px solid #ddc8a6;border-radius:20px}.item.equipped{background:#e9efdd;border:2px solid #92a878;box-shadow:0 3px #bdcda5}.item button.eq{background:#8c735a;border-color:#755f49}
+.bottom-nav{background:#faf1df;border-top:3px solid #d4b488;box-shadow:0 -4px 18px #8b6d3920}.nav-btn{color:#85735c}.nav-btn.on{color:#526e3f;background:#e5ebd5;border-radius:18px 18px 0 0}.nav-btn span{filter:none}
+input,select,textarea{background-color:#fffdf6!important;border-color:#d8bf99!important;color:#514531;border-radius:14px!important;box-shadow:inset 0 2px 4px #79613f0c}
+.start-card{background:#fffaf0;border:2px solid #e1c9a5;border-radius:28px;box-shadow:0 6px 0 #ddc49e,0 16px 30px #91744815}
+@media(max-width:600px){.room-hud{padding:9px 10px;gap:6px;flex-wrap:wrap}.room-hud .rh-title{font-size:.85rem}.rh-pill{font-size:.68rem;padding:6px 8px}.room-controls{height:120px;padding:9px 14px 14px}.joystick{width:82px;height:82px}.act-big{min-height:52px}.modal{padding:20px}.cc-wrap{flex-wrap:wrap}.cc-opts{min-width:180px}.room-hintbar{font-size:.65rem}.card{padding:16px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition:none!important}}

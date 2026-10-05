@@ -2,6 +2,8 @@
 (() => {
   const base = 'assets/classroom-2-5d/';
   const art = {ready:false};
+  const gait={phase:0,lastMoved:0};
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   const legacy = {drawChar, drawPot, drawFloor, drawObject, buildPlantVisualMarkup, buildStageChangeMarkup, renderShop, renderCC, drawRoom};
   function load(file) { return new Promise((resolve,reject) => {const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error(file));im.src=base+file;}); }
   function cut(im, cols, rows) {
@@ -22,9 +24,26 @@
   drawChar=function(g,x,y,scale,look,face,walk,equip){
     if(!art.ready)return legacy.drawChar(g,x,y,scale,look,face,walk,equip);
     const tiles=look && look.avatar===1?art.girl:art.boy;
-    const bob=walk?Math.abs(Math.sin(walk))*1.8:0;
-    g.save();g.fillStyle='rgba(60,45,25,.14)';g.beginPath();g.ellipse(x,y,14*scale,4*scale,0,0,7);g.fill();
-    sprite(g,tiles[face||0],x,y-bob,70*scale);g.restore();
+    const moving=!!walk&&performance.now()-gait.lastMoved<120;
+    const phase=gait.phase,amount=reducedMotion.matches ? .35 : 1;
+    const stride=moving?Math.sin(phase)*amount:0;
+    const lift=moving?Math.abs(Math.sin(phase))*1.4*amount:0;
+    const im=tiles[face||0],h=70*scale,w=h*im.width/im.height;
+    g.save();g.fillStyle='rgba(60,45,25,.14)';g.beginPath();g.ellipse(x,y,(14-lift)*scale,4*scale,0,0,7);g.fill();
+    g.translate(x,y);g.rotate(stride*.025);
+    if(!moving){sprite(g,im,0,0,h);g.restore();return;}
+    // Articulated lower-leg strips swing alternately while the torso stays connected.
+    const split=Math.round(im.height*.76),overlap=3;
+    const lowerH=(im.height-split)/im.height*h;
+    for(let leg=0;leg<2;leg++){
+      const sign=leg?1:-1,step=stride*sign;
+      g.save();g.translate((leg-.5)*w/2,-lowerH-lift*scale);
+      g.rotate(step*.19);
+      g.drawImage(im,leg*im.width/2,split,im.width/2,im.height-split,-w/4,0,w/2,lowerH);
+      g.restore();
+    }
+    g.drawImage(im,0,0,im.width,split+overlap,-w/2,-h-lift*scale,w,(split+overlap)/im.height*h);
+    g.restore();
   };
   drawPot=function(g,x,y,scale,opts={}){
     if(!art.ready)return legacy.drawPot(g,x,y,scale,opts);
@@ -72,7 +91,7 @@
   // Click movement follows clear floor cells instead of pushing into desks.
   let route=[];
   const originalMove=movePlayer;
-  movePlayer=function(dx,dy,dt){if(ROOM.target)dt=Math.min(dt,Math.hypot(ROOM.target[0]-ROOM.px,ROOM.target[1]-ROOM.py)/168);originalMove(dx,dy,dt);};
+  movePlayer=function(dx,dy,dt){const x=ROOM.px,y=ROOM.py;if(ROOM.target)dt=Math.min(dt,Math.hypot(ROOM.target[0]-ROOM.px,ROOM.target[1]-ROOM.py)/168);originalMove(dx,dy,dt);const distance=Math.hypot(ROOM.px-x,ROOM.py-y);if(distance>.01){gait.phase+=distance*.14;gait.lastMoved=performance.now();}};
   function routeTo(tx,ty){
     const solids=mapSolids(ROOM.map),step=14;
     const nodes=[];const byKey=new Map();
