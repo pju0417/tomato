@@ -35,4 +35,6 @@ input,select,textarea{background-color:#fffdf6!important;border-color:#d8bf99!im
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition:none!important}}
 .room-stage{background-color:#e8ddc5;background-image:linear-gradient(90deg,transparent 49%,#b8c1a546 49%,#b8c1a546 51%,transparent 51%),linear-gradient(0deg,transparent 49%,#baaa8f40 49%,#baaa8f40 51%,transparent 51%),linear-gradient(0deg,#e7bd8e35 0 12%,transparent 12% 88%,#e7bd8e35 88%);background-size:76px 76px,76px 76px,100% 100%;box-shadow:inset 0 8px 24px #6d59331a}
 #room-canvas{border-radius:0;box-shadow:0 0 28px #8e785824}
+.room-stage{background:#e9ddc6 url('classroom-connected-v6.png') center center / auto 100% repeat-x;box-shadow:none}
+#room-canvas{box-shadow:none}
 .room-hintbar{background:#fff4dfdf;border:1px solid #d6be96;border-radius:999px;left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:94%;padding:3px 12px;top:-31px}

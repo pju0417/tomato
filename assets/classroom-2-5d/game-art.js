@@ -88,6 +88,8 @@
   const places={window:[310,174],nearwin:[575,174],center:[493,500],back:[115,448],shelf:[139,290],shade_in:[163,208]};
   SPOTS.forEach(s=>{if(places[s.id]){[s.x,s.y]=places[s.id];if(s.id==='shelf')s.name='사물함 위';}});
   ROOM.px=450;ROOM.py=510;
+  const originalResize=resizeRoomCanvas;
+  resizeRoomCanvas=function(){originalResize();const cv=document.getElementById('room-canvas');if(cv&&cv.parentElement)cv.parentElement.style.backgroundSize=cv.style.width+' '+cv.style.height;};
   // Click movement follows clear floor cells instead of pushing into desks.
   let route=[];
   const originalMove=movePlayer;
@@ -129,7 +131,7 @@
   renderShop=function(){legacy.renderShop();if(!art.ready)return;
     document.querySelectorAll('#shop-grid .item').forEach((node,i)=>{const it=ITEMS[SHOP_TAB][i];const n=potIds.indexOf(it.id);if(n>=0){const img=new Image();img.src=art.pots[n].toDataURL();img.style.cssText='height:76px;max-width:100%;object-fit:contain';img.alt=it.name;node.querySelector('.ii').replaceChildren(img);}});
   };
-  Promise.all([load('classroom-school-v5.png'),load('student-poses-v2.png'),load('student-girl-poses-v1.png'),load('tomato-growth-v2.png'),load('decorative-pots-v2.png'),load('tools-and-accessories-v2.png')]).then(([room,boy,girl,growth,pots,tools])=>{
+  Promise.all([load('classroom-connected-v6.png'),load('student-poses-v2.png'),load('student-girl-poses-v1.png'),load('tomato-growth-v2.png'),load('decorative-pots-v2.png'),load('tools-and-accessories-v2.png')]).then(([room,boy,girl,growth,pots,tools])=>{
     Object.assign(art,{room,boy:cut(boy,4,2),girl:cut(girl,4,2),growth:cut(growth,3,2),pots:cut(pots,3,2),ready:true});
     ITEMS.pot=potIds.map((id,i)=>({id,slot:'pot',icon:'🪴',name:potNames[i],cost:0}));
     // Unsupported dress-up overlays are omitted from the art-based character selector.
